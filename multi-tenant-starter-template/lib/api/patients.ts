@@ -116,6 +116,10 @@ export const TIMELINE_EVENTS: Record<string, string> = {
   "patient.registered": "Paciente registrado",
   "patient.updated": "Datos actualizados",
   "patient.companion_recorded": "Acompañante registrado",
+  "appointment.scheduled": "Cita agendada",
+  "appointment.confirmed": "Cita confirmada",
+  "appointment.rescheduled": "Cita reprogramada",
+  "appointment.cancelled": "Cita cancelada",
 };
 
 const base = (teamId: string) => `/teams/${encodeURIComponent(teamId)}/patients`;

@@ -5,8 +5,8 @@ La identidad (login, usuarios, organizaciones) la gestiona **Clerk**, igual que 
 (`../multi-tenant-starter-template`); esta API solo verifica sus tokens y es dueña de los datos de negocio.
 
 Es el backend del **Sistema de Información Hospitalaria Web para la Consulta Externa** (agendamiento, admisión,
-consulta médica y farmacia). Hoy incluye la base (identidad, multi-tenancy, trazabilidad, `/health`) y el
-contexto **Pacientes**.
+consulta médica y farmacia). Hoy incluye la base (identidad, multi-tenancy, trazabilidad, `/health`) y los
+contextos **Pacientes**, **Personal** y **Agendamiento**.
 
 ## Lenguaje ubicuo
 
@@ -20,6 +20,10 @@ contexto **Pacientes**.
 | **Companion** (acompañante) | Quien viene con el paciente (acudiente de un menor, cuidador…). Todo opcional pero con nombre o teléfono; parentesco: madre, padre, hijo, conyuge, hermano, familiar, cuidador, otro. Cada uno queda numerado (#1, #2…) en el historial del paciente; nunca se sobrescribe al anterior. |
 | **Trace event** (evento de trazabilidad) | Un paso del recorrido del paciente (`patient.registered`, `patient.updated`…). Solo se agregan, nunca se modifican. |
 | **requestedBy / executedBy** | Quién pidió el cambio y quién lo ejecutó; ambos son usuarios de la IPS. Si nadie más lo pidió, son el mismo. |
+| **Service** (servicio) | Lo que ofrece la IPS en consulta externa (Rehabilitación, Medicina general…). Su prefijo (`RTH`) identifica sus turnos. |
+| **Location** (ubicación) | Dónde se atiende y se llama al paciente: tipo + número (“Consultorio 502”). |
+| **Agenda** | Bloque de tiempo de un profesional (rol médico) para un servicio en una ubicación, dividido en cupos iguales. Hora de Colombia. |
+| **Appointment** (cita) | Un paciente en un cupo: agendada → confirmada (→ admisión), o cancelada; se puede reprogramar a otro cupo del mismo servicio. |
 | **Timeline** (historial) | Todos los eventos de un paciente en orden: responde "¿qué pasó con este paciente?". |
 
 ## Contextos delimitados
@@ -29,6 +33,7 @@ contexto **Pacientes**.
 | `identity-access` | Quién llama (verifica el token de sesión de Clerk) y si es miembro del Team (organización activa del token o consulta a Clerk). Capa anticorrupción sobre Clerk. |
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
 | `organizations` | Ficha de cada IPS en la colección **`organizations` de MongoDB**: nombre (igual al de Clerk) y datos propios (NIT con dígito de verificación DIAN, código de habilitación REPS, dirección, municipio, departamento, teléfono, correo institucional). Clerk sigue siendo dueño del acceso. |
+| `scheduling` | Agendamiento: servicios, ubicaciones, agendas con cupos y citas (colecciones `scheduling_*`). Índices únicos parciales impiden dar un cupo a dos pacientes o dos citas a la vez a un paciente. Cada paso de una cita va al historial del paciente. |
 | `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol de Clerk y roles funcionales), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
 | `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexión y transacciones de MongoDB. |
 

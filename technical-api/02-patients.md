@@ -185,6 +185,7 @@ Todo lo que ha pasado con el paciente, **del más antiguo al más reciente**, le
 | `patient.registered` | Datos completos del paciente al registrarlo |
 | `patient.updated` | `{ "changes": [{ "field", "from", "to" }] }` |
 | `patient.companion_recorded` | El acompañante y su `number` |
+| `appointment.*` | Pasos de sus citas: ver [Agendamiento](06-scheduling.md#historial-del-paciente) |
 
 `requestedByName` / `executedByName`: nombre del directorio de personal; `"Usuario eliminado"` si fue anonimizado;
 `null` si aún no se conoce.

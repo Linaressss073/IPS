@@ -9,7 +9,7 @@ import { PatientId } from '../../domain/entities/patient-id.vo.js';
 import { Patient } from '../../domain/entities/patient.entity.js';
 import { PersonName } from '../../domain/entities/person-name.vo.js';
 import { PatientDocument } from './patient.document.js';
-import { normalizeForSearch } from './search-text.js';
+import { normalizeForSearch } from '../../../../shared/domain/index.js';
 
 /** The patient's fields as stored; the companion counter is kept apart. */
 export type PatientFields = Omit<PatientDocument, 'companionCount'>;

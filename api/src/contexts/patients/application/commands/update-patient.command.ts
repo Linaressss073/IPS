@@ -1,4 +1,4 @@
-import { Clock, newTraceEvent } from '../../../../shared/application/index.js';
+import { ActorResolver, Clock, newTraceEvent } from '../../../../shared/application/index.js';
 import { PATIENT_UPDATED } from '../constants/trace-event-types.js';
 import {
   DocumentAlreadyRegisteredError,
@@ -7,7 +7,6 @@ import {
 import { PatientInputMapper } from '../mappings/patient-input.mapper.js';
 import { toPatientView } from '../mappings/patient-view.mapper.js';
 import { PatientRepository } from '../ports/patient.repository.port.js';
-import { ActorResolver } from '../services/actor-resolver.service.js';
 import { PatientFinder } from '../services/patient-finder.service.js';
 import { PatientView, UpdatePatientCommand } from '../types/patient.types.js';
 

@@ -4,6 +4,7 @@ import { MONGO_DB } from '../../shared/infrastructure/persistence/mongo.js';
 import { MongoConnection } from '../../shared/infrastructure/persistence/mongo-connection.js';
 import { IdentityAccessModule } from '../identity-access/identity-access.module.js';
 import { GetStaffNames } from './application/queries/get-staff-names.query.js';
+import { ListTeamStaff } from './application/queries/list-team-staff.query.js';
 import { StaffController } from './entrypoints/http/controllers/staff.controller.js';
 import { staffProviders } from './infrastructure/providers/staff.providers.js';
 import { ApplyIdentityChange } from './application/commands/apply-identity-change.command.js';
@@ -26,6 +27,7 @@ import { PermissionGuard } from './entrypoints/http/guards/permission.guard.js';
   // PermissionGuard/AccessService protect other contexts' endpoints (@RequirePermission).
   exports: [
     GetStaffNames,
+    ListTeamStaff,
     ApplyIdentityChange,
     SyncStaffFromProvider,
     AccessService,

@@ -1,4 +1,4 @@
-import { Clock } from '../../../../shared/application/index.js';
+import { ActorResolver, Clock } from '../../../../shared/application/index.js';
 import { Companion } from '../../domain/entities/companion.vo.js';
 import { PatientId } from '../../domain/entities/patient-id.vo.js';
 import { PatientNotFoundError } from '../errors/patient.errors.js';
@@ -7,7 +7,6 @@ import {
   toCompanionView,
 } from '../mappings/companion.mapper.js';
 import { PatientRepository } from '../ports/patient.repository.port.js';
-import { ActorResolver } from '../services/actor-resolver.service.js';
 import {
   CompanionView,
   RecordCompanionCommand,

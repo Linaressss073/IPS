@@ -184,7 +184,13 @@ describe('Staff directory (e2e)', () => {
 
       expect((await api('carol').get(`/teams/${TEAM_A}/staff/me`)).body).toMatchObject({
         roles: ['admision'],
-        permissions: ['patients:read', 'patients:write', 'admission:manage', 'turns:call'],
+        permissions: [
+          'patients:read',
+          'patients:write',
+          'appointments:read',
+          'admission:manage',
+          'turns:call',
+        ],
       });
       await api('carol').get(patients).expect(200);
       await api('carol').post(patients, patient).expect(201);

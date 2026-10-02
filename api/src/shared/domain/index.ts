@@ -5,3 +5,4 @@ export * from './entities/value-object.js';
 export * from './errors/domain-error.js';
 export * from './utils/contact-normalization.js';
 export * from './utils/uuid.js';
+export * from './utils/search-text.js';

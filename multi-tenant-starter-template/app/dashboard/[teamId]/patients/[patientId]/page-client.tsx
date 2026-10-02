@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { errorMessage } from "@/components/patients/error-message";
 import { NoPermission, useAccess } from "@/components/access/access-context";
 import { CompanionsCard } from "@/components/patients/companions-card";
+import { PatientAppointmentsCard } from "@/components/scheduling/patient-appointments-card";
 import { PatientForm } from "@/components/patients/patient-form";
 import { memberName, TeamMember, useTeamMembers } from "@/components/patients/use-team-members";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,15 @@ export function PageClient() {
                 </CardContent>
               </Card>
 
+              {can("appointments:read") && (
+                <PatientAppointmentsCard
+                  auth={auth}
+                  teamId={teamId}
+                  patientId={patientId}
+                  canBook={can("appointments:manage")}
+                />
+              )}
+
               <CompanionsCard
                 canRecord={canWrite}
                 auth={auth}
@@ -203,7 +213,7 @@ function Timeline(props: { entries: TimelineEntry[] | null; members: TeamMember[
   if (props.entries.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Sin eventos todavía. El historial puede tardar un momento en aparecer.
+        Sin eventos todavía.
       </p>
     );
   }
@@ -223,6 +233,9 @@ function Timeline(props: { entries: TimelineEntry[] | null; members: TeamMember[
             </p>
             {entry.type === "patient.companion_recorded" && (
               <p className="text-muted-foreground">{companionSummary(entry.data)}</p>
+            )}
+            {entry.type.startsWith("appointment.") && (
+              <p className="text-muted-foreground">{appointmentSummary(entry.data)}</p>
             )}
             {changes.length > 0 && (
               <p className="text-muted-foreground">
@@ -247,6 +260,29 @@ function companionSummary(data: Record<string, unknown>) {
     : null;
   const relationship = companion.relationship ? RELATIONSHIPS[companion.relationship] : null;
   return [name ?? companion.phone, relationship].filter(Boolean).join(" · ");
+}
+
+type SlotData = { service?: { code: string; name: string }; location?: { label: string }; date?: string; time?: string };
+
+/** "RTH Rehabilitación · Consultorio 502 · 5 oct 2026, 07:20 (antes: …) · Motivo: …" */
+function appointmentSummary(data: Record<string, unknown>) {
+  const slot = (value: SlotData) =>
+    [
+      value.service && `${value.service.code} ${value.service.name}`,
+      value.location?.label,
+      value.date &&
+        `${new Date(`${value.date}T12:00:00Z`).toLocaleDateString("es-CO", { dateStyle: "medium", timeZone: "UTC" })}, ${value.time}`,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  const from = data.from as SlotData | undefined;
+  return [
+    slot(data as SlotData),
+    from && `antes: ${from.date}, ${from.time}`,
+    typeof data.reason === "string" && `Motivo: ${data.reason}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function formatDateTime(iso: string) {

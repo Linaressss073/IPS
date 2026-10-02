@@ -1,4 +1,4 @@
-import { TeamId, UserId } from '../../../../shared/domain/index.js';
+import { TeamId } from '../../../../shared/domain/index.js';
 
 /** Raw patient data as received from a client, before domain validation. */
 export interface PatientInput {
@@ -24,11 +24,8 @@ export interface CompanionInput {
   email?: string | null;
 }
 
-/** Who executes the command and, optionally, who asked for it. */
-export interface ActorInput {
-  executedBy: UserId;
-  requestedBy?: UserId;
-}
+export type { ActorInput } from '../../../../shared/application/index.js';
+import type { ActorInput } from '../../../../shared/application/index.js';
 
 export interface PatientRef {
   teamId: TeamId;
@@ -122,6 +119,13 @@ export interface CompanionView {
   executedBy: string;
   requestedByName: string | null;
   executedByName: string | null;
+}
+
+/** What other contexts show of a patient. */
+export interface PatientSummaryView {
+  id: string;
+  fullName: string;
+  document: { type: string; number: string };
 }
 
 export interface Page<T> {

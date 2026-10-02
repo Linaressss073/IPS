@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Contact, UserPlus } from "lucide-react";
+import { CalendarDays, Contact, UserPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useAccess } from "@/components/access/access-context";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,14 @@ export function PageClient() {
             <Link href={patientsUrl}>
               <Contact className="mr-2 h-4 w-4" />
               Ver pacientes
+            </Link>
+          </Button>
+          )}
+          {can("appointments:read") && (
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/${teamId}/agenda`}>
+              <CalendarDays className="mr-2 h-4 w-4" />
+              Agenda
             </Link>
           </Button>
           )}
