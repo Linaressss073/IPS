@@ -33,6 +33,7 @@ import { ActorResolver } from '../../application/services/actor-resolver.service
 import { PatientFinder } from '../../application/services/patient-finder.service.js';
 import { DrizzlePatientReadModel } from '../persistence/drizzle-patient.read-model.js';
 import { DrizzlePatientRepository } from '../persistence/drizzle-patient.repository.js';
+import { FallbackPatientTimelineReader } from '../read-models/fallback-patient-timeline.reader.js';
 import { MongoPatientTimelineReader } from '../read-models/mongo-patient-timeline.reader.js';
 import { PostgresPatientTimelineReader } from '../read-models/postgres-patient-timeline.reader.js';
 
@@ -105,7 +106,10 @@ export const patientsProviders: Provider[] = [
       postgres: PostgresPatientTimelineReader,
     ): PatientTimelineReader =>
       config.get('TIMELINE_STORE', { infer: true }) === 'mongo' && mongo
-        ? new MongoPatientTimelineReader(mongo)
+        ? new FallbackPatientTimelineReader(
+            new MongoPatientTimelineReader(mongo),
+            postgres,
+          )
         : postgres,
   },
   {
