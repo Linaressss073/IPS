@@ -57,7 +57,7 @@ projects:
               # accepted from CORS_ORIGIN (authorized parties).
               - key: CLERK_SECRET_KEY
                 sync: false
-              # Clerk → Webhooks → https://ips-api.onrender.com/api/v1/webhooks/clerk
+              # Clerk → Webhooks → https://ips-api-3404.onrender.com/api/v1/webhooks/clerk
               # (user.*, organization.*, organizationMembership.*): its signing secret.
               - key: CLERK_WEBHOOK_SIGNING_SECRET
                 sync: false
@@ -92,4 +92,4 @@ projects:
                 value: /dashboard
               # Without /api/v1: the client adds the prefix.
               - key: NEXT_PUBLIC_API_URL
-                value: https://ips-api.onrender.com
+                value: https://ips-api-3404.onrender.com

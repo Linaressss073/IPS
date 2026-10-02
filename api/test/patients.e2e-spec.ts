@@ -48,8 +48,15 @@ describe('Patients API (e2e)', () => {
   });
 
   it('trusts the team selected in the signed token without asking the provider', async () => {
-    await api('dana').get(patientsA).expect(200);
-    await api('dana').get(`/teams/${TEAM_B}/patients`).expect(403);
+    await api('dana').get(`/teams/${TEAM_A}/staff`).expect(200);
+    await api('dana').get(`/teams/${TEAM_B}/staff`).expect(403);
+  });
+
+  it('requires a role that allows working with patients', async () => {
+    // carol is a member of team A without roles: she may not see patients.
+    const denied = await api('carol').get(patientsA).expect(403);
+    expect(denied.body.code).toBe('PERMISSION_DENIED');
+    await api('carol').post(patientsA, patient).expect(403);
   });
 
   it('registers a patient with normalized data', async () => {

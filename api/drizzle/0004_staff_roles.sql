@@ -1,0 +1,1 @@
+ALTER TABLE "staff_memberships" ADD COLUMN "roles" text[] DEFAULT '{}'::text[] NOT NULL;

@@ -1,10 +1,10 @@
 /**
- * Role of a staff member inside an IPS, independent of the identity
- * provider's own roles (e.g. Clerk's org:admin / org:member). Stored now,
- * enforced by the modules that need it later.
+ * Functional roles of a staff member inside an IPS. A person may hold
+ * several. Administrators are not a role here: they come from the identity
+ * provider (Clerk's org:admin) and get every management permission.
  */
-export const CLINICAL_ROLES = [
-  'administrador',
+export const STAFF_ROLES = [
+  'agendamiento',
   'admision',
   'medico',
   'farmacia',

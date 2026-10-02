@@ -1,3 +1,4 @@
+import { TraceEvent } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { StaffProfile } from '../../domain/entities/staff-profile.vo.js';
 
@@ -24,6 +25,21 @@ export interface StaffRepository {
   }): Promise<void>;
 
   removeMembership(teamId: TeamId, userId: string): Promise<void>;
+
+  /**
+   * Creates the membership if we do not have it yet (e.g. webhooks were set
+   * up after the user joined). Its date is the epoch, so any real provider
+   * update wins over it.
+   */
+  ensureMembership(teamId: TeamId, userId: string, providerRole: string): Promise<void>;
+
+  /** Replaces the user's roles in the team and appends the trace events, atomically. */
+  setRoles(
+    teamId: TeamId,
+    userId: string,
+    roles: readonly string[],
+    events: readonly TraceEvent[],
+  ): Promise<void>;
 
   /** Removes every membership of the team; returns the users it had. */
   removeTeam(teamId: TeamId): Promise<string[]>;

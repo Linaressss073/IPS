@@ -1,9 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { TeamId } from '../../../../../shared/domain/index.js';
-import {
-  CurrentTeam,
-  TeamScoped,
-} from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
+import { CurrentTeam } from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
+import { RequirePermission } from '../../../../staff/entrypoints/http/guards/permission.guard.js';
 import { GetPatientCompanions } from '../../../application/queries/get-patient-companions.query.js';
 import { GetPatientTimeline } from '../../../application/queries/get-patient-timeline.query.js';
 import { GetPatient } from '../../../application/queries/get-patient.query.js';
@@ -17,7 +15,7 @@ import {
 import { SearchPatientsQueryDto } from '../dto/patient.dto.js';
 
 /** Read side: every route runs one query against a read model. */
-@TeamScoped()
+@RequirePermission('patients:read')
 @Controller('teams/:teamId/patients')
 export class PatientQueriesController {
   constructor(

@@ -1,6 +1,6 @@
-import type { CLINICAL_ROLES } from '../constants/staff.constants.js';
+import type { STAFF_ROLES } from '../constants/staff.constants.js';
 
-export type ClinicalRole = (typeof CLINICAL_ROLES)[number];
+export type StaffRole = (typeof STAFF_ROLES)[number];
 
 /** The minimum we keep about a user of the identity provider. */
 export interface StaffProfileProps {

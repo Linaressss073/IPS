@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { NoPermission, useAccess } from "@/components/access/access-context";
 import { PatientForm } from "@/components/patients/patient-form";
 import { useTeamMembers } from "@/components/patients/use-team-members";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,9 @@ export function PageClient() {
   const auth = useApiAuth();
   const members = useTeamMembers();
   const listUrl = `/dashboard/${teamId}/patients`;
+  const { access, can } = useAccess();
+
+  if (access && !can("patients:write")) return <NoPermission what="registrar pacientes" />;
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

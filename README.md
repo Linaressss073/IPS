@@ -32,7 +32,8 @@ pnpm install
 pnpm dev
 ```
 
-Los detalles (arquitectura, endpoints, tests) están en el README de cada carpeta.
+Los detalles (arquitectura, tests) están en el README de cada carpeta; la referencia de **todos los endpoints**
+está en [`technical-api/`](technical-api/README.md).
 
 ## Despliegue (Render)
 

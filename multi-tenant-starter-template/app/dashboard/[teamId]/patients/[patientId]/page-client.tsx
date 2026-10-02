@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil, RefreshCw } from "lucide-react";
 import { useParams } from "next/navigation";
 import { errorMessage } from "@/components/patients/error-message";
+import { NoPermission, useAccess } from "@/components/access/access-context";
 import { CompanionsCard } from "@/components/patients/companions-card";
 import { PatientForm } from "@/components/patients/patient-form";
 import { memberName, TeamMember, useTeamMembers } from "@/components/patients/use-team-members";
@@ -33,6 +34,8 @@ const TIMELINE_REFRESH_DELAY_MS = 1000;
 export function PageClient() {
   const { teamId, patientId } = useParams<{ teamId: string; patientId: string }>();
   const auth = useApiAuth();
+  const { access, can } = useAccess();
+  const canWrite = can("patients:write");
   const members = useTeamMembers();
 
   const [patient, setPatient] = React.useState<Patient | null>(null);
@@ -64,6 +67,8 @@ export function PageClient() {
 
   const listUrl = `/dashboard/${teamId}/patients`;
 
+  if (access && !can("patients:read")) return <NoPermission what="ver pacientes" />;
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Button variant="ghost" size="sm" asChild>
@@ -88,7 +93,7 @@ export function PageClient() {
                 {patient.document.type} {patient.document.number} · {ageFrom(patient.birthDate)} años
               </p>
             </div>
-            {!editing && (
+            {!editing && canWrite && (
               <Button variant="outline" onClick={() => setEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Editar
@@ -129,6 +134,7 @@ export function PageClient() {
               </Card>
 
               <CompanionsCard
+                canRecord={canWrite}
                 auth={auth}
                 teamId={teamId}
                 patientId={patientId}

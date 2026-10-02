@@ -29,7 +29,7 @@ contexto **Pacientes**.
 | `identity-access` | Quién llama (verifica el token de sesión de Clerk) y si es miembro del Team (organización activa del token o consulta a Clerk). Capa anticorrupción sobre Clerk. |
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
 | `organizations` | Ficha de cada IPS en la colección **`organizations` de MongoDB**: nombre (igual al de Clerk) y datos propios (NIT con dígito de verificación DIAN, código de habilitación REPS, dirección, municipio, departamento, teléfono, correo institucional). Clerk sigue siendo dueño del acceso. |
-| `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol del proveedor y rol clínico), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
+| `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol de Clerk y roles funcionales), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
 | `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexiones a Postgres y Mongo, relay. |
 
 ## CQRS: Postgres escribe, Mongo lee el historial
@@ -139,6 +139,8 @@ Todas las rutas cuelgan del prefijo **`/api/v1`** (`API_PREFIX` en `src/config/h
 | GET | `/teams/:teamId/patients/:patientId/timeline` | **Consulta** GetPatientTimeline (más antiguo primero) |
 | POST | `/teams/:teamId/patients/:patientId/companions` | **Comando** RecordCompanion (siguiente número) |
 | GET | `/teams/:teamId/staff` | **Consulta** ListTeamStaff (personal de la IPS, e-mail enmascarado) |
+| GET | `/teams/:teamId/staff/me` | **Consulta** mi acceso: roles y permisos de quien llama |
+| PUT | `/teams/:teamId/staff/:userId/roles` | **Comando** AssignStaffRoles (permiso `staff:manage`; trazado) |
 | GET | `/organizations/:teamId` | **Consulta** GetOrganization (miembros; la importa de Clerk si aún no está en Mongo) |
 | PATCH | `/organizations/:teamId` | **Comando** UpdateOrganization (solo administradores; `version` obligatorio; el nombre también se cambia en Clerk) |
 | DELETE | `/organizations/:teamId` | **Comando** DeleteOrganization (solo administradores; 204; elimina la organización en Clerk y deja una lápida; **no** borra pacientes ni historial) |
@@ -183,7 +185,7 @@ El contexto `staff` guarda una copia **mínima** de los usuarios de Clerk (Ley 1
 - **Los webhooks no se registran en el log** (solo tipo de evento) y se rechazan si la firma no es válida.
 - Solo los miembros de una IPS ven el personal de esa IPS.
 - **Copia en MongoDB (colección `staff`)** para consultarla desde Atlas: un documento por usuario
-  (`_id` = id de Clerk) con `displayName`, `emailMasked`, `deleted` y `teams[]` (IPS, rol de Clerk y rol clínico).
+  (`_id` = id de Clerk) con `displayName`, `emailMasked`, `deleted` y `teams[]` (IPS, rol de Clerk y roles).
   Postgres es la fuente de verdad: cada cambio **reconstruye** el documento del usuario desde Postgres, así la copia
   nunca queda desfasada aunque los webhooks lleguen fuera de orden; si Mongo falla, el webhook responde error y Clerk
   lo reintenta. Mismos datos minimizados que Postgres (nunca el e-mail completo); un usuario anonimizado queda con

@@ -1,12 +1,15 @@
 'use client';
 
+import { AccessProvider, useAccess } from "@/components/access/access-context";
 import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
+import { Permission } from "@/lib/api/staff";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
-import { Building2, Contact, Home } from "lucide-react";
+import { Building2, Contact, Home, Users } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
-const navigationItems: SidebarItem[] = [
+/** Each item is shown only if the user's roles grant `requires`. */
+const navigationItems: (SidebarItem & { requires?: Permission })[] = [
   {
     name: "Inicio",
     href: "/",
@@ -22,10 +25,18 @@ const navigationItems: SidebarItem[] = [
     href: "/patients",
     icon: Contact,
     type: "item",
+    requires: "patients:read",
   },
   {
     type: 'label',
     name: 'Administración',
+  },
+  {
+    name: "Personal",
+    href: "/staff",
+    icon: Users,
+    type: "item",
+    requires: "staff:manage",
   },
   {
     name: "Datos de la IPS",
@@ -58,9 +69,22 @@ export default function Layout(props: { children: React.ReactNode }) {
   }
 
   return (
+    <AccessProvider teamId={organization.id}>
+      <TeamShell teamId={organization.id} teamName={organization.name}>
+        {props.children}
+      </TeamShell>
+    </AccessProvider>
+  );
+}
+
+function TeamShell(props: { teamId: string; teamName: string; children: React.ReactNode }) {
+  const { can } = useAccess();
+  const items = navigationItems.filter((item) => !item.requires || can(item.requires));
+
+  return (
     <SidebarLayout
-      items={navigationItems}
-      basePath={`/dashboard/${organization.id}`}
+      items={items}
+      basePath={`/dashboard/${props.teamId}`}
       sidebarTop={
         <OrganizationSwitcher
           hidePersonal
@@ -69,8 +93,8 @@ export default function Layout(props: { children: React.ReactNode }) {
         />
       }
       baseBreadcrumb={[{
-        title: organization.name,
-        href: `/dashboard/${organization.id}`,
+        title: props.teamName,
+        href: `/dashboard/${props.teamId}`,
       }]}
     >
       {props.children}

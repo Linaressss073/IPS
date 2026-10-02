@@ -85,7 +85,7 @@ describe('Staff directory (e2e)', () => {
         displayName: 'Alicia Gómez',
         emailMasked: 'ali****@cli***.c**',
         providerRole: 'org:member',
-        clinicalRole: null,
+        roles: [],
       },
     ]);
 
@@ -102,7 +102,7 @@ describe('Staff directory (e2e)', () => {
       displayName: 'Alicia Gómez',
       emailMasked: 'ali****@cli***.c**',
       deleted: false,
-      teams: [{ teamId: TEAM_A, providerRole: 'org:member', clinicalRole: null }],
+      teams: [{ teamId: TEAM_A, providerRole: 'org:member', roles: [] }],
     });
     expect(JSON.stringify(doc)).not.toMatch(/alicia\.gomez|573001234567/);
 
@@ -166,5 +166,68 @@ describe('Staff directory (e2e)', () => {
     expect((await api('alice').get(timeline)).body[0].requestedByName).toBe(
       'Usuario eliminado',
     );
+  });
+
+  describe('roles and permissions', () => {
+    const rolesOf = (userId: string) => `/teams/${TEAM_A}/staff/${userId}/roles`;
+    const patients = `/teams/${TEAM_A}/patients`;
+    const patient = {
+      document: { type: 'CC', number: '1000123456' },
+      name: { firstName: 'Andrés', firstLastName: 'Gómez' },
+      birthDate: '1990-05-20',
+      sex: 'H',
+      contact: { email: 'andres@example.com' },
+      affiliation: { eps: 'Sanitas', regime: 'contributivo' },
+    };
+
+    it('lets an administrator grant roles, which unlock the matching endpoints', async () => {
+      await api('carol').get(patients).expect(403);
+      expect((await api('carol').get(`/teams/${TEAM_A}/staff/me`).expect(200)).body).toEqual({
+        userId: 'carol',
+        isAdmin: false,
+        roles: [],
+        permissions: [],
+      });
+
+      const granted = await api('alice')
+        .put(rolesOf('carol'), { roles: ['Admision'] })
+        .expect(200);
+      expect(granted.body).toMatchObject({ userId: 'carol', roles: ['admision'] });
+
+      expect((await api('carol').get(`/teams/${TEAM_A}/staff/me`)).body).toMatchObject({
+        roles: ['admision'],
+        permissions: ['patients:read', 'patients:write', 'admission:manage', 'turns:call'],
+      });
+      await api('carol').get(patients).expect(200);
+      await api('carol').post(patients, patient).expect(201);
+
+      // Who granted what is traced.
+      const [event] = (
+        await t.db.execute(
+          sql`select type, executed_by, data from shared_trace_events where type = 'staff.roles_assigned'`,
+        )
+      ).rows;
+      expect(event).toMatchObject({
+        executed_by: 'alice',
+        data: { userId: 'carol', from: [], to: ['admision'] },
+      });
+      // And the Mongo copy shows the roles.
+      expect(
+        await t.mongo.collection(STAFF_COLLECTION).findOne({ _id: 'carol' as never }),
+      ).toMatchObject({ teams: [{ teamId: TEAM_A, roles: ['admision'] }] });
+    });
+
+    it('lets only administrators assign roles, to members, with known roles', async () => {
+      const denied = await api('carol').put(rolesOf('carol'), { roles: ['medico'] }).expect(403);
+      expect(denied.body.code).toBe('PERMISSION_DENIED');
+
+      const stranger = await api('alice').put(rolesOf('bob'), { roles: ['medico'] }).expect(404);
+      expect(stranger.body.code).toBe('STAFF_MEMBER_NOT_FOUND');
+
+      const invalid = await api('alice')
+        .put(rolesOf('carol'), { roles: ['administrador'] })
+        .expect(400);
+      expect(invalid.body.code).toBe('INVALID_VALUE');
+    });
   });
 });

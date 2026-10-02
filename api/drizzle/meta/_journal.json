@@ -22,6 +22,20 @@
       "when": 1790926274115,
       "tag": "0002_staff_directory",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790961286653,
+      "tag": "0003_drop_clinical_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790961288196,
+      "tag": "0004_staff_roles",
+      "breakpoints": true
     }
   ]
 }

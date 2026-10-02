@@ -20,6 +20,8 @@ export function CompanionsCard(props: {
   members: TeamMember[];
   /** Called after a companion is recorded (e.g. to refresh the timeline). */
   onRecorded?: () => void;
+  /** Whether the user's roles allow recording companions. */
+  canRecord: boolean;
 }) {
   const { teamId, patientId } = props;
   const authRef = React.useRef(props.auth);
@@ -73,7 +75,7 @@ export function CompanionsCard(props: {
           <CardTitle>Acompañantes</CardTitle>
           <CardDescription>Quién ha venido con el paciente; el más reciente primero.</CardDescription>
         </div>
-        {!adding && (
+        {!adding && props.canRecord && (
           <Button variant="outline" size="sm" onClick={() => setAdding(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
             Registrar

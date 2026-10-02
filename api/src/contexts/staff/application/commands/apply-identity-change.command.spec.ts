@@ -39,6 +39,8 @@ describe('ApplyIdentityChange', () => {
         calls.push('removeTeam');
         return ['user_ana', 'user_luis'];
       },
+      ensureMembership: async () => {},
+      setRoles: async () => {},
     };
     const projection: StaffProjection = {
       refresh: async (ids) => {

@@ -4,8 +4,8 @@ import { AuthenticatedUser } from '../../../../identity-access/domain/entities/a
 import {
   CurrentTeam,
   CurrentUser,
-  TeamScoped,
 } from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
+import { RequirePermission } from '../../../../staff/entrypoints/http/guards/permission.guard.js';
 import { RecordCompanion } from '../../../application/commands/record-companion.command.js';
 import { RegisterPatient } from '../../../application/commands/register-patient.command.js';
 import { UpdatePatient } from '../../../application/commands/update-patient.command.js';
@@ -20,8 +20,11 @@ import {
 } from '../dto/patient.dto.js';
 import { PatientCommandMapper } from '../mapping/patient-command.mapper.js';
 
-/** Write side: every route runs one command; the caller is the executor. */
-@TeamScoped()
+/**
+ * Write side: every route runs one command; the caller is the executor.
+ * Only roles that register patients (agendamiento, admision, admins).
+ */
+@RequirePermission('patients:write')
 @Controller('teams/:teamId/patients')
 export class PatientCommandsController {
   constructor(

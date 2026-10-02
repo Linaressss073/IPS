@@ -16,7 +16,7 @@ export class DrizzleStaffReadModel implements StaffReadModel {
         displayName: staffUsers.displayName,
         emailMasked: staffUsers.emailMasked,
         providerRole: staffMemberships.providerRole,
-        clinicalRole: staffMemberships.clinicalRole,
+        roles: staffMemberships.roles,
       })
       .from(staffMemberships)
       .leftJoin(staffUsers, eq(staffUsers.userId, staffMemberships.userId))
@@ -24,6 +24,35 @@ export class DrizzleStaffReadModel implements StaffReadModel {
         and(eq(staffMemberships.teamId, teamId.value), isNull(staffUsers.deletedAt)),
       )
       .orderBy(asc(staffUsers.displayName), asc(staffMemberships.userId));
+  }
+
+  async member(teamId: TeamId, userId: string): Promise<StaffMemberView | null> {
+    const [row] = await this.db
+      .select({
+        userId: staffMemberships.userId,
+        displayName: staffUsers.displayName,
+        emailMasked: staffUsers.emailMasked,
+        providerRole: staffMemberships.providerRole,
+        roles: staffMemberships.roles,
+      })
+      .from(staffMemberships)
+      .leftJoin(staffUsers, eq(staffUsers.userId, staffMemberships.userId))
+      .where(
+        and(eq(staffMemberships.teamId, teamId.value), eq(staffMemberships.userId, userId)),
+      )
+      .limit(1);
+    return row ?? null;
+  }
+
+  async rolesOf(teamId: TeamId, userId: string): Promise<string[] | null> {
+    const [row] = await this.db
+      .select({ roles: staffMemberships.roles })
+      .from(staffMemberships)
+      .where(
+        and(eq(staffMemberships.teamId, teamId.value), eq(staffMemberships.userId, userId)),
+      )
+      .limit(1);
+    return row ? row.roles : null;
   }
 
   async namesFor(userIds: readonly string[]): Promise<Map<string, string>> {
