@@ -26,10 +26,8 @@ projects:
             branch: main
             rootDir: api
             buildCommand: npx --yes pnpm@12.6.0 install --frozen-lockfile && npx --yes pnpm@12.6.0 build
-            # TEMPORARY: copies the data from the old "test" database into
-            # his_consulta_externa and rebuilds it from the old MongoDB copies
-            # (insert-only, idempotent) before starting. Removed after one deploy.
-            startCommand: (RECOVER_FROM_DB=test node dist/scripts/recover-from-timeline.js || echo "recover-from-timeline failed") && node dist/main
+            # Indexes are created by the API when it connects; no migrations.
+            startCommand: node dist/main
             healthCheckPath: /api/v1/health
             envVars:
               - key: NODE_VERSION
