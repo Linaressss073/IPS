@@ -25,8 +25,11 @@ export interface StaffDocument {
 export interface StaffTeamEntry {
   teamId: string;
   providerRole: string;
-  /** agendamiento, admision, medico, farmacia, soporte (assigned by admins). */
-  roles: string[];
+  /**
+   * agendamiento, admision, medico, farmacia, soporte (assigned by admins).
+   * Missing in documents written before roles existed: read it as [].
+   */
+  roles?: string[];
   sourceUpdatedAt: Date;
 }
 

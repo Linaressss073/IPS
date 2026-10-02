@@ -35,7 +35,8 @@ export class MongoStaffReadModel implements StaffReadModel {
       { _id: userId, 'teams.teamId': teamId.value },
       { projection: { teams: 1 } },
     );
-    return doc?.teams.find((team) => team.teamId === teamId.value)?.roles ?? null;
+    const team = doc?.teams.find((entry) => entry.teamId === teamId.value);
+    return team ? (team.roles ?? []) : null;
   }
 
   async namesFor(userIds: readonly string[]): Promise<Map<string, string>> {
@@ -63,7 +64,8 @@ function toView(doc: StaffDocument, teamId: TeamId): StaffMemberView | null {
     displayName: doc.displayName,
     emailMasked: doc.emailMasked,
     providerRole: team.providerRole,
-    roles: team.roles,
+    // Documents from before roles existed have none.
+    roles: team.roles ?? [],
   };
 }
 
