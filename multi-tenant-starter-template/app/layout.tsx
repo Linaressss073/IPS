@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { esMX } from "@clerk/localizations";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -19,7 +20,8 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-        <ClerkProvider>
+        {/* Latin American Spanish: Clerk has no es-CO, and es-ES uses "vosotros". */}
+        <ClerkProvider localization={esMX}>
           <Provider>{children}</Provider>
         </ClerkProvider>
       </body>
