@@ -21,7 +21,6 @@ contexto **Pacientes**.
 | **Trace event** (evento de trazabilidad) | Un paso del recorrido del paciente (`patient.registered`, `patient.updated`…). Solo se agregan, nunca se modifican. |
 | **requestedBy / executedBy** | Quién pidió el cambio y quién lo ejecutó; ambos son usuarios de la IPS. Si nadie más lo pidió, son el mismo. |
 | **Timeline** (historial) | Todos los eventos de un paciente en orden: responde "¿qué pasó con este paciente?". |
-| **Money** | Monto en centavos (entero) + moneda ISO 4217. Nunca decimales. |
 
 ## Contextos delimitados
 
@@ -29,8 +28,9 @@ contexto **Pacientes**.
 |---|---|
 | `identity-access` | Quién llama (verifica el token de sesión de Clerk) y si es miembro del Team (organización activa del token o consulta a Clerk). Capa anticorrupción sobre Clerk. |
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
+| `organizations` | Ficha de cada IPS en la colección **`organizations` de MongoDB**: nombre (igual al de Clerk) y datos propios (NIT con dígito de verificación DIAN, código de habilitación REPS, dirección, municipio, departamento, teléfono, correo institucional). Clerk sigue siendo dueño del acceso. |
 | `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol del proveedor y rol clínico), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
-| `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Money`, `Clock`, eventos de trazabilidad, conexiones a Postgres y Mongo, relay. |
+| `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexiones a Postgres y Mongo, relay. |
 
 ## CQRS: Postgres escribe, Mongo lee el historial
 
@@ -104,11 +104,12 @@ src/contexts/<contexto>/
 ```
 
 Carpetas extra fuera de la plantilla, porque sus piezas no encajan en otras:
-`identity-access/entrypoints/http/{guards,decorators}` (`@TeamScoped`, `@CurrentTeam`, `@CurrentUser`) y
+`identity-access/entrypoints/http/{guards,decorators}` (`@TeamScoped`, `@TeamAdmin`, `@CurrentTeam`, `@CurrentUser`),
+`src/integrations/clerk` (webhooks de Clerk repartidos a los contextos que guardan copia de sus datos) y
 `shared/entrypoints/http/filters` (`DomainErrorFilter`: errores de dominio → HTTP).
 
-`shared/` es el *shared kernel* y usa las mismas capas, solo con lo que tiene: `domain/{constants,entities,errors,types,utils}`
-(`Entity`, `ValueObject`, `TeamId`, `UserId`, `Money`, `DomainError`), `application/{constants,ports,types}` (`Clock`,
+`shared/` es el *shared kernel* y usa las mismas capas, solo con lo que tiene: `domain/{entities,errors,utils}`
+(`Entity`, `ValueObject`, `TeamId`, `UserId`, `DomainError`), `application/{constants,ports,types}` (`Clock`,
 `TraceEvent`, `Actor`), `infrastructure/{persistence,providers}` (Drizzle, Mongo, tabla `shared_trace_events`,
 `TraceEventRelay`, `systemClock`) y `entrypoints/http/{controllers,filters}` (`/health`).
 
@@ -138,7 +139,10 @@ Todas las rutas cuelgan del prefijo **`/api/v1`** (`API_PREFIX` en `src/config/h
 | GET | `/teams/:teamId/patients/:patientId/timeline` | **Consulta** GetPatientTimeline (más antiguo primero) |
 | POST | `/teams/:teamId/patients/:patientId/companions` | **Comando** RecordCompanion (siguiente número) |
 | GET | `/teams/:teamId/staff` | **Consulta** ListTeamStaff (personal de la IPS, e-mail enmascarado) |
-| POST | `/webhooks/clerk` | Webhook de Clerk (sin sesión; se verifica la firma sobre el cuerpo crudo) |
+| GET | `/organizations/:teamId` | **Consulta** GetOrganization (miembros; la importa de Clerk si aún no está en Mongo) |
+| PATCH | `/organizations/:teamId` | **Comando** UpdateOrganization (solo administradores; `version` obligatorio; el nombre también se cambia en Clerk) |
+| DELETE | `/organizations/:teamId` | **Comando** DeleteOrganization (solo administradores; 204; elimina la organización en Clerk y deja una lápida; **no** borra pacientes ni historial) |
+| POST | `/webhooks/clerk` | Webhook de Clerk (sin sesión; se verifica la firma sobre el cuerpo crudo). Lo reparte a `staff` y `organizations` |
 | GET | `/teams/:teamId/patients/:patientId/companions` | **Consulta** GetPatientCompanions (`{ history }`, número más alto primero) |
 
 Cuerpo de `POST /patients` (en `PATCH`, cada grupo enviado reemplaza al actual completo, más `version`):
@@ -180,9 +184,10 @@ El contexto `staff` guarda una copia **mínima** de los usuarios de Clerk (Ley 1
 - Solo los miembros de una IPS ven el personal de esa IPS.
 
 Configuración: en Clerk → **Webhooks**, crear un endpoint `https://<api>/api/v1/webhooks/clerk` con los eventos
-`user.created`, `user.updated`, `user.deleted`, `organization.deleted` y `organizationMembership.*`, y poner su
+`user.created`, `user.updated`, `user.deleted`, `organization.created`, `organization.updated`,
+`organization.deleted` y `organizationMembership.*`, y poner su
 *signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`. Para cargar a los usuarios que ya existían:
-`pnpm build && pnpm staff:sync` (idempotente).
+`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías).
 
 ## Desarrollo local
 

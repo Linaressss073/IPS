@@ -5,5 +5,7 @@ export class AuthenticatedUser {
   constructor(
     readonly userId: UserId,
     readonly selectedTeamId: TeamId | null,
+    /** Role in the selected team ("admin", "member"…), from the same token. */
+    readonly selectedTeamRole: string | null = null,
   ) {}
 }

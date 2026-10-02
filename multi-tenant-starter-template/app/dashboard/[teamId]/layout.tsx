@@ -2,7 +2,7 @@
 
 import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
-import { Contact, Home } from "lucide-react";
+import { Building2, Contact, Home } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -21,6 +21,16 @@ const navigationItems: SidebarItem[] = [
     name: "Pacientes",
     href: "/patients",
     icon: Contact,
+    type: "item",
+  },
+  {
+    type: 'label',
+    name: 'Administración',
+  },
+  {
+    name: "Datos de la IPS",
+    href: "/settings",
+    icon: Building2,
     type: "item",
   },
 ];

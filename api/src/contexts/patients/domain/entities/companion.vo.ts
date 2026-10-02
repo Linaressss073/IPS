@@ -1,13 +1,11 @@
 import {
   InvalidValueError,
+  normalizeEmail,
+  normalizePhone,
   ValueObject,
 } from '../../../../shared/domain/index.js';
 import { RELATIONSHIPS } from '../constants/patient.constants.js';
 import { CompanionData, Relationship } from '../types/patient.types.js';
-import {
-  normalizeEmail,
-  normalizePhone,
-} from '../utils/contact-normalization.js';
 import { IdentityDocument } from './identity-document.vo.js';
 import { PersonName } from './person-name.vo.js';
 

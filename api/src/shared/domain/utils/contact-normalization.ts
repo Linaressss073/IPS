@@ -1,9 +1,9 @@
-import { InvalidValueError } from '../../../../shared/domain/index.js';
 import {
   EMAIL_MAX_LENGTH,
   EMAIL_PATTERN,
   PHONE_PATTERN,
-} from '../constants/patient.constants.js';
+} from '../constants/contact.constants.js';
+import { InvalidValueError } from '../errors/domain-error.js';
 
 /** Trimmed, lower-case e-mail; null when empty. Throws if malformed. */
 export function normalizeEmail(raw: string | null | undefined): string | null {

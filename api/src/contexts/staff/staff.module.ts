@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { IdentityAccessModule } from '../identity-access/identity-access.module.js';
 import { GetStaffNames } from './application/queries/get-staff-names.query.js';
-import { ClerkWebhookController } from './entrypoints/http/controllers/clerk-webhook.controller.js';
 import { StaffController } from './entrypoints/http/controllers/staff.controller.js';
 import { staffProviders } from './infrastructure/providers/staff.providers.js';
+import { ApplyIdentityChange } from './application/commands/apply-identity-change.command.js';
 import { SyncStaffFromProvider } from './application/commands/sync-staff-from-provider.command.js';
 
 /**
@@ -13,10 +13,10 @@ import { SyncStaffFromProvider } from './application/commands/sync-staff-from-pr
  */
 @Module({
   imports: [IdentityAccessModule],
-  controllers: [ClerkWebhookController, StaffController],
+  controllers: [StaffController],
   providers: staffProviders,
-  // Public query for other contexts (names in the patient timeline) and the
-  // bulk sync used by the sync script.
-  exports: [GetStaffNames, SyncStaffFromProvider],
+  // Public query for other contexts (names in the patient timeline); the
+  // Clerk webhooks and the bulk sync script use the two commands.
+  exports: [GetStaffNames, ApplyIdentityChange, SyncStaffFromProvider],
 })
 export class StaffModule {}
