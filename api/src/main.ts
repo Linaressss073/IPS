@@ -5,7 +5,8 @@ import { Env } from './config/env.js';
 import { API_PREFIX } from './config/http.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // rawBody: webhook signatures are computed over the exact bytes received.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   const config = app.get<ConfigService<Env, true>>(ConfigService);
 
   app.setGlobalPrefix(API_PREFIX);

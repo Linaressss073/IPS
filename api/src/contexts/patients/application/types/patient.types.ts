@@ -97,6 +97,9 @@ export interface TimelineEntryView {
   occurredAt: string;
   requestedBy: string;
   executedBy: string;
+  /** From the staff directory at read time; null when unknown. */
+  requestedByName: string | null;
+  executedByName: string | null;
   data: Record<string, unknown>;
 }
 
@@ -117,6 +120,8 @@ export interface CompanionView {
   recordedAt: string;
   requestedBy: string;
   executedBy: string;
+  requestedByName: string | null;
+  executedByName: string | null;
 }
 
 export interface Page<T> {

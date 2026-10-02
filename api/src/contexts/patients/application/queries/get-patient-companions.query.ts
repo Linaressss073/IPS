@@ -1,5 +1,7 @@
 import { PATIENT_COMPANION_RECORDED } from '../constants/trace-event-types.js';
+import { withActorNames } from '../mappings/actor-names.mapper.js';
 import { toCompanionView } from '../mappings/companion.mapper.js';
+import { StaffNames } from '../ports/staff-names.port.js';
 import { PatientTimelineReader } from '../ports/patient-timeline.port.js';
 import { CompanionView, PatientRef } from '../types/patient.types.js';
 import { GetPatient } from './get-patient.query.js';
@@ -9,6 +11,7 @@ export class GetPatientCompanions {
   constructor(
     private readonly getPatient: GetPatient,
     private readonly timeline: PatientTimelineReader,
+    private readonly staffNames: StaffNames,
   ) {}
 
   async execute(ref: PatientRef): Promise<{ history: CompanionView[] }> {
@@ -17,7 +20,7 @@ export class GetPatientCompanions {
       type: PATIENT_COMPANION_RECORDED,
     });
     return {
-      history: entries
+      history: (await withActorNames(entries, this.staffNames))
         .map(toCompanionView)
         .sort((a, b) => b.number - a.number),
     };

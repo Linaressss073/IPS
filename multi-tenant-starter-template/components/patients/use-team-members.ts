@@ -1,6 +1,7 @@
 "use client";
 
 import { useOrganization } from "@clerk/nextjs";
+import { maskEmail } from "@/lib/mask-email";
 
 export type TeamMember = { id: string; name: string };
 
@@ -15,10 +16,15 @@ export function useTeamMembers(): TeamMember[] {
     const user = membership.publicUserData;
     if (!user?.userId) return [];
     const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
-    return [{ id: user.userId, name: fullName || user.identifier || user.userId }];
+    // Never the raw e-mail: without a name, show it masked.
+    return [{ id: user.userId, name: fullName || maskEmail(user.identifier ?? "") || user.userId }];
   });
 }
 
-export function memberName(members: TeamMember[], userId: string) {
-  return members.find((member) => member.id === userId)?.name ?? userId;
+/**
+ * Name to show for a user: the one the API resolved (it also knows deleted,
+ * anonymized users), else the live Clerk member, else the raw id.
+ */
+export function memberName(members: TeamMember[], userId: string, apiName?: string | null) {
+  return apiName ?? members.find((member) => member.id === userId)?.name ?? userId;
 }

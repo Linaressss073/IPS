@@ -51,5 +51,7 @@ export function toCompanionView(entry: TimelineEntryView): CompanionView {
     recordedAt: entry.occurredAt,
     requestedBy: entry.requestedBy,
     executedBy: entry.executedBy,
+    requestedByName: entry.requestedByName,
+    executedByName: entry.executedByName,
   };
 }

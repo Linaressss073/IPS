@@ -54,6 +54,10 @@ projects:
               # accepted from CORS_ORIGIN (authorized parties).
               - key: CLERK_SECRET_KEY
                 sync: false
+              # Clerk → Webhooks → https://ips-api.onrender.com/api/v1/webhooks/clerk
+              # (user.*, organization.deleted, organizationMembership.*): its signing secret.
+              - key: CLERK_WEBHOOK_SIGNING_SECRET
+                sync: false
               # Timeline read model in MongoDB Atlas; the URL must end in /his
               # (the database name). Pending events are copied there by the relay.
               - key: MONGO_URL

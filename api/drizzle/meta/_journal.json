@@ -15,6 +15,13 @@
       "when": 1790916988926,
       "tag": "0001_team_id_as_provider_org_id",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790926274115,
+      "tag": "0002_staff_directory",
+      "breakpoints": true
     }
   ]
 }

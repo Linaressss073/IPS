@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IdentityAccessModule } from '../identity-access/identity-access.module.js';
+import { StaffModule } from '../staff/staff.module.js';
 import { PatientCommandsController } from './entrypoints/http/controllers/patient-commands.controller.js';
 import { PatientQueriesController } from './entrypoints/http/controllers/patient-queries.controller.js';
 import { patientsProviders } from './infrastructure/providers/patients.providers.js';
@@ -10,7 +11,7 @@ import { patientsProviders } from './infrastructure/providers/patients.providers
  * Commands write to Postgres; queries read from read models (CQRS).
  */
 @Module({
-  imports: [IdentityAccessModule],
+  imports: [IdentityAccessModule, StaffModule],
   controllers: [PatientCommandsController, PatientQueriesController],
   providers: patientsProviders,
 })

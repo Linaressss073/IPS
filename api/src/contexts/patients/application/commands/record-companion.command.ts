@@ -48,6 +48,9 @@ export class RecordCompanion {
     return toCompanionView({
       ...event,
       occurredAt: event.occurredAt.toISOString(),
+      // Names are resolved by the read side (GET .../companions).
+      requestedByName: null,
+      executedByName: null,
     });
   }
 }

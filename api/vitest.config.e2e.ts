@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { TEST_WEBHOOK_SECRET } from './test/support/clerk-webhook.js';
 import { TEST_DATABASE_URL, TEST_MONGO_URL } from './test/support/test-env.js';
 
 export default defineConfig({
@@ -21,6 +22,7 @@ export default defineConfig({
       // No timer: specs publish to Mongo explicitly with relay.flush().
       RELAY_INTERVAL_MS: '0',
       CLERK_SECRET_KEY: 'sk_test_e2e',
+      CLERK_WEBHOOK_SIGNING_SECRET: TEST_WEBHOOK_SECRET,
     },
   },
 });

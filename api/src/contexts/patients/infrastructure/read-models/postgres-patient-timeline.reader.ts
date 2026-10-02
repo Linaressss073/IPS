@@ -32,6 +32,8 @@ export class PostgresPatientTimelineReader implements PatientTimelineReader {
       occurredAt: row.occurredAt.toISOString(),
       requestedBy: row.requestedBy,
       executedBy: row.executedBy,
+      requestedByName: null,
+      executedByName: null,
       data: row.data,
     }));
   }

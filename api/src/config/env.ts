@@ -16,6 +16,8 @@ export interface Env {
   CLERK_JWT_KEY?: string;
   /** Frontend origins whose tokens are accepted (`azp` claim). */
   CLERK_AUTHORIZED_PARTIES: string[];
+  /** Signing secret (whsec_…) of the Clerk webhook; without it the endpoint is off. */
+  CLERK_WEBHOOK_SIGNING_SECRET?: string;
 }
 
 const REQUIRED = ['DATABASE_URL', 'CLERK_SECRET_KEY'] as const;
@@ -57,5 +59,6 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
       .split(',')
       .map((origin) => origin.trim())
       .filter(Boolean),
+    CLERK_WEBHOOK_SIGNING_SECRET: raw.CLERK_WEBHOOK_SIGNING_SECRET || undefined,
   };
 }
