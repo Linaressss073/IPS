@@ -82,9 +82,11 @@ export class DrizzleStaffRepository implements StaffRepository {
       );
   }
 
-  async removeTeam(teamId: TeamId): Promise<void> {
-    await this.db
+  async removeTeam(teamId: TeamId): Promise<string[]> {
+    const removed = await this.db
       .delete(staffMemberships)
-      .where(eq(staffMemberships.teamId, teamId.value));
+      .where(eq(staffMemberships.teamId, teamId.value))
+      .returning({ userId: staffMemberships.userId });
+    return removed.map((row) => row.userId);
   }
 }

@@ -20,7 +20,7 @@ con Clerk) y **Organizaciones** (ficha de cada IPS en MongoDB: NIT, código REPS
 ```bash
 # API: http://localhost:3001/api/v1
 cd api
-cp .env.example .env          # completar CLERK_SECRET_KEY (la misma aplicación de Clerk del frontend)
+cp deployment/secrets.example.json deployment/secrets.dev.json   # CLERK_SECRET_KEY de Clerk (Development)
 pnpm install
 pnpm db:up && pnpm db:migrate # Postgres en Docker; Mongo propio en MONGO_URL (opcional)
 pnpm start:dev

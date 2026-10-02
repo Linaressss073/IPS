@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { loadDeploymentConfig } from './config/deployment-config.js';
 import { validateEnv } from './config/env.js';
 import { IdentityAccessModule } from './contexts/identity-access/identity-access.module.js';
 import { PatientsModule } from './contexts/patients/patients.module.js';
@@ -14,7 +15,14 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    // deployment/config.json + secrets.<ENV>.json, overridden by real
+    // environment variables (e.g. Render's dashboard). No .env files.
+    ConfigModule.forRoot({
+      isGlobal: true,
+      ignoreEnvFile: true,
+      validate: (environment) =>
+        validateEnv({ ...loadDeploymentConfig(), ...environment }),
+    }),
     DatabaseModule,
     MongoModule,
     IdentityAccessModule,

@@ -25,5 +25,6 @@ export interface StaffRepository {
 
   removeMembership(teamId: TeamId, userId: string): Promise<void>;
 
-  removeTeam(teamId: TeamId): Promise<void>;
+  /** Removes every membership of the team; returns the users it had. */
+  removeTeam(teamId: TeamId): Promise<string[]>;
 }
