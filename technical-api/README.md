@@ -1,6 +1,6 @@
 # Documentación técnica de la API
 
-API REST del **Sistema de Información Hospitalaria para la Consulta Externa** (NestJS · PostgreSQL · MongoDB · Clerk).
+API REST del **Sistema de Información Hospitalaria para la Consulta Externa** (NestJS · MongoDB · Clerk).
 Esta carpeta documenta todos los endpoints disponibles; el código fuente está en [`../api`](../api).
 
 | Documento | Contenido |
@@ -89,4 +89,4 @@ agendamiento, admisión y turnos.
 | Trazabilidad | Los cambios de pacientes guardan `requestedBy` (quién lo pidió, por defecto quien llama) y `executedBy` (quien llama). Los nombres se resuelven al leer y respetan la anonimización. |
 | Datos personales del personal | Solo nombre y **e-mail enmascarado** (`and****@cli***.c**`); nunca el e-mail completo. |
 | Paginación | `page` (desde 1) y `pageSize` (1-100, por defecto 20); la respuesta trae `total`. |
-| CQRS | Los comandos (`POST`/`PATCH`/`DELETE`) escriben en PostgreSQL; el historial se lee de MongoDB con respaldo en PostgreSQL. Tras escribir, el historial puede tardar ~0,5 s en reflejarlo. |
+| CQRS | Los comandos (`POST`/`PATCH`/`PUT`/`DELETE`) guardan el cambio y su evento de trazabilidad en una transacción de MongoDB; las consultas leen los documentos directamente. El historial refleja cada cambio al instante. |

@@ -3,10 +3,8 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Env } from '../../../../config/env.js';
 import { CLOCK, Clock } from '../../../../shared/application/index.js';
-import {
-  MONGO_DB,
-  type MongoDatabase,
-} from '../../../../shared/infrastructure/persistence/mongo.js';
+import type { Db } from 'mongodb';
+import { MONGO_DB } from '../../../../shared/infrastructure/persistence/mongo.js';
 import { systemClock } from '../../../../shared/infrastructure/providers/system-clock.js';
 import { ApplyOrganizationChange } from '../../application/commands/apply-organization-change.command.js';
 import { DeleteOrganization } from '../../application/commands/delete-organization.command.js';
@@ -21,7 +19,6 @@ import type { OrganizationRepository } from '../../application/ports/organizatio
 import { GetOrganization } from '../../application/queries/get-organization.query.js';
 import { OrganizationFinder } from '../../application/services/organization-finder.service.js';
 import { MongoOrganizationRepository } from '../persistence/mongo-organization.repository.js';
-import { UnavailableOrganizationRepository } from '../persistence/unavailable-organization.repository.js';
 import { ClerkOrganizationProvider } from './clerk/clerk-organization-provider.js';
 
 /** The only place where the organizations classes are wired to the framework. */
@@ -30,8 +27,7 @@ export const organizationsProviders: Provider[] = [
   {
     provide: ORGANIZATION_REPOSITORY,
     inject: [MONGO_DB],
-    useFactory: (mongo: MongoDatabase): OrganizationRepository =>
-      mongo ? new MongoOrganizationRepository(mongo) : new UnavailableOrganizationRepository(),
+    useFactory: (db: Db): OrganizationRepository => new MongoOrganizationRepository(db),
   },
   {
     provide: ORGANIZATION_PROVIDER,

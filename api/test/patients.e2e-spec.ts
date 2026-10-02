@@ -1,7 +1,5 @@
-import { sql } from 'drizzle-orm';
-import { TeamId } from '../src/shared/domain/index.js';
-import { TIMELINE_COLLECTION } from '../src/shared/infrastructure/persistence/mongo.js';
-import { PostgresPatientTimelineReader } from '../src/contexts/patients/infrastructure/read-models/postgres-patient-timeline.reader.js';
+import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
+import { TRACE_EVENTS_COLLECTION } from '../src/shared/infrastructure/persistence/mongo.js';
 import { createTestApp, TEAM_A, TEAM_B } from './support/test-app.js';
 
 describe('Patients API (e2e)', () => {
@@ -14,10 +12,7 @@ describe('Patients API (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await t.db.execute(
-      sql`truncate table patients_patients, shared_trace_events`,
-    );
-    await t.mongo.collection(TIMELINE_COLLECTION).deleteMany({});
+    await t.wipe(PATIENTS_COLLECTION, TRACE_EVENTS_COLLECTION);
   });
 
   afterAll(async () => {
@@ -185,7 +180,7 @@ describe('Patients API (e2e)', () => {
       .expect(200);
   });
 
-  it('builds the timeline in Mongo from the Postgres trace events', async () => {
+  it('traces every change in the patient timeline, in order', async () => {
     const { body } = await api('alice')
       .post(patientsA, { ...patient, requestedBy: 'carol' })
       .expect(201);
@@ -193,13 +188,6 @@ describe('Patients API (e2e)', () => {
     await api('alice')
       .patch(url, { version: 1, contact: { email: 'new@example.com' } })
       .expect(200);
-
-    // Mongo is a read model: nothing there until the relay runs.
-    expect((await api('alice').get(`${url}/timeline`).expect(200)).body).toEqual(
-      [],
-    );
-    expect(await t.relay.flush()).toBe(2);
-    expect(await t.relay.flush()).toBe(0);
 
     const timeline = (await api('alice').get(`${url}/timeline`).expect(200))
       .body;
@@ -223,12 +211,6 @@ describe('Patients API (e2e)', () => {
         },
       }),
     ]);
-
-    // Both engines answer the same timeline.
-    const postgres = t.app.get(PostgresPatientTimelineReader);
-    expect(await postgres.forPatient(TeamId.of(TEAM_A), body.id)).toEqual(
-      timeline,
-    );
   });
 
   it('hides patients and timelines of other teams', async () => {
@@ -248,7 +230,7 @@ describe('Patients API (e2e)', () => {
       phone: '300 111 2222',
     };
 
-    it('keeps a numbered history, most recent first, in both engines', async () => {
+    it('keeps a numbered history, most recent first', async () => {
       const { body } = await api('alice')
         .post(patientsA, { ...patient, companion: maria })
         .expect(201);
@@ -273,7 +255,6 @@ describe('Patients API (e2e)', () => {
         concurrent.map((r) => r.body.number).sort((a, b) => a - b),
       ).toEqual([3, 4]);
 
-      await t.relay.flush();
       const { history } = (await api('alice').get(url).expect(200)).body;
       expect(history.map((c: { number: number }) => c.number)).toEqual([
         4, 3, 2, 1,
@@ -296,16 +277,12 @@ describe('Patients API (e2e)', () => {
         ),
       ).toHaveLength(4);
 
-      const postgres = t.app.get(PostgresPatientTimelineReader);
+      // The counter on the patient matches the companions recorded.
       expect(
-        await postgres.forPatient(TeamId.of(TEAM_A), body.id, {
-          type: 'patient.companion_recorded',
-        }),
-      ).toEqual(
-        timeline.filter(
-          (e: { type: string }) => e.type === 'patient.companion_recorded',
-        ),
-      );
+        await t.mongo
+          .collection(PATIENTS_COLLECTION)
+          .findOne({ _id: body.id }, { projection: { companionCount: 1 } }),
+      ).toEqual({ _id: body.id, companionCount: 4 });
     });
 
     it('requires a name or a phone and an existing patient of the team', async () => {

@@ -9,20 +9,20 @@ describe('loadDeploymentConfig', () => {
   writeFileSync(
     join(directory, 'config.json'),
     JSON.stringify({
-      dev: { PORT: 3001, DATABASE_URL: 'postgres://dev', TIMELINE_STORE: 'postgres' },
+      dev: { PORT: 3001, MONGO_URL: 'mongodb://dev/his', CORS_ORIGIN: 'http://localhost:3000' },
       prod: { CORS_ORIGIN: 'https://ips-web.onrender.com' },
     }),
   );
   writeFileSync(
     join(directory, 'secrets.dev.json'),
-    JSON.stringify({ CLERK_SECRET_KEY: 'sk_test_x', DATABASE_URL: 'postgres://secret', CLERK_JWT_KEY: '' }),
+    JSON.stringify({ CLERK_SECRET_KEY: 'sk_test_x', MONGO_URL: 'mongodb://secret/his', CLERK_JWT_KEY: '' }),
   );
 
   it('merges the environment config with its secrets (secrets win)', () => {
     expect(loadDeploymentConfig('dev', directory)).toEqual({
       PORT: '3001',
-      DATABASE_URL: 'postgres://secret',
-      TIMELINE_STORE: 'postgres',
+      MONGO_URL: 'mongodb://secret/his',
+      CORS_ORIGIN: 'http://localhost:3000',
       CLERK_SECRET_KEY: 'sk_test_x',
     });
   });
@@ -36,7 +36,7 @@ describe('loadDeploymentConfig', () => {
 
   it('normalizes CORS origins and uses them as Clerk authorized parties', () => {
     const env = validateEnv({
-      DATABASE_URL: 'postgres://x',
+      MONGO_URL: 'mongodb://x/his',
       CLERK_SECRET_KEY: 'sk_test_x',
       CORS_ORIGIN: ' https://ips-web.onrender.com/ , http://localhost:3000',
     });
@@ -47,8 +47,8 @@ describe('loadDeploymentConfig', () => {
   it('lets real environment variables override the files', () => {
     const env = validateEnv({
       ...loadDeploymentConfig('dev', directory),
-      DATABASE_URL: 'postgres://from-render',
+      MONGO_URL: 'mongodb+srv://from-render/his',
     });
-    expect(env).toMatchObject({ DATABASE_URL: 'postgres://from-render', PORT: 3001 });
+    expect(env).toMatchObject({ MONGO_URL: 'mongodb+srv://from-render/his', PORT: 3001 });
   });
 });

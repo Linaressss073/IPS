@@ -11,12 +11,7 @@ import {
 import { AuthenticatedUser } from '../../src/contexts/identity-access/domain/entities/authenticated-user.entity.js';
 import { ORGANIZATION_PROVIDER } from '../../src/contexts/organizations/application/constants/injection-tokens.js';
 import { TeamId, UserId } from '../../src/shared/domain/index.js';
-import {
-  DRIZZLE,
-  Database,
-} from '../../src/shared/infrastructure/persistence/database.module.js';
 import { MONGO_DB } from '../../src/shared/infrastructure/persistence/mongo.js';
-import { TraceEventRelay } from '../../src/shared/infrastructure/providers/trace-event-relay.js';
 import type { Db } from 'mongodb';
 
 export const TEAM_A = 'org_2xTeamA9fKq4LmN8pRsT1uVwY';
@@ -75,7 +70,7 @@ export class FakeOrganizationProvider {
   }
 }
 
-/** Boots the real AppModule against the docker-compose Postgres, with Clerk faked. */
+/** Boots the real AppModule against the docker-compose MongoDB, with Clerk faked. */
 export async function createTestApp() {
   const organizationProvider = new FakeOrganizationProvider();
   organizationProvider.reset();
@@ -106,9 +101,11 @@ export async function createTestApp() {
   });
   app.setGlobalPrefix(API_PREFIX);
   await app.init();
-  const db = moduleRef.get<Database>(DRIZZLE);
   const mongo = moduleRef.get<Db>(MONGO_DB);
-  const relay = moduleRef.get(TraceEventRelay);
+
+  /** Empties the given collections (indexes are kept). */
+  const wipe = (...collections: string[]) =>
+    Promise.all(collections.map((name) => mongo.collection(name).deleteMany({})));
 
   /**
    * supertest client authenticated as the given fake user (or anonymous).
@@ -130,5 +127,5 @@ export async function createTestApp() {
     };
   };
 
-  return { app, db, mongo, relay, api, organizationProvider };
+  return { app, mongo, wipe, api, organizationProvider };
 }

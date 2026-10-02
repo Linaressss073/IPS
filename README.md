@@ -8,7 +8,7 @@ repetir información y poder seguir la traza de la atención de cada paciente.
 
 | Carpeta | Qué es |
 |---|---|
-| [`api/`](api/README.md) | Backend NestJS + PostgreSQL (fuente de verdad) + MongoDB (historial), organizado con DDD y CQRS. |
+| [`api/`](api/README.md) | Backend NestJS + MongoDB, organizado con DDD y CQRS. |
 | [`multi-tenant-starter-template/`](multi-tenant-starter-template/README.md) | Frontend Next.js 15 (Turbopack) + Clerk (login, usuarios e IPS como organizaciones). |
 
 Módulos actuales: **Pacientes** (registro único por IPS, búsqueda, acompañantes numerados e historial con
@@ -22,7 +22,7 @@ con Clerk) y **Organizaciones** (ficha de cada IPS en MongoDB: NIT, código REPS
 cd api
 cp deployment/secrets.example.json deployment/secrets.dev.json   # CLERK_SECRET_KEY de Clerk (Development)
 pnpm install
-pnpm db:up && pnpm db:migrate # Postgres en Docker; Mongo propio en MONGO_URL (opcional)
+pnpm db:up                   # MongoDB en Docker (replica set, puerto 27018)
 pnpm start:dev
 
 # Frontend: http://localhost:3000
@@ -38,5 +38,5 @@ está en [`technical-api/`](technical-api/README.md).
 ## Despliegue (Render)
 
 [`render.yaml`](render.yaml) es un *Blueprint* de Render: en **New → Blueprint** se elige este repositorio y crea
-`ips-api` y `ips-web` en el proyecto *Practica / Production*, conectados a la base `ips-db-postgres`. Solo pide
-los secretos (las llaves de Clerk). Las migraciones se aplican al arrancar la API.
+`ips-api` y `ips-web` en el proyecto *Practica / Production*. La única base es MongoDB Atlas (`MONGO_URL`). Solo
+pide los secretos (las llaves de Clerk y `MONGO_URL`); la API crea sus índices al arrancar.

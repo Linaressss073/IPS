@@ -9,7 +9,6 @@ import { OrganizationsModule } from './contexts/organizations/organizations.modu
 import { StaffModule } from './contexts/staff/staff.module.js';
 import { ClerkIntegrationModule } from './integrations/clerk/clerk-integration.module.js';
 import { MongoModule } from './shared/infrastructure/persistence/mongo.module.js';
-import { DatabaseModule } from './shared/infrastructure/persistence/database.module.js';
 import { DomainErrorFilter } from './shared/entrypoints/http/filters/domain-error.filter.js';
 import { HealthController } from './shared/entrypoints/http/controllers/health.controller.js';
 
@@ -23,7 +22,6 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
       validate: (environment) =>
         validateEnv({ ...loadDeploymentConfig(), ...environment }),
     }),
-    DatabaseModule,
     MongoModule,
     IdentityAccessModule,
     PatientsModule,

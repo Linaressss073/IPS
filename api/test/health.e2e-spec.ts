@@ -27,7 +27,7 @@ describe('Health API (e2e)', () => {
   });
 
   it('answers 503 when the database is unreachable', async () => {
-    vi.spyOn(t.db, 'execute').mockRejectedValueOnce(
+    vi.spyOn(t.mongo, 'command').mockRejectedValueOnce(
       new Error('connection refused'),
     );
 

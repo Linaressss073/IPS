@@ -52,13 +52,11 @@ describe('Permissions matrix', () => {
 describe('AssignStaffRoles', () => {
   let roles: Map<string, string[]>;
   let events: TraceEvent[];
-  let refreshed: string[];
   let assign: AssignStaffRoles;
 
   beforeEach(() => {
     roles = new Map();
     events = [];
-    refreshed = [];
     const repo = {
       ensureMembership: async (_team: TeamId, userId: string) => {
         if (!roles.has(userId)) roles.set(userId, []);
@@ -78,14 +76,13 @@ describe('AssignStaffRoles', () => {
     const members = {
       roleIn: async (userId: UserId) => (userId.value === 'user_nurse' ? 'member' : null),
     };
-    const projection = { refresh: async (ids: readonly string[]) => void refreshed.push(...ids), rebuildAll: async () => 0 };
-    assign = new AssignStaffRoles(repo, readModel, members, projection, clock);
+    assign = new AssignStaffRoles(repo, readModel, members, clock);
   });
 
   const run = (userId: string, next: string[]) =>
     assign.execute({ teamId, userId, roles: next, actor: { requestedBy: admin, executedBy: admin } });
 
-  it('sets the roles, traces who changed what and refreshes the Mongo copy', async () => {
+  it('sets the roles and traces who changed what', async () => {
     const member = await run('user_nurse', ['admision', 'agendamiento']);
     expect(member.roles).toEqual(['agendamiento', 'admision']);
     expect(events).toEqual([
@@ -96,7 +93,6 @@ describe('AssignStaffRoles', () => {
         data: { userId: 'user_nurse', from: [], to: ['agendamiento', 'admision'] },
       }),
     ]);
-    expect(refreshed).toEqual(['user_nurse']);
 
     // Same roles again: nothing new is traced.
     await run('user_nurse', ['agendamiento', 'admision']);

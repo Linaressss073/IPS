@@ -1,7 +1,6 @@
 import { Clock } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { StaffProfile } from '../../domain/entities/staff-profile.vo.js';
-import { StaffProjection } from '../ports/staff-projection.port.js';
 import { StaffRepository } from '../ports/staff.repository.port.js';
 import { ApplyIdentityChange } from './apply-identity-change.command.js';
 
@@ -16,12 +15,10 @@ const profile = StaffProfile.of({
 
 describe('ApplyIdentityChange', () => {
   let calls: string[];
-  let refreshed: string[][];
   let apply: ApplyIdentityChange;
 
   beforeEach(() => {
     calls = [];
-    refreshed = [];
     const repo: StaffRepository = {
       saveProfile: async (p, options) => {
         calls.push(`saveProfile:${p.userId}:${options?.onlyIfMissing ? 'ifMissing' : 'upsert'}`);
@@ -42,16 +39,10 @@ describe('ApplyIdentityChange', () => {
       ensureMembership: async () => {},
       setRoles: async () => {},
     };
-    const projection: StaffProjection = {
-      refresh: async (ids) => {
-        refreshed.push([...ids]);
-      },
-      rebuildAll: async () => 0,
-    };
-    apply = new ApplyIdentityChange(repo, projection, clock);
+    apply = new ApplyIdentityChange(repo, clock);
   });
 
-  it('refreshes the Mongo copy of every user a change touched', async () => {
+  it('translates each provider change into a directory operation', async () => {
     await apply.execute({ kind: 'user.upserted', profile });
     await apply.execute({
       kind: 'membership.upserted',
@@ -70,12 +61,6 @@ describe('ApplyIdentityChange', () => {
       'saveMembership:user_ana',
       'anonymize:user_ana',
       'removeTeam',
-    ]);
-    expect(refreshed).toEqual([
-      ['user_ana'],
-      ['user_ana'],
-      ['user_ana'],
-      ['user_ana', 'user_luis'],
     ]);
   });
 });
