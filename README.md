@@ -32,3 +32,10 @@ pnpm dev
 ```
 
 Los detalles (arquitectura, endpoints, tests) están en el README de cada carpeta.
+
+## Despliegue (Render)
+
+[`render.yaml`](render.yaml) es un *Blueprint* de Render: en **New → Blueprint** se elige este repositorio y crea
+`ips-api` y `ips-web` en el proyecto *Practica / Production*, conectados a la base `ips-db-postgres`. Solo pide
+los secretos (`HEXCLAVE_SECRET_SERVER_KEY`). Las migraciones se aplican al arrancar la API, y el dominio del
+frontend debe estar permitido en Hexclave para que funcione el login.
