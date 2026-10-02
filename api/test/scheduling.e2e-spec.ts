@@ -97,6 +97,25 @@ describe('Scheduling API (e2e)', () => {
     expect(denied.body.code).toBe('PERMISSION_DENIED');
   });
 
+  it('lists professionals even with staff documents from before roles existed', async () => {
+    await t.mongo.collection(STAFF_COLLECTION).insertOne({
+      _id: 'legacy' as never,
+      displayName: 'Persona Antigua',
+      emailMasked: null,
+      deleted: false,
+      deletedAt: null,
+      teams: [{ teamId: TEAM_A, providerRole: 'org:member', clinicalRole: null }],
+      sourceUpdatedAt: new Date(0),
+    });
+    await api('alice').put(`${team}/staff/carol/roles`, { roles: ['medico'] }).expect(200);
+    expect((await api('alice').get(`${team}/professionals`).expect(200)).body).toEqual([
+      { userId: 'carol', displayName: null },
+    ]);
+    expect((await api('alice').get(`${team}/staff`).expect(200)).body).toContainEqual(
+      expect.objectContaining({ userId: 'legacy', roles: [] }),
+    );
+  });
+
   it('validates agendas: professional role, whole slots and no overlaps', async () => {
     const { service, location } = await setUp();
     const agenda = {
