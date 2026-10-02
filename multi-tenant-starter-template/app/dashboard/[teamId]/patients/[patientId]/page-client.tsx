@@ -206,8 +206,8 @@ function Timeline(props: { entries: TimelineEntry[] | null; members: TeamMember[
     <ol className="relative space-y-4 border-l pl-4">
       {[...props.entries].reverse().map((entry) => {
         const changes = (entry.data.changes as { field: string }[] | undefined) ?? [];
-        const requester = memberName(props.members, entry.requestedBy);
-        const executor = memberName(props.members, entry.executedBy);
+        const requester = memberName(props.members, entry.requestedBy, entry.requestedByName);
+        const executor = memberName(props.members, entry.executedBy, entry.executedByName);
         return (
           <li key={entry.id} className="text-sm">
             <span className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border bg-background" />

@@ -29,6 +29,7 @@ contexto **Pacientes**.
 |---|---|
 | `identity-access` | Quién llama (verifica el token de sesión de Clerk) y si es miembro del Team (organización activa del token o consulta a Clerk). Capa anticorrupción sobre Clerk. |
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
+| `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol del proveedor y rol clínico), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
 | `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Money`, `Clock`, eventos de trazabilidad, conexiones a Postgres y Mongo, relay. |
 
 ## CQRS: Postgres escribe, Mongo lee el historial
@@ -136,6 +137,8 @@ Todas las rutas cuelgan del prefijo **`/api/v1`** (`API_PREFIX` en `src/config/h
 | GET | `/teams/:teamId/patients/:patientId` | **Consulta** GetPatient |
 | GET | `/teams/:teamId/patients/:patientId/timeline` | **Consulta** GetPatientTimeline (más antiguo primero) |
 | POST | `/teams/:teamId/patients/:patientId/companions` | **Comando** RecordCompanion (siguiente número) |
+| GET | `/teams/:teamId/staff` | **Consulta** ListTeamStaff (personal de la IPS, e-mail enmascarado) |
+| POST | `/webhooks/clerk` | Webhook de Clerk (sin sesión; se verifica la firma sobre el cuerpo crudo) |
 | GET | `/teams/:teamId/patients/:patientId/companions` | **Consulta** GetPatientCompanions (`{ history }`, número más alto primero) |
 
 Cuerpo de `POST /patients` (en `PATCH`, cada grupo enviado reemplaza al actual completo, más `version`):
@@ -160,6 +163,26 @@ evento `patient.companion_recorded` (en la misma colección del historial, sin t
 Errores de dominio: validación → 400, no miembro → 403, no encontrado → 404, conflictos de reglas de negocio → 409,
 siempre con un `code` legible por máquina (`INVALID_VALUE`, `INVALID_BIRTH_DATE`, `INVALID_REQUESTER`,
 `PATIENT_NOT_FOUND`, `DOCUMENT_ALREADY_REGISTERED`, `PATIENT_VERSION_CONFLICT`…).
+
+## Datos del personal: minimización y ofuscación
+
+El contexto `staff` guarda una copia **mínima** de los usuarios de Clerk (Ley 1581 de 2012, Habeas Data):
+
+- **Solo** id de Clerk, nombre para mostrar y e-mail **enmascarado** (`andres.gomez@clinica.com.co` → `and****@cli***.c**`):
+  se ocultan usuario, dominio y terminación, con máscaras de largo fijo. El e-mail completo, teléfonos, fotos y
+  contraseñas nunca llegan a la base. El frontend aplica la misma regla a lo que muestra.
+- **Derecho al olvido:** `user.deleted` anonimiza (nombre y e-mail a `null`, se borran sus membresías) y deja solo el
+  id seudónimo para que la auditoría siga enlazada; el historial muestra "Usuario eliminado". Una actualización
+  vieja que llegue tarde no revive los datos.
+- **Los nombres no se copian a los eventos de trazabilidad:** se resuelven al leer, así anonimizar a alguien lo
+  oculta en todo el historial (Postgres y Mongo) a la vez.
+- **Los webhooks no se registran en el log** (solo tipo de evento) y se rechazan si la firma no es válida.
+- Solo los miembros de una IPS ven el personal de esa IPS.
+
+Configuración: en Clerk → **Webhooks**, crear un endpoint `https://<api>/api/v1/webhooks/clerk` con los eventos
+`user.created`, `user.updated`, `user.deleted`, `organization.deleted` y `organizationMembership.*`, y poner su
+*signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`. Para cargar a los usuarios que ya existían:
+`pnpm build && pnpm staff:sync` (idempotente).
 
 ## Desarrollo local
 

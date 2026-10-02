@@ -35,6 +35,8 @@ export class MongoPatientTimelineReader implements PatientTimelineReader {
       occurredAt: doc.occurredAt.toISOString(),
       requestedBy: doc.requestedBy,
       executedBy: doc.executedBy,
+      requestedByName: null,
+      executedByName: null,
       data: doc.data,
     }));
   }

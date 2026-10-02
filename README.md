@@ -12,7 +12,8 @@ repetir información y poder seguir la traza de la atención de cada paciente.
 | [`multi-tenant-starter-template/`](multi-tenant-starter-template/README.md) | Frontend Next.js 15 (Turbopack) + Clerk (login, usuarios e IPS como organizaciones). |
 
 Módulos actuales: **Pacientes** (registro único por IPS, búsqueda, acompañantes numerados e historial con
-`requestedBy` / `executedBy`). Siguientes: agendamiento, admisión y turnos, consulta médica y farmacia.
+`requestedBy` / `executedBy`) y **Personal** (directorio mínimo y ofuscado del personal de cada IPS, sincronizado
+con Clerk). Siguientes: agendamiento, admisión y turnos, consulta médica y farmacia.
 
 ## Desarrollo local
 

@@ -19,10 +19,13 @@ import {
   PATIENT_READ_MODEL,
   PATIENT_REPOSITORY,
   PATIENT_TIMELINE_READER,
+  STAFF_NAMES,
   TEAM_MEMBERS,
 } from '../../application/constants/injection-tokens.js';
 import type { PatientReadModel } from '../../application/ports/patient-read-model.port.js';
 import type { PatientTimelineReader } from '../../application/ports/patient-timeline.port.js';
+import type { StaffNames } from '../../application/ports/staff-names.port.js';
+import { GetStaffNames } from '../../../staff/application/queries/get-staff-names.query.js';
 import type { PatientRepository } from '../../application/ports/patient.repository.port.js';
 import type { TeamMembers } from '../../application/ports/team-members.port.js';
 import { GetPatientCompanions } from '../../application/queries/get-patient-companions.query.js';
@@ -45,6 +48,14 @@ export const patientsProviders: Provider[] = [
   { provide: CLOCK, useValue: systemClock },
   // Membership comes from Identity & Access; the port has the same shape.
   { provide: TEAM_MEMBERS, useExisting: TEAM_MEMBERSHIP_CHECKER },
+  // Names come from the Staff context's public query.
+  {
+    provide: STAFF_NAMES,
+    inject: [GetStaffNames],
+    useFactory: (getStaffNames: GetStaffNames): StaffNames => ({
+      namesFor: (userIds) => getStaffNames.execute(userIds),
+    }),
+  },
 
   // Write side
   {
@@ -124,14 +135,20 @@ export const patientsProviders: Provider[] = [
   },
   {
     provide: GetPatientTimeline,
-    inject: [GetPatient, PATIENT_TIMELINE_READER],
-    useFactory: (getPatient: GetPatient, timeline: PatientTimelineReader) =>
-      new GetPatientTimeline(getPatient, timeline),
+    inject: [GetPatient, PATIENT_TIMELINE_READER, STAFF_NAMES],
+    useFactory: (
+      getPatient: GetPatient,
+      timeline: PatientTimelineReader,
+      staffNames: StaffNames,
+    ) => new GetPatientTimeline(getPatient, timeline, staffNames),
   },
   {
     provide: GetPatientCompanions,
-    inject: [GetPatient, PATIENT_TIMELINE_READER],
-    useFactory: (getPatient: GetPatient, timeline: PatientTimelineReader) =>
-      new GetPatientCompanions(getPatient, timeline),
+    inject: [GetPatient, PATIENT_TIMELINE_READER, STAFF_NAMES],
+    useFactory: (
+      getPatient: GetPatient,
+      timeline: PatientTimelineReader,
+      staffNames: StaffNames,
+    ) => new GetPatientCompanions(getPatient, timeline, staffNames),
   },
 ];

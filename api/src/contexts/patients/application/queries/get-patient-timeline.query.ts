@@ -1,4 +1,6 @@
+import { withActorNames } from '../mappings/actor-names.mapper.js';
 import { PatientTimelineReader } from '../ports/patient-timeline.port.js';
+import { StaffNames } from '../ports/staff-names.port.js';
 import { PatientRef, TimelineEntryView } from '../types/patient.types.js';
 import { GetPatient } from './get-patient.query.js';
 
@@ -10,10 +12,12 @@ export class GetPatientTimeline {
   constructor(
     private readonly getPatient: GetPatient,
     private readonly timeline: PatientTimelineReader,
+    private readonly staffNames: StaffNames,
   ) {}
 
   async execute(ref: PatientRef): Promise<TimelineEntryView[]> {
     const patient = await this.getPatient.execute(ref);
-    return this.timeline.forPatient(ref.teamId, patient.id);
+    const entries = await this.timeline.forPatient(ref.teamId, patient.id);
+    return withActorNames(entries, this.staffNames);
   }
 }

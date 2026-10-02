@@ -54,6 +54,9 @@ export type Companion = {
   recordedAt: string;
   requestedBy: string;
   executedBy: string;
+  /** From the API's staff directory; null when the API does not know the user yet. */
+  requestedByName: string | null;
+  executedByName: string | null;
 };
 
 export type TimelineEntry = {
@@ -62,6 +65,8 @@ export type TimelineEntry = {
   occurredAt: string;
   requestedBy: string;
   executedBy: string;
+  requestedByName: string | null;
+  executedByName: string | null;
   data: Record<string, unknown>;
 };
 

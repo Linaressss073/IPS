@@ -154,9 +154,9 @@ export function CompanionsCard(props: {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })}{" "}
-                    · por {memberName(props.members, companion.executedBy)}
+                    · por {memberName(props.members, companion.executedBy, companion.executedByName)}
                     {companion.requestedBy !== companion.executedBy && (
-                      <> · solicitado por {memberName(props.members, companion.requestedBy)}</>
+                      <> · solicitado por {memberName(props.members, companion.requestedBy, companion.requestedByName)}</>
                     )}
                   </p>
                 </div>

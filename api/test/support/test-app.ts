@@ -49,7 +49,9 @@ export async function createTestApp() {
     })
     .compile();
 
-  const app: INestApplication<App> = moduleRef.createNestApplication();
+  const app: INestApplication<App> = moduleRef.createNestApplication({
+    rawBody: true,
+  });
   app.setGlobalPrefix(API_PREFIX);
   await app.init();
   const db = moduleRef.get<Database>(DRIZZLE);
