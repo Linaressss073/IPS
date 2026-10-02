@@ -1,12 +1,10 @@
 import {
   InvalidValueError,
+  normalizeEmail,
+  normalizePhone,
   ValueObject,
 } from '../../../../shared/domain/index.js';
 import { ADDRESS_MAX_LENGTH } from '../constants/patient.constants.js';
-import {
-  normalizeEmail,
-  normalizePhone,
-} from '../utils/contact-normalization.js';
 
 interface ContactInfoProps {
   email: string;

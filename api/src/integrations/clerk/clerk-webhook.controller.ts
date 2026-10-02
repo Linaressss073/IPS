@@ -12,21 +12,25 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { verifyWebhook } from '@clerk/backend/webhooks';
 import type { Request as ExpressRequest } from 'express';
-import { Env } from '../../../../../config/env.js';
-import { ApplyIdentityChange } from '../../../application/commands/apply-identity-change.command.js';
-import { toIdentityChange } from '../../../infrastructure/providers/clerk/clerk-identity-change.mapper.js';
+import { Env } from '../../config/env.js';
+import { ApplyOrganizationChange } from '../../contexts/organizations/application/commands/apply-organization-change.command.js';
+import { toOrganizationChange } from '../../contexts/organizations/infrastructure/providers/clerk/clerk-organization-change.mapper.js';
+import { ApplyIdentityChange } from '../../contexts/staff/application/commands/apply-identity-change.command.js';
+import { toIdentityChange } from '../../contexts/staff/infrastructure/providers/clerk/clerk-identity-change.mapper.js';
 
 /**
  * Receives Clerk webhooks (no session: authenticity comes from the
- * signature over the raw body). Payloads contain personal data, so only the
- * event type and id are ever logged.
+ * signature over the raw body) and hands each event to every context that
+ * keeps a copy of Clerk data, each with its own anti-corruption mapper.
+ * Payloads contain personal data, so only the event type is ever logged.
  */
 @Controller('webhooks/clerk')
 export class ClerkWebhookController {
   private readonly logger = new Logger(ClerkWebhookController.name);
 
   constructor(
-    private readonly apply: ApplyIdentityChange,
+    private readonly applyIdentityChange: ApplyIdentityChange,
+    private readonly applyOrganizationChange: ApplyOrganizationChange,
     private readonly config: ConfigService<Env, true>,
   ) {}
 
@@ -49,9 +53,16 @@ export class ClerkWebhookController {
       throw new BadRequestException('Invalid webhook signature');
     }
 
-    const change = toIdentityChange(event);
-    if (change) await this.apply.execute(change);
-    this.logger.log(`Clerk ${event.type} ${change ? 'applied' : 'ignored'}`);
+    // A failure answers 5xx, so Clerk retries the event later.
+    const identityChange = toIdentityChange(event);
+    if (identityChange) await this.applyIdentityChange.execute(identityChange);
+    const organizationChange = toOrganizationChange(event);
+    if (organizationChange) {
+      await this.applyOrganizationChange.execute(organizationChange);
+    }
+
+    const handled = identityChange || organizationChange;
+    this.logger.log(`Clerk ${event.type} ${handled ? 'applied' : 'ignored'}`);
     return { received: true };
   }
 }

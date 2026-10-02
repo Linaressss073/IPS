@@ -61,12 +61,6 @@ export const NAME_MAX_LENGTH = 60;
 /** Letters (with accents), spaces, apostrophes and dashes. */
 export const NAME_PATTERN = /^\p{L}[\p{L}' -]*$/u;
 
-export const EMAIL_MAX_LENGTH = 254;
-export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** After removing spaces, dashes and parentheses: optional "+" and 7-15 digits. */
-export const PHONE_PATTERN = /^\+?\d{7,15}$/;
-
 export const ADDRESS_MAX_LENGTH = 200;
 export const EPS_MAX_LENGTH = 120;
 export const MAX_AGE_YEARS = 130;

@@ -1,6 +1,7 @@
 import type { ClerkClient } from '@clerk/backend';
 import { TeamId, UserId } from '../../../../../shared/domain/index.js';
 import { TeamMembershipChecker } from '../../../application/ports/team-membership-checker.port.js';
+import { normalizeRole } from '../../../domain/constants/roles.js';
 
 const CACHE_TTL_MS = 30_000;
 
@@ -13,17 +14,21 @@ const CACHE_TTL_MS = 30_000;
 export class ClerkTeamMembershipChecker implements TeamMembershipChecker {
   private readonly cache = new Map<
     string,
-    { member: boolean; expiresAt: number }
+    { role: string | null; expiresAt: number }
   >();
 
   constructor(private readonly clerk: ClerkClient) {}
 
   async isMember(userId: UserId, teamId: TeamId): Promise<boolean> {
+    return (await this.roleIn(userId, teamId)) !== null;
+  }
+
+  async roleIn(userId: UserId, teamId: TeamId): Promise<string | null> {
     const key = `${teamId.value}:${userId.value}`;
     const cached = this.cache.get(key);
-    if (cached && cached.expiresAt > Date.now()) return cached.member;
+    if (cached && cached.expiresAt > Date.now()) return cached.role;
 
-    let member = false;
+    let role: string | null = null;
     try {
       const { data } =
         await this.clerk.organizations.getOrganizationMembershipList({
@@ -31,12 +36,12 @@ export class ClerkTeamMembershipChecker implements TeamMembershipChecker {
           userId: [userId.value],
           limit: 1,
         });
-      member = data.length > 0;
+      role = data.length > 0 ? normalizeRole(data[0].role) : null;
     } catch {
-      member = false;
+      role = null;
     }
 
-    this.cache.set(key, { member, expiresAt: Date.now() + CACHE_TTL_MS });
-    return member;
+    this.cache.set(key, { role, expiresAt: Date.now() + CACHE_TTL_MS });
+    return role;
   }
 }

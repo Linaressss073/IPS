@@ -5,4 +5,6 @@ import { AuthenticatedUser } from '../../../domain/entities/authenticated-user.e
 export interface AuthenticatedRequest extends Request {
   auth?: AuthenticatedUser;
   teamId?: TeamId;
+  /** Caller's role in `teamId`, set by TeamMemberGuard. */
+  teamRole?: string;
 }

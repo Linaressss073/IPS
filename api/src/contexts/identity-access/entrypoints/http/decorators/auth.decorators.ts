@@ -4,11 +4,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../guards/access-token.guard.js';
+import { TeamAdminGuard } from '../guards/team-admin.guard.js';
 import { AuthenticatedRequest } from '../guards/authenticated-request.js';
 import { TeamMemberGuard } from '../guards/team-member.guard.js';
 
 /** Protects a controller whose routes are nested under `/teams/:teamId`. */
 export const TeamScoped = () => UseGuards(AccessTokenGuard, TeamMemberGuard);
+
+/** Like TeamScoped, but only for the team's administrators. */
+export const TeamAdmin = () =>
+  UseGuards(AccessTokenGuard, TeamMemberGuard, TeamAdminGuard);
 
 export const Authenticated = () => UseGuards(AccessTokenGuard);
 
