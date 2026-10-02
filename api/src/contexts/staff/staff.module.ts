@@ -5,6 +5,7 @@ import { StaffController } from './entrypoints/http/controllers/staff.controller
 import { staffProviders } from './infrastructure/providers/staff.providers.js';
 import { ApplyIdentityChange } from './application/commands/apply-identity-change.command.js';
 import { SyncStaffFromProvider } from './application/commands/sync-staff-from-provider.command.js';
+import { STAFF_PROJECTION } from './application/constants/injection-tokens.js';
 
 /**
  * Bounded context "Staff": a minimized local directory of the people who
@@ -17,6 +18,6 @@ import { SyncStaffFromProvider } from './application/commands/sync-staff-from-pr
   providers: staffProviders,
   // Public query for other contexts (names in the patient timeline); the
   // Clerk webhooks and the bulk sync script use the two commands.
-  exports: [GetStaffNames, ApplyIdentityChange, SyncStaffFromProvider],
+  exports: [GetStaffNames, ApplyIdentityChange, SyncStaffFromProvider, STAFF_PROJECTION],
 })
 export class StaffModule {}

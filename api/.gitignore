@@ -3,3 +3,7 @@ dist
 coverage
 .env
 *.tsbuildinfo
+
+# Per-environment secrets (see deployment/secrets.example.json)
+deployment/secrets.*.json
+!deployment/secrets.example.json

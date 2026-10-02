@@ -1,5 +1,8 @@
-import 'dotenv/config';
 import { defineConfig } from 'drizzle-kit';
+import { loadDeploymentConfig } from './src/config/deployment-config.js';
+
+// Same settings as the app: ENV (default dev) + real environment variables.
+const settings = { ...loadDeploymentConfig(), ...process.env };
 
 export default defineConfig({
   dialect: 'postgresql',
@@ -10,6 +13,6 @@ export default defineConfig({
     './src/shared/infrastructure/persistence/*.schema.ts',
   ],
   out: './drizzle',
-  dbCredentials: { url: process.env.DATABASE_URL! },
+  dbCredentials: { url: settings.DATABASE_URL! },
   strict: true,
 });

@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import request from 'supertest';
+import { STAFF_COLLECTION } from '../src/contexts/staff/infrastructure/read-models/mongo-staff.projection.js';
 import { signedWebhook } from './support/clerk-webhook.js';
 import { createTestApp, TEAM_A, TEAM_B } from './support/test-app.js';
 
@@ -15,6 +16,7 @@ describe('Staff directory (e2e)', () => {
     await t.db.execute(
       sql`truncate table staff_users, staff_memberships, patients_patients, shared_trace_events`,
     );
+    await t.mongo.collection(STAFF_COLLECTION).deleteMany({});
   });
 
   afterAll(async () => {
@@ -92,6 +94,18 @@ describe('Staff directory (e2e)', () => {
     ).rows;
     expect(JSON.stringify(row)).not.toMatch(/alicia\.gomez|573001234567/);
 
+    // The MongoDB copy has the same minimized data, with the IPS memberships.
+    const doc = await t.mongo
+      .collection(STAFF_COLLECTION)
+      .findOne({ _id: 'alice' as never });
+    expect(doc).toMatchObject({
+      displayName: 'Alicia Gómez',
+      emailMasked: 'ali****@cli***.c**',
+      deleted: false,
+      teams: [{ teamId: TEAM_A, providerRole: 'org:member', clinicalRole: null }],
+    });
+    expect(JSON.stringify(doc)).not.toMatch(/alicia\.gomez|573001234567/);
+
     await api('bob').get(`/teams/${TEAM_A}/staff`).expect(403);
     expect((await api('bob').get(`/teams/${TEAM_B}/staff`).expect(200)).body).toEqual([]);
   });
@@ -143,6 +157,9 @@ describe('Staff directory (e2e)', () => {
       await t.db.execute(sql`select display_name, email_masked from staff_users where user_id = 'carol'`)
     ).rows;
     expect(row).toEqual({ display_name: null, email_masked: null });
+    expect(
+      await t.mongo.collection(STAFF_COLLECTION).findOne({ _id: 'carol' as never }),
+    ).toMatchObject({ displayName: null, emailMasked: null, deleted: true, teams: [] });
 
     // A stale update after the deletion does not bring the data back.
     await send(user('carol', 'Carolina', 'c@clinica.co', 9_999_999_999_999)).expect(200);

@@ -7,21 +7,31 @@ import {
   DRIZZLE,
   type Database,
 } from '../../../../shared/infrastructure/persistence/database.module.js';
+import {
+  MONGO_DB,
+  type MongoDatabase,
+} from '../../../../shared/infrastructure/persistence/mongo.js';
 import { systemClock } from '../../../../shared/infrastructure/providers/system-clock.js';
 import { ApplyIdentityChange } from '../../application/commands/apply-identity-change.command.js';
 import { SyncStaffFromProvider } from '../../application/commands/sync-staff-from-provider.command.js';
 import {
   IDENTITY_SOURCE,
+  STAFF_PROJECTION,
   STAFF_READ_MODEL,
   STAFF_REPOSITORY,
 } from '../../application/constants/injection-tokens.js';
 import type { IdentitySource } from '../../application/ports/identity-source.port.js';
+import type { StaffProjection } from '../../application/ports/staff-projection.port.js';
 import type { StaffReadModel } from '../../application/ports/staff-read-model.port.js';
 import type { StaffRepository } from '../../application/ports/staff.repository.port.js';
 import { GetStaffNames } from '../../application/queries/get-staff-names.query.js';
 import { ListTeamStaff } from '../../application/queries/list-team-staff.query.js';
 import { DrizzleStaffReadModel } from '../persistence/drizzle-staff.read-model.js';
 import { DrizzleStaffRepository } from '../persistence/drizzle-staff.repository.js';
+import {
+  MongoStaffProjection,
+  NoStaffProjection,
+} from '../read-models/mongo-staff.projection.js';
 import { ClerkIdentitySource } from './clerk/clerk-identity-source.js';
 
 /** The only place where the staff classes are wired to the framework. */
@@ -46,10 +56,16 @@ export const staffProviders: Provider[] = [
       ),
   },
   {
+    provide: STAFF_PROJECTION,
+    inject: [DRIZZLE, MONGO_DB],
+    useFactory: (db: Database, mongo: MongoDatabase): StaffProjection =>
+      mongo ? new MongoStaffProjection(db, mongo) : new NoStaffProjection(),
+  },
+  {
     provide: ApplyIdentityChange,
-    inject: [STAFF_REPOSITORY, CLOCK],
-    useFactory: (repo: StaffRepository, clock: Clock) =>
-      new ApplyIdentityChange(repo, clock),
+    inject: [STAFF_REPOSITORY, STAFF_PROJECTION, CLOCK],
+    useFactory: (repo: StaffRepository, projection: StaffProjection, clock: Clock) =>
+      new ApplyIdentityChange(repo, projection, clock),
   },
   {
     provide: SyncStaffFromProvider,

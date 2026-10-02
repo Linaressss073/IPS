@@ -6,7 +6,8 @@
 # Render asks for them once and they never live in git.
 #
 # If Render assigns other URLs than ips-api/ips-web.onrender.com, update
-# CORS_ORIGIN (API) and NEXT_PUBLIC_API_URL (web) and redeploy the web app:
+# CORS_ORIGIN (api/deployment/config.json, prod) and NEXT_PUBLIC_API_URL (web)
+# and redeploy both:
 # NEXT_PUBLIC_* values are baked into its build.
 #
 # pnpm runs through npx: Render's global npm folder (/usr/lib) is read-only,
@@ -43,13 +44,15 @@ projects:
             envVars:
               - key: NODE_VERSION
                 value: "24"
+              # Picks the "prod" settings of api/deployment/config.json (CORS,
+              # Mongo timeline, relay interval); these variables override them.
+              - key: ENV
+                value: prod
               # Internal connection string of the database (private network).
               - key: DATABASE_URL
                 fromDatabase:
                   name: ips-db-postgres
                   property: connectionString
-              - key: CORS_ORIGIN
-                value: https://ips-web.onrender.com
               # Same Clerk application as the web app; its tokens are only
               # accepted from CORS_ORIGIN (authorized parties).
               - key: CLERK_SECRET_KEY
@@ -58,14 +61,9 @@ projects:
               # (user.*, organization.*, organizationMembership.*): its signing secret.
               - key: CLERK_WEBHOOK_SIGNING_SECRET
                 sync: false
-              # Timeline read model in MongoDB Atlas; the URL must end in /his
-              # (the database name). Pending events are copied there by the relay.
+              # MongoDB Atlas; the URL must end in /his (the database name).
               - key: MONGO_URL
                 sync: false
-              - key: TIMELINE_STORE
-                value: mongo
-              - key: RELAY_INTERVAL_MS
-                value: "500"
 
           - type: web
             name: ips-web

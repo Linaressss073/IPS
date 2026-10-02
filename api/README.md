@@ -182,17 +182,42 @@ El contexto `staff` guarda una copia **mínima** de los usuarios de Clerk (Ley 1
   oculta en todo el historial (Postgres y Mongo) a la vez.
 - **Los webhooks no se registran en el log** (solo tipo de evento) y se rechazan si la firma no es válida.
 - Solo los miembros de una IPS ven el personal de esa IPS.
+- **Copia en MongoDB (colección `staff`)** para consultarla desde Atlas: un documento por usuario
+  (`_id` = id de Clerk) con `displayName`, `emailMasked`, `deleted` y `teams[]` (IPS, rol de Clerk y rol clínico).
+  Postgres es la fuente de verdad: cada cambio **reconstruye** el documento del usuario desde Postgres, así la copia
+  nunca queda desfasada aunque los webhooks lleguen fuera de orden; si Mongo falla, el webhook responde error y Clerk
+  lo reintenta. Mismos datos minimizados que Postgres (nunca el e-mail completo); un usuario anonimizado queda con
+  `deleted: true`, sin nombre, sin e-mail y sin IPS.
 
 Configuración: en Clerk → **Webhooks**, crear un endpoint `https://<api>/api/v1/webhooks/clerk` con los eventos
 `user.created`, `user.updated`, `user.deleted`, `organization.created`, `organization.updated`,
 `organization.deleted` y `organizationMembership.*`, y poner su
 *signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`. Para cargar a los usuarios que ya existían:
-`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías).
+`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías y reconstruye la
+colección `staff` de MongoDB).
+
+## Configuración por entorno
+
+La API no usa archivos `.env`. Cada entorno (`ENV` = `dev` por defecto, `test` o `prod`) toma sus valores de:
+
+1. `deployment/config.json`: valores **no secretos** por entorno (se sube al repo).
+2. `deployment/secrets.<env>.json`: llaves y contraseñas (**ignorado por git**; plantilla en
+   `deployment/secrets.example.json`).
+3. Variables de entorno reales, que tienen la última palabra (así Render las define en su panel).
+
+```bash
+pnpm start:dev                      # ENV=dev por defecto
+ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm clerk:sync
+```
+
+`ENV=test` lo usan los e2e (sus bases `b2b_test` / `his_test` vienen de `vitest.config.e2e.ts`) y Render corre con
+`ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `DATABASE_URL`, `MONGO_URL`, `TIMELINE_STORE`, `RELAY_INTERVAL_MS`,
+`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET` (ver `src/config/env.ts`).
 
 ## Desarrollo local
 
 ```bash
-cp .env.example .env      # completar CLERK_SECRET_KEY con la misma aplicación de Clerk del frontend
+cp deployment/secrets.example.json deployment/secrets.dev.json   # poner CLERK_SECRET_KEY (misma app de Clerk que el frontend)
 pnpm install
 pnpm db:up                # Postgres 17 en Docker (puerto 5433)
                           # + un MongoDB propio en MONGO_URL (p. ej. localhost:27017), o MONGO_URL vacío

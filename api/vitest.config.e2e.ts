@@ -16,6 +16,7 @@ export default defineConfig({
     // Real Postgres and Mongo, each with a database of its own that the specs
     // wipe (never the development ones); Clerk is faked in the specs.
     env: {
+      ENV: 'test',
       DATABASE_URL: TEST_DATABASE_URL,
       MONGO_URL: TEST_MONGO_URL,
       TIMELINE_STORE: 'mongo',
