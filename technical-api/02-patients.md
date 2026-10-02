@@ -152,8 +152,8 @@ PATCH /api/v1/teams/:teamId/patients/:patientId
 GET /api/v1/teams/:teamId/patients/:patientId/timeline
 ```
 
-Todo lo que ha pasado con el paciente, **del más antiguo al más reciente**. Se lee de MongoDB (`patient_timeline`) y,
-si Mongo falla, de PostgreSQL. Tras un cambio puede tardar ~0,5 s en aparecer.
+Todo lo que ha pasado con el paciente, **del más antiguo al más reciente**, leído de la colección `trace_events`
+(se ve al instante tras cada cambio).
 
 **200 OK**: lista de [`TimelineEntryView`](#timelineentryview)
 

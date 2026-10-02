@@ -1,6 +1,6 @@
 # B2B API
 
-Backend multi-tenant en **NestJS + Drizzle (PostgreSQL)** organizado con **Domain-Driven Design**.
+Backend multi-tenant en **NestJS + MongoDB** organizado con **Domain-Driven Design**.
 La identidad (login, usuarios, organizaciones) la gestiona **Clerk**, igual que el frontend
 (`../multi-tenant-starter-template`); esta API solo verifica sus tokens y es dueña de los datos de negocio.
 
@@ -30,9 +30,9 @@ contexto **Pacientes**.
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
 | `organizations` | Ficha de cada IPS en la colección **`organizations` de MongoDB**: nombre (igual al de Clerk) y datos propios (NIT con dígito de verificación DIAN, código de habilitación REPS, dirección, municipio, departamento, teléfono, correo institucional). Clerk sigue siendo dueño del acceso. |
 | `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol de Clerk y roles funcionales), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
-| `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexiones a Postgres y Mongo, relay. |
+| `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexión y transacciones de MongoDB. |
 
-## CQRS: Postgres escribe, Mongo lee el historial
+## CQRS sobre MongoDB
 
 ```
  Frontend ──► API /api/v1
@@ -41,28 +41,27 @@ contexto **Pacientes**.
      │ POST / PATCH             │ GET
      ▼                          ▼
   COMANDOS (orquestan)        CONSULTAS (solo leen, sin dominio)
-  RegisterPatient             SearchPatients     ──► Postgres
-  UpdatePatient               GetPatient         ──► Postgres
-     │                        GetPatientTimeline ──► Mongo | Postgres (TIMELINE_STORE)
+  RegisterPatient             SearchPatients     ──► patients
+  UpdatePatient               GetPatient         ──► patients
+     │                        GetPatientTimeline ──► trace_events
      ▼
   DOMINIO (Patient: reglas puras)
      │
      ▼
-  Postgres: ficha + evento en UNA transacción ──relay──► Mongo (patient_timeline)
+  MongoDB: documento + evento en UNA transacción
 ```
 
-- **Comandos** (`application/commands/`): cargan el agregado, le piden al dominio el cambio y guardan la ficha y
-  su evento de trazabilidad **en la misma transacción**: si una falla, no se guarda ninguna. Cada controlador de
+- **Una sola base: MongoDB** (Atlas en producción; un *replica set* de un nodo en `docker-compose` para
+  desarrollo y e2e, porque las transacciones lo exigen).
+- **Comandos** (`application/commands/`): cargan el agregado, le piden al dominio el cambio y guardan el documento
+  y su evento de trazabilidad **en la misma transacción**: si una falla, no se guarda ninguna. Cada controlador de
   comandos (`patient-commands.controller.ts`) solo traduce HTTP a un comando.
-- **Consultas** (`application/queries/`): leen modelos de lectura ya listos para pintar, sin pasar por el dominio
+- **Consultas** (`application/queries/`): leen los documentos ya listos para pintar, sin pasar por el dominio
   (`patient-queries.controller.ts`).
-- **`shared_trace_events`** (Postgres) es la fuente de verdad del historial y a la vez el *outbox*:
-  `TraceEventRelay` copia cada `RELAY_INTERVAL_MS` los eventos pendientes a la colección `patient_timeline`
-  de Mongo y los marca como publicados en la misma transacción. Es idempotente (el id del evento es el `_id`)
-  y las escrituras nunca dependen de Mongo: si está caído, los eventos esperan en Postgres.
-- **`TIMELINE_STORE=mongo|postgres`** elige qué motor responde el historial; ambos devuelven lo mismo
-  (lo verifica el test e2e), así se pueden comparar o desactivar Mongo sin tocar código. Mongo va hasta un
-  intervalo del relay por detrás de Postgres; la ficha del paciente siempre se lee al instante.
+- **`trace_events`** es el registro de auditoría *append-only* y a la vez el historial del paciente: se lee al
+  instante, sin copias ni procesos en segundo plano.
+- **Índices:** cada contexto crea los suyos al arrancar (idempotente), p. ej. documento único por IPS en
+  `patients`. No hay migraciones de esquema.
 - **Bloqueo optimista:** cada paciente tiene `version`. El `PATCH` envía la versión que leyó el cliente; si
   alguien guardó antes, responde 409 `PATIENT_VERSION_CONFLICT` en vez de pisar el cambio.
 
@@ -75,7 +74,7 @@ misma plantilla:
 
 ```
 src/contexts/<contexto>/
-├── domain/                  # Modelo de negocio puro: sin NestJS, Drizzle ni Clerk
+├── domain/                  # Modelo de negocio puro: sin NestJS, MongoDB ni Clerk
 │   ├── constants/           # Límites y patrones de negocio (longitudes, regex…)
 │   ├── entities/            # Agregados/entidades (*.entity.ts) y objetos de valor (*.vo.ts)
 │   ├── errors/              # Invariantes que rompe el propio agregado
@@ -97,8 +96,8 @@ src/contexts/<contexto>/
 │       ├── dto/             # Validación de forma (class-validator)
 │       └── mapping/         # DTO → comando de aplicación
 ├── infrastructure/
-│   ├── persistence/         # Esquema Drizzle, repositorio, modelo de lectura, mapper, repositorio en memoria (tests)
-│   ├── read-models/         # Lectores de otros motores (p. ej. timeline en Mongo y en Postgres)
+│   ├── persistence/         # Documento e índices, repositorio, modelo de lectura, mapper, repositorio en memoria (tests)
+│   ├── read-models/         # Lecturas sobre colecciones de otros (p. ej. el historial en trace_events)
 │   └── providers/           # Adaptadores externos (Clerk) y cableado NestJS de puertos, comandos y consultas
 └── <contexto>.module.ts     # Solo importa módulos, controladores y providers
 ```
@@ -110,8 +109,8 @@ Carpetas extra fuera de la plantilla, porque sus piezas no encajan en otras:
 
 `shared/` es el *shared kernel* y usa las mismas capas, solo con lo que tiene: `domain/{entities,errors,utils}`
 (`Entity`, `ValueObject`, `TeamId`, `UserId`, `DomainError`), `application/{constants,ports,types}` (`Clock`,
-`TraceEvent`, `Actor`), `infrastructure/{persistence,providers}` (Drizzle, Mongo, tabla `shared_trace_events`,
-`TraceEventRelay`, `systemClock`) y `entrypoints/http/{controllers,filters}` (`/health`).
+`TraceEvent`, `Actor`), `infrastructure/{persistence,providers}` (conexión MongoDB, transacciones, colección
+`trace_events`, `systemClock`) y `entrypoints/http/{controllers,filters}` (`/health`).
 
 **Comunicación entre contextos:** un contexto nunca importa el dominio de otro. Declara un puerto en su
 `application/ports` y lo implementa con un adaptador en `infrastructure/providers/<otro-contexto>/` que usa la
@@ -164,7 +163,8 @@ Cuerpo de `POST /patients` (en `PATCH`, cada grupo enviado reemplaza al actual c
 
 `companion` es opcional y queda como acompañante #1. Los siguientes se agregan con `POST .../companions`: cada uno es un
 evento `patient.companion_recorded` (en la misma colección del historial, sin tablas ni colecciones nuevas) con su
-`number`, asignado en Postgres bloqueando la fila del paciente para que dos registros simultáneos nunca repitan número.
+`number`, tomado de un contador del paciente que se incrementa de forma atómica (`$inc`) en la misma transacción,
+para que dos registros simultáneos nunca repitan número.
 
 Errores de dominio: validación → 400, no miembro → 403, no encontrado → 404, conflictos de reglas de negocio → 409,
 siempre con un `code` legible por máquina (`INVALID_VALUE`, `INVALID_BIRTH_DATE`, `INVALID_REQUESTER`,
@@ -181,22 +181,20 @@ El contexto `staff` guarda una copia **mínima** de los usuarios de Clerk (Ley 1
   id seudónimo para que la auditoría siga enlazada; el historial muestra "Usuario eliminado". Una actualización
   vieja que llegue tarde no revive los datos.
 - **Los nombres no se copian a los eventos de trazabilidad:** se resuelven al leer, así anonimizar a alguien lo
-  oculta en todo el historial (Postgres y Mongo) a la vez.
+  oculta en todo el historial a la vez.
 - **Los webhooks no se registran en el log** (solo tipo de evento) y se rechazan si la firma no es válida.
 - Solo los miembros de una IPS ven el personal de esa IPS.
-- **Copia en MongoDB (colección `staff`)** para consultarla desde Atlas: un documento por usuario
-  (`_id` = id de Clerk) con `displayName`, `emailMasked`, `deleted` y `teams[]` (IPS, rol de Clerk y roles).
-  Postgres es la fuente de verdad: cada cambio **reconstruye** el documento del usuario desde Postgres, así la copia
-  nunca queda desfasada aunque los webhooks lleguen fuera de orden; si Mongo falla, el webhook responde error y Clerk
-  lo reintenta. Mismos datos minimizados que Postgres (nunca el e-mail completo); un usuario anonimizado queda con
-  `deleted: true`, sin nombre, sin e-mail y sin IPS.
+- **Colección `staff`**: un documento por usuario (`_id` = id de Clerk) con `displayName`, `emailMasked`,
+  `deleted` y `teams[]` (IPS, rol de Clerk, roles funcionales y la fecha de Clerk de esa membresía). Las
+  actualizaciones son condicionales por fecha, así un webhook que llegue fuera de orden no pisa datos más nuevos;
+  si algo falla, el webhook responde error y Clerk lo reintenta. Un usuario anonimizado queda con `deleted: true`,
+  sin nombre, sin e-mail y sin IPS.
 
 Configuración: en Clerk → **Webhooks**, crear un endpoint `https://<api>/api/v1/webhooks/clerk` con los eventos
 `user.created`, `user.updated`, `user.deleted`, `organization.created`, `organization.updated`,
 `organization.deleted` y `organizationMembership.*`, y poner su
 *signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`. Para cargar a los usuarios que ya existían:
-`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías y reconstruye la
-colección `staff` de MongoDB).
+`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías).
 
 ## Configuración por entorno
 
@@ -212,8 +210,8 @@ pnpm start:dev                      # ENV=dev por defecto
 ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm clerk:sync
 ```
 
-`ENV=test` lo usan los e2e (sus bases `b2b_test` / `his_test` vienen de `vitest.config.e2e.ts`) y Render corre con
-`ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `DATABASE_URL`, `MONGO_URL`, `TIMELINE_STORE`, `RELAY_INTERVAL_MS`,
+`ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
+`ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`,
 `CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET` (ver `src/config/env.ts`).
 
 ## Desarrollo local
@@ -221,31 +219,35 @@ ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm
 ```bash
 cp deployment/secrets.example.json deployment/secrets.dev.json   # poner CLERK_SECRET_KEY (misma app de Clerk que el frontend)
 pnpm install
-pnpm db:up                # Postgres 17 en Docker (puerto 5433)
-                          # + un MongoDB propio en MONGO_URL (p. ej. localhost:27017), o MONGO_URL vacío
-                          #   para trabajar solo con Postgres
-pnpm db:migrate           # aplica las migraciones de ./drizzle
+pnpm db:up                # MongoDB 8 en Docker (replica set rs0, puerto 27018: no choca con otro Mongo local)
 pnpm start:dev            # http://localhost:3001/api/v1
 ```
 
-Cambiar el esquema: editar el `*.schema.ts` del contexto → `pnpm db:generate --name <cambio>` → `pnpm db:migrate`.
+### Datos que estaban en PostgreSQL
+
+Hasta octubre de 2026 la API guardaba pacientes, personal y trazabilidad en PostgreSQL. Para copiarlos a MongoDB
+(idempotente; se puede repetir):
+
+```bash
+pnpm build
+SOURCE_DATABASE_URL="postgres://…" ENV=prod pnpm data:import-postgres   # MONGO_URL de deployment/ o del entorno
+```
 
 ## Tests
 
 ```bash
 pnpm test        # unitarios: dominio y casos de uso (repositorio en memoria)
-pnpm test:e2e    # HTTP + Postgres y Mongo reales; Clerk sustituido por dobles (requiere db:up y Mongo)
-                 # Usa bases propias que se vacían en cada test: Postgres b2b_test (se crea y migra sola)
-                 # y Mongo his_test. Se cambian con DATABASE_URL_TEST / MONGO_URL_TEST, y se niega a
-                 # correr si el nombre no termina en "_test", para no tocar nunca los datos de desarrollo.
+pnpm test:e2e    # HTTP + MongoDB real; Clerk sustituido por dobles (requiere pnpm db:up)
+                 # Usa la base his_test, que se vacía en cada test. Se cambia con MONGO_URL_TEST y se
+                 # niega a correr si el nombre no termina en "_test", para no tocar nunca los datos de desarrollo.
 ```
 
 ## Añadir un nuevo contexto
 
 1. Crear `src/contexts/<contexto>/` con la plantilla de carpetas de arriba.
 2. Modelar en `domain/` con el lenguaje ubicuo: agregado en `entities/`, objetos de valor `*.vo.ts`, invariantes en `errors/`.
-3. Puerto del repositorio en `application/ports/` + su token en `application/constants/`; un comando por clase en `application/commands/` y una consulta por clase en `application/queries/`. Los comandos que cambian algo del recorrido del paciente guardan un `TraceEvent` en la misma transacción (`appendTraceEvents`).
-4. Tabla Drizzle en `infrastructure/persistence/*.schema.ts` (se detecta sola en `drizzle.config.ts`) + repositorio + mapper.
+3. Puerto del repositorio en `application/ports/` + su token en `application/constants/`; un comando por clase en `application/commands/` y una consulta por clase en `application/queries/`. Los comandos que cambian algo del recorrido del paciente guardan un `TraceEvent` en la misma transacción (`inTransaction` + `appendTraceEvents`).
+4. Documento e índices en `infrastructure/persistence/*.document.ts` (el módulo crea los índices al arrancar con `ensureIndexes`) + repositorio + mapper.
 5. Cableado en `infrastructure/providers/<contexto>.providers.ts`.
 6. Controller en `entrypoints/http/controllers/` bajo `teams/:teamId/...` con `@TeamScoped()`, DTOs en `http/dto/` y conversión en `http/mapping/`.
 7. `<contexto>.module.ts` que importe `IdentityAccessModule`, y registrarlo en `AppModule`.

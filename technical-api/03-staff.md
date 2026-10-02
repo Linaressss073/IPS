@@ -3,8 +3,7 @@
 [← Índice](README.md)
 
 Directorio **mínimo y ofuscado** de quienes trabajan en cada IPS, sincronizado con Clerk por
-[webhooks](05-webhooks.md) y por el script `pnpm clerk:sync`. Fuente de verdad: PostgreSQL (`staff_users`,
-`staff_memberships`); copia de lectura en MongoDB (colección `staff`).
+[webhooks](05-webhooks.md) y por el script `pnpm clerk:sync`. Se guarda en la colección `staff` de MongoDB.
 
 ## Listar el personal
 
@@ -70,7 +69,7 @@ todos.
 - Roles válidos: `agendamiento`, `admision`, `medico`, `farmacia`, `soporte` (sin distinguir mayúsculas). Los
   administradores no son un rol de esta lista: vienen de Clerk.
 - La persona debe pertenecer a la IPS en Clerk; si aún no estaba en el directorio, se agrega.
-- Cada cambio queda en la trazabilidad (`shared_trace_events`, tipo `staff.roles_assigned`): quién lo hizo, a quién y
+- Cada cambio queda en la trazabilidad (colección `trace_events`, tipo `staff.roles_assigned`): quién lo hizo, a quién y
   los roles antes y después. Asignar los mismos roles no genera evento.
 
 | Código | Cuándo |
@@ -88,9 +87,9 @@ todos.
 - Los nombres no se copian a los eventos de trazabilidad: se resuelven al leer, así la anonimización aplica a todo el
   historial a la vez.
 
-## Copia en MongoDB (`staff`)
+## Colección `staff`
 
-Un documento por usuario, reconstruido desde PostgreSQL en cada cambio (útil para consultar desde Atlas):
+Un documento por usuario (se puede consultar desde Atlas):
 
 ```json
 {
@@ -99,9 +98,15 @@ Un documento por usuario, reconstruido desde PostgreSQL en cada cambio (útil pa
   "emailMasked": "ali****@cli***.c**",
   "deleted": false,
   "deletedAt": null,
-  "teams": [{ "teamId": "org_…", "providerRole": "org:admin", "roles": ["admision"] }],
-  "sourceUpdatedAt": "2026-10-02T07:09:33.656Z",
-  "projectedAt": "2026-10-02T07:09:34.010Z"
+  "teams": [
+    {
+      "teamId": "org_…",
+      "providerRole": "org:admin",
+      "roles": ["admision"],
+      "sourceUpdatedAt": "2026-10-02T07:09:33.656Z"
+    }
+  ],
+  "sourceUpdatedAt": "2026-10-02T07:09:33.656Z"
 }
 ```
 

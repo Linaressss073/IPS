@@ -1,1 +1,0 @@
-ALTER TABLE "staff_memberships" DROP COLUMN "clinical_role";

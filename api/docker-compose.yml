@@ -1,18 +1,27 @@
+# MongoDB for development and the e2e tests. It runs as a one-node replica
+# set because the API writes each change and its trace events in a
+# transaction. Port 27018 so it never collides with another local MongoDB.
 services:
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_USER: b2b
-      POSTGRES_PASSWORD: b2b
-      POSTGRES_DB: b2b
+  mongo:
+    image: mongo:8
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27018']
     ports:
-      - '5433:5432'
+      - '27018:27018'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - mongodata:/data/db
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U b2b']
+      # Initiates the replica set on first start; afterwards just reports it.
+      test:
+        - CMD
+        - mongosh
+        - --port
+        - '27018'
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27018' }] }).ok }"
       interval: 5s
-      retries: 10
+      retries: 20
+      start_period: 5s
 
 volumes:
-  pgdata:
+  mongodata:

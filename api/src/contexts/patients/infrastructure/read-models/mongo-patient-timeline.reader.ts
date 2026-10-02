@@ -1,32 +1,29 @@
 import type { Db } from 'mongodb';
 import { TeamId } from '../../../../shared/domain/index.js';
 import {
-  TIMELINE_COLLECTION,
-  TimelineDocument,
+  TRACE_EVENTS_COLLECTION,
+  TraceEventDocument,
 } from '../../../../shared/infrastructure/persistence/mongo.js';
 import { PatientTimelineReader } from '../../application/ports/patient-timeline.port.js';
 import { TimelineEntryView } from '../../application/types/patient.types.js';
 
-/**
- * Timeline from the Mongo read model. It lags Postgres by up to one relay
- * interval (RELAY_INTERVAL_MS), so a just-made change may not show yet.
- */
+/** The patient's trace events, straight from the append-only log. */
 export class MongoPatientTimelineReader implements PatientTimelineReader {
-  constructor(private readonly mongo: Db) {}
+  constructor(private readonly db: Db) {}
 
   async forPatient(
     teamId: TeamId,
     patientId: string,
     options: { type?: string } = {},
   ): Promise<TimelineEntryView[]> {
-    const documents = await this.mongo
-      .collection<TimelineDocument>(TIMELINE_COLLECTION)
+    const documents = await this.db
+      .collection<TraceEventDocument>(TRACE_EVENTS_COLLECTION)
       .find({
         teamId: teamId.value,
         patientId,
         ...(options.type ? { type: options.type } : {}),
       })
-      .sort({ occurredAt: 1, position: 1 })
+      .sort({ occurredAt: 1, seq: 1 })
       .toArray();
 
     return documents.map((doc) => ({

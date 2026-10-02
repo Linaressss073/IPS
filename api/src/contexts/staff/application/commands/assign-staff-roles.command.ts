@@ -2,7 +2,6 @@ import { Actor, Clock, newTraceEvent } from '../../../../shared/application/inde
 import { TeamId, UserId } from '../../../../shared/domain/index.js';
 import { StaffRoles } from '../../domain/entities/staff-roles.vo.js';
 import { StaffMemberNotFoundError } from '../errors/staff.errors.js';
-import { StaffProjection } from '../ports/staff-projection.port.js';
 import { StaffReadModel } from '../ports/staff-read-model.port.js';
 import { StaffRepository } from '../ports/staff.repository.port.js';
 import { TeamMembers } from '../ports/team-members.port.js';
@@ -20,7 +19,6 @@ export class AssignStaffRoles {
     private readonly staff: StaffRepository,
     private readonly readModel: StaffReadModel,
     private readonly members: TeamMembers,
-    private readonly projection: StaffProjection,
     private readonly clock: Clock,
   ) {}
 
@@ -48,7 +46,6 @@ export class AssignStaffRoles {
           data: { userId: command.userId, from: before, to: roles.value },
         }),
       ]);
-      await this.projection.refresh([command.userId]);
     }
 
     const member = await this.readModel.member(command.teamId, command.userId);

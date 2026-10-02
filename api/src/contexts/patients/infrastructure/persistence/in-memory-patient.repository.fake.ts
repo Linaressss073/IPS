@@ -9,15 +9,14 @@ import { PatientRepository } from '../../application/ports/patient.repository.po
 import { IdentityDocument } from '../../domain/entities/identity-document.vo.js';
 import { PatientId } from '../../domain/entities/patient-id.vo.js';
 import { Patient } from '../../domain/entities/patient.entity.js';
-import { PatientMapper } from './patient.mapper.js';
-import { PatientRow } from './patient.schema.js';
+import { PatientFields, PatientMapper } from './patient.mapper.js';
 
 /**
- * Test double for the PatientRepository port. Stores rows (not instances)
+ * Test double for the PatientRepository port. Stores documents (not instances)
  * so each load returns a fresh aggregate, like the real database.
  */
 export class InMemoryPatientRepository implements PatientRepository {
-  readonly rows = new Map<string, PatientRow>();
+  readonly rows = new Map<string, PatientFields>();
   readonly events: TraceEvent[] = [];
 
   async findById(teamId: TeamId, id: PatientId): Promise<Patient | null> {
@@ -32,8 +31,8 @@ export class InMemoryPatientRepository implements PatientRepository {
     return [...this.rows.values()].some(
       (row) =>
         row.teamId === teamId.value &&
-        row.documentType === document.type &&
-        row.documentNumber === document.number,
+        row.document.type === document.type &&
+        row.document.number === document.number,
     );
   }
 

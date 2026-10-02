@@ -1,11 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Inject, Module, OnModuleInit } from '@nestjs/common';
+import type { Db } from 'mongodb';
+import { MONGO_DB } from '../../shared/infrastructure/persistence/mongo.js';
+import { MongoConnection } from '../../shared/infrastructure/persistence/mongo-connection.js';
 import { IdentityAccessModule } from '../identity-access/identity-access.module.js';
 import { GetStaffNames } from './application/queries/get-staff-names.query.js';
 import { StaffController } from './entrypoints/http/controllers/staff.controller.js';
 import { staffProviders } from './infrastructure/providers/staff.providers.js';
 import { ApplyIdentityChange } from './application/commands/apply-identity-change.command.js';
 import { SyncStaffFromProvider } from './application/commands/sync-staff-from-provider.command.js';
-import { STAFF_PROJECTION } from './application/constants/injection-tokens.js';
+import { ensureStaffIndexes } from './infrastructure/persistence/staff.document.js';
 import { AccessService } from './application/services/access.service.js';
 import { PermissionGuard } from './entrypoints/http/guards/permission.guard.js';
 
@@ -25,9 +28,17 @@ import { PermissionGuard } from './entrypoints/http/guards/permission.guard.js';
     GetStaffNames,
     ApplyIdentityChange,
     SyncStaffFromProvider,
-    STAFF_PROJECTION,
     AccessService,
     PermissionGuard,
   ],
 })
-export class StaffModule {}
+export class StaffModule implements OnModuleInit {
+  constructor(
+    @Inject(MONGO_DB) private readonly db: Db,
+    private readonly connection: MongoConnection,
+  ) {}
+
+  onModuleInit(): void {
+    this.connection.afterConnect('staff indexes', () => ensureStaffIndexes(this.db));
+  }
+}

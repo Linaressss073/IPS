@@ -4,21 +4,18 @@ import {
   Inject,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { sql } from 'drizzle-orm';
-import {
-  DRIZZLE,
-  type Database,
-} from '../../../infrastructure/persistence/database.module.js';
+import type { Db } from 'mongodb';
+import { MONGO_DB } from '../../../infrastructure/persistence/mongo.js';
 
 @Controller('health')
 export class HealthController {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(@Inject(MONGO_DB) private readonly db: Db) {}
 
   /** 503 when the database is unreachable, so load balancers take the instance out. */
   @Get()
   async check() {
     try {
-      await this.db.execute(sql`select 1`);
+      await this.db.command({ ping: 1 }, { timeoutMS: 3000 });
     } catch {
       throw new ServiceUnavailableException({
         status: 'degraded',

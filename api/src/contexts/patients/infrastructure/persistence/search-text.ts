@@ -8,7 +8,7 @@ export function normalizeForSearch(text: string): string {
     .trim();
 }
 
-/** Escapes LIKE wildcards so user input is matched literally. */
-export function escapeLike(text: string): string {
-  return text.replace(/[\\%_]/g, (char) => `\\${char}`);
+/** Escapes regular-expression characters so user input is matched literally. */
+export function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

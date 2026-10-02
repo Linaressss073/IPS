@@ -1,6 +1,7 @@
-import { sql } from 'drizzle-orm';
 import request from 'supertest';
-import { STAFF_COLLECTION } from '../src/contexts/staff/infrastructure/read-models/mongo-staff.projection.js';
+import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
+import { STAFF_COLLECTION } from '../src/contexts/staff/infrastructure/persistence/staff.document.js';
+import { TRACE_EVENTS_COLLECTION } from '../src/shared/infrastructure/persistence/mongo.js';
 import { signedWebhook } from './support/clerk-webhook.js';
 import { createTestApp, TEAM_A, TEAM_B } from './support/test-app.js';
 
@@ -13,10 +14,7 @@ describe('Staff directory (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await t.db.execute(
-      sql`truncate table staff_users, staff_memberships, patients_patients, shared_trace_events`,
-    );
-    await t.mongo.collection(STAFF_COLLECTION).deleteMany({});
+    await t.wipe(STAFF_COLLECTION, PATIENTS_COLLECTION, TRACE_EVENTS_COLLECTION);
   });
 
   afterAll(async () => {
@@ -89,12 +87,7 @@ describe('Staff directory (e2e)', () => {
       },
     ]);
 
-    const [row] = (
-      await t.db.execute(sql`select * from staff_users where user_id = 'alice'`)
-    ).rows;
-    expect(JSON.stringify(row)).not.toMatch(/alicia\.gomez|573001234567/);
-
-    // The MongoDB copy has the same minimized data, with the IPS memberships.
+    // Only minimized data is stored, with the IPS memberships.
     const doc = await t.mongo
       .collection(STAFF_COLLECTION)
       .findOne({ _id: 'alice' as never });
@@ -136,7 +129,6 @@ describe('Staff directory (e2e)', () => {
         requestedBy: 'carol',
       })
       .expect(201);
-    await t.relay.flush();
 
     const timeline = `${patients}/${patient.id}/timeline`;
     expect((await api('alice').get(timeline).expect(200)).body[0]).toMatchObject({
@@ -153,10 +145,6 @@ describe('Staff directory (e2e)', () => {
       requestedByName: 'Usuario eliminado',
     });
     expect((await api('alice').get(`/teams/${TEAM_A}/staff`)).body).toEqual([]);
-    const [row] = (
-      await t.db.execute(sql`select display_name, email_masked from staff_users where user_id = 'carol'`)
-    ).rows;
-    expect(row).toEqual({ display_name: null, email_masked: null });
     expect(
       await t.mongo.collection(STAFF_COLLECTION).findOne({ _id: 'carol' as never }),
     ).toMatchObject({ displayName: null, emailMasked: null, deleted: true, teams: [] });
@@ -202,16 +190,14 @@ describe('Staff directory (e2e)', () => {
       await api('carol').post(patients, patient).expect(201);
 
       // Who granted what is traced.
-      const [event] = (
-        await t.db.execute(
-          sql`select type, executed_by, data from shared_trace_events where type = 'staff.roles_assigned'`,
-        )
-      ).rows;
+      const event = await t.mongo
+        .collection(TRACE_EVENTS_COLLECTION)
+        .findOne({ type: 'staff.roles_assigned' });
       expect(event).toMatchObject({
-        executed_by: 'alice',
+        executedBy: 'alice',
         data: { userId: 'carol', from: [], to: ['admision'] },
       });
-      // And the Mongo copy shows the roles.
+      // And the directory shows the roles.
       expect(
         await t.mongo.collection(STAFF_COLLECTION).findOne({ _id: 'carol' as never }),
       ).toMatchObject({ teams: [{ teamId: TEAM_A, roles: ['admision'] }] });
