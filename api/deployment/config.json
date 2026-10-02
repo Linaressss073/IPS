@@ -2,10 +2,12 @@
   "dev": {
     "PORT": 3001,
     "CORS_ORIGIN": "http://localhost:3000",
-    "MONGO_URL": "mongodb://localhost:27018/his?directConnection=true"
+    "MONGO_URL": "mongodb://localhost:27018/?directConnection=true",
+    "MONGO_DB_NAME": "his_consulta_externa"
   },
   "test": {},
   "prod": {
-    "CORS_ORIGIN": "https://ips-web.onrender.com"
+    "CORS_ORIGIN": "https://ips-web.onrender.com",
+    "MONGO_DB_NAME": "his_consulta_externa"
   }
 }

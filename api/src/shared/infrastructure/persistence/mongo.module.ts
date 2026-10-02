@@ -24,9 +24,9 @@ import { ensureTraceEventIndexes } from './trace-event.writer.js';
     },
     {
       provide: MONGO_DB,
-      inject: [MONGO_CLIENT],
-      // The database comes from the URL path, e.g. mongodb://host/his.
-      useFactory: (client: MongoClient) => client.db(),
+      inject: [MONGO_CLIENT, ConfigService],
+      useFactory: (client: MongoClient, config: ConfigService<Env, true>) =>
+        client.db(config.get('MONGO_DB_NAME', { infer: true })),
     },
     MongoConnection,
   ],

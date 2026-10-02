@@ -44,6 +44,24 @@ describe('loadDeploymentConfig', () => {
     expect(env.CLERK_AUTHORIZED_PARTIES).toEqual(env.CORS_ORIGIN);
   });
 
+  it('takes the database from MONGO_DB_NAME or the URL, never the driver default', () => {
+    const base = { CLERK_SECRET_KEY: 'sk_test_x' };
+    expect(() =>
+      validateEnv({ ...base, MONGO_URL: 'mongodb+srv://u:p@cluster.mongodb.net/?appName=prac' }),
+    ).toThrow('MONGO_DB_NAME');
+    expect(
+      validateEnv({
+        ...base,
+        MONGO_URL: 'mongodb+srv://u:p@cluster.mongodb.net/?appName=prac',
+        MONGO_DB_NAME: 'his_consulta_externa',
+      }).MONGO_DB_NAME,
+    ).toBe('his_consulta_externa');
+    expect(
+      validateEnv({ ...base, MONGO_URL: 'mongodb://localhost:27018/his_test?directConnection=true' })
+        .MONGO_DB_NAME,
+    ).toBe('his_test');
+  });
+
   it('lets real environment variables override the files', () => {
     const env = validateEnv({
       ...loadDeploymentConfig('dev', directory),

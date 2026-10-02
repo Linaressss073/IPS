@@ -211,7 +211,8 @@ ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm
 ```
 
 `ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
-`ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`,
+`ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
+`his_consulta_externa`; si falta, la de la ruta de la URL, y si tampoco hay, la API no arranca),
 `CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET` (ver `src/config/env.ts`).
 
 ## Desarrollo local
@@ -223,22 +224,19 @@ pnpm db:up                # MongoDB 8 en Docker (replica set rs0, puerto 27018: 
 pnpm start:dev            # http://localhost:3001/api/v1
 ```
 
-### Datos que estaban en PostgreSQL
+### Datos anteriores a MongoDB
 
-Hasta octubre de 2026 la API guardaba pacientes, personal y trazabilidad en PostgreSQL. Para copiarlos a MongoDB
-(idempotente; se puede repetir):
-
-```bash
-pnpm build
-SOURCE_DATABASE_URL="postgres://…" ENV=prod pnpm data:import-postgres   # MONGO_URL de deployment/ o del entorno
-```
+Hasta octubre de 2026 pacientes, personal y trazabilidad vivían en PostgreSQL, con copias en MongoDB
+(`patient_timeline` y `staff`). `node dist/scripts/recover-from-timeline.js` reconstruye las colecciones actuales a
+partir de esas copias (solo inserta lo que falta; idempotente). Con `RECOVER_FROM_DB=test` antes copia todas las
+colecciones de esa base: mientras `MONGO_URL` no nombraba ninguna, el driver usaba `test`.
 
 ## Tests
 
 ```bash
 pnpm test        # unitarios: dominio y casos de uso (repositorio en memoria)
 pnpm test:e2e    # HTTP + MongoDB real; Clerk sustituido por dobles (requiere pnpm db:up)
-                 # Usa la base his_test, que se vacía en cada test. Se cambia con MONGO_URL_TEST y se
+                 # Usa la base his_test, que se vacía en cada test. Se cambia con MONGO_DB_NAME_TEST y se
                  # niega a correr si el nombre no termina en "_test", para no tocar nunca los datos de desarrollo.
 ```
 

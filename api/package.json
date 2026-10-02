@@ -21,8 +21,7 @@
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "db:up": "docker compose up -d --wait",
-    "data:import-postgres": "node dist/scripts/import-from-postgres.js"
+    "db:up": "docker compose up -d --wait"
   },
   "dependencies": {
     "@clerk/backend": "^3.21.1",
@@ -49,7 +48,6 @@
     "@vitest/coverage-v8": "^4.1.2",
     "oxlint": "^1.58.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "pg": "^8.23.0",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
