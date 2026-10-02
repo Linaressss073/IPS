@@ -31,6 +31,10 @@ export class TraceEventRelay implements OnApplicationBootstrap, OnModuleDestroy 
   private readonly logger = new Logger(TraceEventRelay.name);
   private timer?: NodeJS.Timeout;
   private running: Promise<number> | null = null;
+  private indexReady = false;
+  /** While Mongo is failing, warn once a minute instead of on every tick. */
+  private failingSince: number | null = null;
+  private lastWarningAt = 0;
 
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
@@ -38,15 +42,9 @@ export class TraceEventRelay implements OnApplicationBootstrap, OnModuleDestroy 
     private readonly config: ConfigService<Env, true>,
   ) {}
 
-  async onApplicationBootstrap(): Promise<void> {
+  /** Never touches Mongo here: an unreachable Mongo must not stop the API. */
+  onApplicationBootstrap(): void {
     if (!this.mongo) return;
-    await this.timeline().createIndex({
-      teamId: 1,
-      patientId: 1,
-      occurredAt: 1,
-      position: 1,
-    });
-
     const interval = this.config.get('RELAY_INTERVAL_MS', { infer: true });
     if (interval > 0) {
       this.timer = setInterval(() => void this.tick(), interval);
@@ -75,13 +73,33 @@ export class TraceEventRelay implements OnApplicationBootstrap, OnModuleDestroy 
   private async tick(): Promise<void> {
     try {
       await this.publishPending();
+      if (this.failingSince !== null) {
+        this.logger.log('Mongo reachable again; pending trace events published');
+        this.failingSince = null;
+      }
     } catch (error) {
-      this.logger.warn(`Trace events not published yet: ${String(error)}`);
+      const now = Date.now();
+      this.failingSince ??= now;
+      if (now - this.lastWarningAt >= 60_000) {
+        this.lastWarningAt = now;
+        this.logger.warn(
+          `Trace events kept in Postgres, Mongo unavailable: ${String(error)}`,
+        );
+      }
     }
   }
 
   private async publishAll(): Promise<number> {
     if (!this.mongo) return 0;
+    if (!this.indexReady) {
+      await this.timeline().createIndex({
+        teamId: 1,
+        patientId: 1,
+        occurredAt: 1,
+        position: 1,
+      });
+      this.indexReady = true;
+    }
     let total = 0;
     for (;;) {
       const published = await this.publishBatch();
