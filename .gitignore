@@ -1,0 +1,18 @@
+# Dependencies and builds (each app also has its own .gitignore)
+node_modules/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Local environment: secrets never leave this machine (see each app's .env.example)
+.env
+.env*.local
+
+# Editor and per-user tool settings
+.idea/
+.vscode/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
