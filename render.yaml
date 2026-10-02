@@ -8,6 +8,9 @@
 # If Render assigns other URLs than ips-api/ips-web.onrender.com, update
 # CORS_ORIGIN (API) and NEXT_PUBLIC_API_URL (web) and redeploy the web app:
 # NEXT_PUBLIC_* values are baked into its build.
+#
+# pnpm runs through npx: Render's global npm folder (/usr/lib) is read-only,
+# so `npm install -g pnpm` fails with EROFS.
 
 version: "1"
 projects:
@@ -33,9 +36,8 @@ projects:
             region: oregon # same region as the database: the internal URL only resolves there
             branch: main
             rootDir: api
-            buildCommand: npm install -g pnpm@12.6.0 && pnpm install --frozen-lockfile && pnpm build
+            buildCommand: npx --yes pnpm@12.6.0 install --frozen-lockfile && npx --yes pnpm@12.6.0 build
             # Migrations run at start: builds can't reach Render's private network.
-            # npx (not pnpm) because the pnpm installed during the build may be gone at runtime.
             startCommand: npx drizzle-kit migrate && node dist/main
             healthCheckPath: /api/v1/health
             envVars:
@@ -68,7 +70,7 @@ projects:
             region: oregon
             branch: main
             rootDir: multi-tenant-starter-template
-            buildCommand: npm install -g pnpm@12.6.0 && pnpm install --frozen-lockfile && pnpm build
+            buildCommand: npx --yes pnpm@12.6.0 install --frozen-lockfile && npx --yes pnpm@12.6.0 build
             startCommand: npx next start
             envVars:
               - key: NODE_VERSION
