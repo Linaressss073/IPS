@@ -28,7 +28,9 @@ projects:
             buildCommand: npx --yes pnpm@12.6.0 install --frozen-lockfile && npx --yes pnpm@12.6.0 build
             # TEMPORARY: copies the old Postgres data to MongoDB (idempotent) before
             # starting; if it fails, the API starts anyway. Removed after one deploy.
-            startCommand: (node dist/scripts/import-from-postgres.js || echo "import-from-postgres failed") && node dist/main
+            # The database's internal hostname no longer resolves, so it goes through
+            # its external one (TLS); only the password comes from Render.
+            startCommand: (SOURCE_DATABASE_URL="postgresql://ips_db_postgres_user:$SOURCE_DB_PASSWORD@dpg-davj0gad0e5s7386f090-a.oregon-postgres.render.com/ips_db_postgres?sslmode=require" node dist/scripts/import-from-postgres.js || echo "import-from-postgres failed") && node dist/main
             healthCheckPath: /api/v1/health
             envVars:
               - key: NODE_VERSION
@@ -45,11 +47,11 @@ projects:
               # (user.*, organization.*, organizationMembership.*): its signing secret.
               - key: CLERK_WEBHOOK_SIGNING_SECRET
                 sync: false
-              # TEMPORARY: source of the one-off import above (internal URL).
-              - key: SOURCE_DATABASE_URL
+              # TEMPORARY: password of the source database of the one-off import above.
+              - key: SOURCE_DB_PASSWORD
                 fromDatabase:
                   name: ips-db-postgres
-                  property: connectionString
+                  property: password
               # MongoDB Atlas, the only database; the URL must name it (…/his?…).
               - key: MONGO_URL
                 sync: false
