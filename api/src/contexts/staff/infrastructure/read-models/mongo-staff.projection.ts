@@ -18,7 +18,7 @@ export interface StaffDocument {
   emailMasked: string | null;
   deleted: boolean;
   deletedAt: Date | null;
-  teams: { teamId: string; providerRole: string; clinicalRole: string | null }[];
+  teams: { teamId: string; providerRole: string; roles: string[] }[];
   sourceUpdatedAt: Date;
   projectedAt: Date;
 }
@@ -63,7 +63,7 @@ export class MongoStaffProjection implements StaffProjection {
           .map((row) => ({
             teamId: row.teamId,
             providerRole: row.providerRole,
-            clinicalRole: row.clinicalRole,
+            roles: row.roles,
           })),
         sourceUpdatedAt: user.sourceUpdatedAt,
         projectedAt: now,

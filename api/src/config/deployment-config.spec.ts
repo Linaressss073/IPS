@@ -34,6 +34,16 @@ describe('loadDeploymentConfig', () => {
     expect(() => loadDeploymentConfig('staging', directory)).toThrow('ENV must be one of');
   });
 
+  it('normalizes CORS origins and uses them as Clerk authorized parties', () => {
+    const env = validateEnv({
+      DATABASE_URL: 'postgres://x',
+      CLERK_SECRET_KEY: 'sk_test_x',
+      CORS_ORIGIN: ' https://ips-web.onrender.com/ , http://localhost:3000',
+    });
+    expect(env.CORS_ORIGIN).toEqual(['https://ips-web.onrender.com', 'http://localhost:3000']);
+    expect(env.CLERK_AUTHORIZED_PARTIES).toEqual(env.CORS_ORIGIN);
+  });
+
   it('lets real environment variables override the files', () => {
     const env = validateEnv({
       ...loadDeploymentConfig('dev', directory),

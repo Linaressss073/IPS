@@ -26,5 +26,14 @@ export interface StaffMemberView {
   displayName: string | null;
   emailMasked: string | null;
   providerRole: string;
-  clinicalRole: string | null;
+  /** Functional roles assigned by the IPS administrators. */
+  roles: string[];
+}
+
+/** What the caller may do in an IPS (for the UI to show only that). */
+export interface MyAccessView {
+  userId: string;
+  isAdmin: boolean;
+  roles: string[];
+  permissions: string[];
 }

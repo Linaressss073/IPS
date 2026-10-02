@@ -23,6 +23,12 @@ export const CurrentTeam = createParamDecorator(
     context.switchToHttp().getRequest<AuthenticatedRequest>().teamId,
 );
 
+/** The caller's role in the route's team ("admin", "member"…), from TeamMemberGuard. */
+export const CurrentTeamRole = createParamDecorator(
+  (_: unknown, context: ExecutionContext) =>
+    context.switchToHttp().getRequest<AuthenticatedRequest>().teamRole,
+);
+
 /** The AuthenticatedUser resolved by AccessTokenGuard. */
 export const CurrentUser = createParamDecorator(
   (_: unknown, context: ExecutionContext) =>

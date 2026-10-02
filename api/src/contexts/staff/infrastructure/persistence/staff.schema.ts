@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   index,
   pgTable,
@@ -20,14 +21,15 @@ export const staffUsers = pgTable('staff_users', {
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 
-/** Who belongs to which IPS, with the provider role and our clinical role. */
+/** Who belongs to which IPS, with the provider role and our functional roles. */
 export const staffMemberships = pgTable(
   'staff_memberships',
   {
     teamId: varchar('team_id', { length: 64 }).notNull(),
     userId: varchar('user_id', { length: 64 }).notNull(),
     providerRole: varchar('provider_role', { length: 64 }).notNull(),
-    clinicalRole: varchar('clinical_role', { length: 32 }),
+    /** agendamiento, admision, medico, farmacia, soporte (assigned by admins). */
+    roles: text('roles').array().notNull().default(sql`'{}'::text[]`),
     sourceUpdatedAt: timestamp('source_updated_at', { withTimezone: true }).notNull(),
   },
   (table) => [

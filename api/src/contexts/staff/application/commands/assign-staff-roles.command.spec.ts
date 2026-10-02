@@ -1,0 +1,109 @@
+import { Clock, TraceEvent } from '../../../../shared/application/index.js';
+import {
+  InvalidValueError,
+  TeamId,
+  UserId,
+} from '../../../../shared/domain/index.js';
+import { permissionsFor } from '../../domain/constants/permissions.js';
+import { StaffRoles } from '../../domain/entities/staff-roles.vo.js';
+import { StaffMemberNotFoundError } from '../errors/staff.errors.js';
+import { StaffReadModel } from '../ports/staff-read-model.port.js';
+import { StaffRepository } from '../ports/staff.repository.port.js';
+import { AssignStaffRoles } from './assign-staff-roles.command.js';
+
+const teamId = TeamId.of('org_2xTeamA9fKq4LmN8pRsT1uVwY');
+const clock: Clock = { now: () => new Date('2026-10-02T12:00:00Z') };
+const admin = UserId.of('user_admin');
+
+describe('Permissions matrix', () => {
+  it('gives each role only what the project agreed', () => {
+    expect(permissionsFor({ isAdmin: false, roles: [] })).toEqual([]);
+    expect(permissionsFor({ isAdmin: false, roles: ['medico'] })).toEqual([
+      'patients:read',
+      'turns:call',
+    ]);
+    expect(permissionsFor({ isAdmin: false, roles: ['agendamiento', 'admision'] })).toEqual([
+      'patients:read',
+      'patients:write',
+      'appointments:manage',
+      'admission:manage',
+      'turns:call',
+    ]);
+    // Administrators manage everything except calling turns (not in their column).
+    expect(permissionsFor({ isAdmin: true, roles: [] })).toEqual([
+      'patients:read',
+      'patients:write',
+      'appointments:manage',
+      'admission:manage',
+      'settings:manage',
+      'staff:manage',
+    ]);
+  });
+
+  it('normalizes and validates role names', () => {
+    expect(StaffRoles.of([' Medico ', 'admision', 'medico']).value).toEqual([
+      'admision',
+      'medico',
+    ]);
+    expect(() => StaffRoles.of(['administrador'])).toThrow(InvalidValueError);
+  });
+});
+
+describe('AssignStaffRoles', () => {
+  let roles: Map<string, string[]>;
+  let events: TraceEvent[];
+  let refreshed: string[];
+  let assign: AssignStaffRoles;
+
+  beforeEach(() => {
+    roles = new Map();
+    events = [];
+    refreshed = [];
+    const repo = {
+      ensureMembership: async (_team: TeamId, userId: string) => {
+        if (!roles.has(userId)) roles.set(userId, []);
+      },
+      setRoles: async (_team: TeamId, userId: string, next: readonly string[], traced: readonly TraceEvent[]) => {
+        roles.set(userId, [...next]);
+        events.push(...traced);
+      },
+    } as unknown as StaffRepository;
+    const readModel = {
+      rolesOf: async (_team: TeamId, userId: string) => roles.get(userId) ?? null,
+      member: async (_team: TeamId, userId: string) =>
+        roles.has(userId)
+          ? { userId, displayName: null, emailMasked: null, providerRole: 'org:member', roles: roles.get(userId)! }
+          : null,
+    } as unknown as StaffReadModel;
+    const members = {
+      roleIn: async (userId: UserId) => (userId.value === 'user_nurse' ? 'member' : null),
+    };
+    const projection = { refresh: async (ids: readonly string[]) => void refreshed.push(...ids), rebuildAll: async () => 0 };
+    assign = new AssignStaffRoles(repo, readModel, members, projection, clock);
+  });
+
+  const run = (userId: string, next: string[]) =>
+    assign.execute({ teamId, userId, roles: next, actor: { requestedBy: admin, executedBy: admin } });
+
+  it('sets the roles, traces who changed what and refreshes the Mongo copy', async () => {
+    const member = await run('user_nurse', ['admision', 'agendamiento']);
+    expect(member.roles).toEqual(['agendamiento', 'admision']);
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: 'staff.roles_assigned',
+        patientId: null,
+        executedBy: 'user_admin',
+        data: { userId: 'user_nurse', from: [], to: ['agendamiento', 'admision'] },
+      }),
+    ]);
+    expect(refreshed).toEqual(['user_nurse']);
+
+    // Same roles again: nothing new is traced.
+    await run('user_nurse', ['agendamiento', 'admision']);
+    expect(events).toHaveLength(1);
+  });
+
+  it('rejects users who are not members of the IPS', async () => {
+    await expect(run('user_stranger', ['medico'])).rejects.toThrow(StaffMemberNotFoundError);
+  });
+});

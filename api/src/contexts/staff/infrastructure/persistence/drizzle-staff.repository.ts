@@ -1,6 +1,8 @@
 import { and, eq, lte, sql } from 'drizzle-orm';
+import { TraceEvent } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { Database } from '../../../../shared/infrastructure/persistence/database.module.js';
+import { appendTraceEvents } from '../../../../shared/infrastructure/persistence/trace-event.writer.js';
 import { StaffRepository } from '../../application/ports/staff.repository.port.js';
 import { StaffProfile } from '../../domain/entities/staff-profile.vo.js';
 import { staffMemberships, staffUsers } from './staff.schema.js';
@@ -80,6 +82,34 @@ export class DrizzleStaffRepository implements StaffRepository {
           eq(staffMemberships.userId, userId),
         ),
       );
+  }
+
+  async ensureMembership(
+    teamId: TeamId,
+    userId: string,
+    providerRole: string,
+  ): Promise<void> {
+    await this.db
+      .insert(staffMemberships)
+      .values({ teamId: teamId.value, userId, providerRole, sourceUpdatedAt: new Date(0) })
+      .onConflictDoNothing();
+  }
+
+  async setRoles(
+    teamId: TeamId,
+    userId: string,
+    roles: readonly string[],
+    events: readonly TraceEvent[],
+  ): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(staffMemberships)
+        .set({ roles: [...roles] })
+        .where(
+          and(eq(staffMemberships.teamId, teamId.value), eq(staffMemberships.userId, userId)),
+        );
+      await appendTraceEvents(tx, events);
+    });
   }
 
   async removeTeam(teamId: TeamId): Promise<string[]> {

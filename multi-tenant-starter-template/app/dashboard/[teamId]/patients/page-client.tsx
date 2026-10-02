@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Search, UserPlus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { NoPermission, useAccess } from "@/components/access/access-context";
 import { errorMessage } from "@/components/patients/error-message";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,8 @@ export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const router = useRouter();
   const auth = useApiAuth();
+  const { access, can } = useAccess();
+  const allowed = can("patients:read");
 
   const [q, setQ] = React.useState("");
   const [query, setQuery] = React.useState("");
@@ -35,6 +38,7 @@ export function PageClient() {
   }, [q]);
 
   React.useEffect(() => {
+    if (!allowed) return;
     let cancelled = false;
     setError(null);
     searchPatients(auth, teamId, { q: query, page, pageSize: PAGE_SIZE })
@@ -47,21 +51,25 @@ export function PageClient() {
     return () => {
       cancelled = true;
     };
-  }, [auth, teamId, query, page]);
+  }, [auth, teamId, query, page, allowed]);
 
   const lastPage = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
   const detailUrl = (id: string) => `/dashboard/${teamId}/patients/${id}`;
+
+  if (access && !allowed) return <NoPermission what="ver pacientes" />;
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Pacientes</h2>
+        {can("patients:write") && (
         <Button asChild>
           <Link href={`/dashboard/${teamId}/patients/new`}>
             <UserPlus className="mr-2 h-4 w-4" />
             Registrar paciente
           </Link>
         </Button>
+        )}
       </div>
 
       <Card>

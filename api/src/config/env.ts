@@ -2,7 +2,8 @@ export type TimelineStore = 'mongo' | 'postgres';
 
 export interface Env {
   PORT: number;
-  CORS_ORIGIN: string;
+  /** Frontend origins allowed by CORS (normalized, no trailing slash). */
+  CORS_ORIGIN: string[];
   DATABASE_URL: string;
   /** Read model for the patient timeline; Postgres stays the source of truth. */
   MONGO_URL?: string;
@@ -43,7 +44,7 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     throw new Error('TIMELINE_STORE=mongo requires MONGO_URL');
   }
 
-  const corsOrigin = raw.CORS_ORIGIN ?? 'http://localhost:3000';
+  const corsOrigin = toOrigins(raw.CORS_ORIGIN || 'http://localhost:3000');
 
   return {
     PORT: Number(raw.PORT ?? 3001),
@@ -54,11 +55,22 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     RELAY_INTERVAL_MS: Number(raw.RELAY_INTERVAL_MS ?? 500),
     CLERK_SECRET_KEY: raw.CLERK_SECRET_KEY!,
     CLERK_JWT_KEY: raw.CLERK_JWT_KEY || undefined,
-    // Comma-separated; by default, the frontend allowed by CORS.
-    CLERK_AUTHORIZED_PARTIES: (raw.CLERK_AUTHORIZED_PARTIES || corsOrigin)
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean),
+    // Comma-separated; by default, the frontends allowed by CORS.
+    CLERK_AUTHORIZED_PARTIES: raw.CLERK_AUTHORIZED_PARTIES
+      ? toOrigins(raw.CLERK_AUTHORIZED_PARTIES)
+      : corsOrigin,
     CLERK_WEBHOOK_SIGNING_SECRET: raw.CLERK_WEBHOOK_SIGNING_SECRET || undefined,
   };
+}
+
+/**
+ * Comma-separated origins as browsers send them: "https://host" with no
+ * path and no trailing slash. A stray "/" (easy to paste from a URL bar)
+ * would otherwise make every CORS check and token `azp` check fail.
+ */
+function toOrigins(value: string): string[] {
+  return value
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 }

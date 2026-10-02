@@ -125,6 +125,7 @@ export async function createTestApp() {
         auth(agent.post(at(url)).send(body)),
       patch: (url: string, body: object) =>
         auth(agent.patch(at(url)).send(body)),
+      put: (url: string, body: object) => auth(agent.put(at(url)).send(body)),
       delete: (url: string) => auth(agent.delete(at(url))),
     };
   };

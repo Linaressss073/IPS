@@ -1,0 +1,112 @@
+### Colección de peticiones de la API (VS Code "REST Client" o el cliente HTTP de IntelliJ).
+### Rellena las variables. El token: en el navegador, con la app abierta y sesión iniciada,
+### ejecuta en la consola  await window.Clerk.session.getToken()  (dura ~60 s).
+
+@baseUrl = https://ips-api-3404.onrender.com/api/v1
+# @baseUrl = http://localhost:3001/api/v1
+@token = <token de sesión de Clerk>
+@teamId = org_...
+@patientId = 00000000-0000-0000-0000-000000000000
+
+### Estado del servicio (público)
+GET {{baseUrl}}/health
+
+### ─── Pacientes ───────────────────────────────────────────────
+
+### Registrar paciente (con acompañante #1 opcional)
+POST {{baseUrl}}/teams/{{teamId}}/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "document": { "type": "CC", "number": "1.000.123.456" },
+  "name": { "firstName": "Andrés", "firstLastName": "Gómez", "secondLastName": "Torres" },
+  "birthDate": "1990-05-20",
+  "sex": "H",
+  "contact": { "email": "andres@example.com", "phone": "300 123 4567" },
+  "affiliation": { "eps": "Sanitas", "regime": "contributivo" },
+  "companion": {
+    "relationship": "madre",
+    "name": { "firstName": "María", "firstLastName": "Torres" },
+    "phone": "3001112222"
+  }
+}
+
+### Buscar pacientes
+GET {{baseUrl}}/teams/{{teamId}}/patients?q=gomez&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### Ver paciente
+GET {{baseUrl}}/teams/{{teamId}}/patients/{{patientId}}
+Authorization: Bearer {{token}}
+
+### Actualizar paciente (version = la que devolvió la última lectura)
+PATCH {{baseUrl}}/teams/{{teamId}}/patients/{{patientId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "version": 1,
+  "contact": { "email": "andres@example.com", "phone": "3001234567", "address": "Calle 1 # 2-3" }
+}
+
+### Historial del paciente
+GET {{baseUrl}}/teams/{{teamId}}/patients/{{patientId}}/timeline
+Authorization: Bearer {{token}}
+
+### Registrar acompañante
+POST {{baseUrl}}/teams/{{teamId}}/patients/{{patientId}}/companions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "relationship": "cuidador",
+  "name": { "firstName": "Luis", "firstLastName": "Pérez" },
+  "phone": "3003334444"
+}
+
+### Historial de acompañantes
+GET {{baseUrl}}/teams/{{teamId}}/patients/{{patientId}}/companions
+Authorization: Bearer {{token}}
+
+### ─── Personal ────────────────────────────────────────────────
+
+### Personal de la IPS
+GET {{baseUrl}}/teams/{{teamId}}/staff
+Authorization: Bearer {{token}}
+
+### Mi acceso (roles y permisos de quien llama)
+GET {{baseUrl}}/teams/{{teamId}}/staff/me
+Authorization: Bearer {{token}}
+
+### Asignar roles (solo administradores; reemplaza el conjunto completo)
+PUT {{baseUrl}}/teams/{{teamId}}/staff/user_.../roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "roles": ["agendamiento", "admision"]
+}
+
+### ─── Organizaciones (IPS) ────────────────────────────────────
+
+### Ver IPS
+GET {{baseUrl}}/organizations/{{teamId}}
+Authorization: Bearer {{token}}
+
+### Actualizar IPS (solo administradores)
+PATCH {{baseUrl}}/organizations/{{teamId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "version": 1,
+  "nit": "890.903.938-8",
+  "habilitationCode": "110010000001",
+  "city": "Bogotá",
+  "email": "contacto@ipsalfa.co"
+}
+
+### Eliminar IPS (solo administradores, IRREVERSIBLE: quita el acceso a todos)
+# DELETE {{baseUrl}}/organizations/{{teamId}}
+# Authorization: Bearer {{token}}
