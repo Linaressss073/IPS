@@ -1,17 +1,17 @@
 "use client";
 
-import { useUser } from "@hexclave/next";
 import { useParams, useRouter } from "next/navigation";
 import { PatientForm } from "@/components/patients/patient-form";
 import { useTeamMembers } from "@/components/patients/use-team-members";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { registerPatient } from "@/lib/api/patients";
+import { useApiAuth } from "@/lib/api/use-api-auth";
 
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const router = useRouter();
-  const user = useUser({ or: "redirect" });
-  const members = useTeamMembers(teamId);
+  const auth = useApiAuth();
+  const members = useTeamMembers();
   const listUrl = `/dashboard/${teamId}/patients`;
 
   return (
@@ -31,7 +31,7 @@ export function PageClient() {
             submitLabel="Registrar"
             onCancel={() => router.push(listUrl)}
             onSubmit={async (input) => {
-              const patient = await registerPatient(user, teamId, input);
+              const patient = await registerPatient(auth, teamId, input);
               router.push(`${listUrl}/${patient.id}`);
             }}
           />

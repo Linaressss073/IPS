@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useUser } from "@hexclave/next";
+import { useAuth } from "@clerk/nextjs";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
@@ -40,9 +40,9 @@ function SignInSignUpButtons() {
 }
 
 function AuthButtonsInner() {
-  const user = useUser();
+  const { isSignedIn } = useAuth();
 
-  if (user) {
+  if (isSignedIn) {
     return (
       <Link
         href="/dashboard"

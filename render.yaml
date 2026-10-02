@@ -50,16 +50,16 @@ projects:
                   property: connectionString
               - key: CORS_ORIGIN
                 value: https://ips-web.onrender.com
-              - key: HEXCLAVE_API_URL
-                value: https://api.hexclave.com
-              - key: HEXCLAVE_PROJECT_ID
-                value: 19322352-710d-49a8-afa3-b5b3cdf0e893
-              - key: HEXCLAVE_SECRET_SERVER_KEY
+              # Same Clerk application as the web app; its tokens are only
+              # accepted from CORS_ORIGIN (authorized parties).
+              - key: CLERK_SECRET_KEY
                 sync: false
-              # Timeline read from Postgres. To use Mongo (e.g. Atlas), add
-              # MONGO_URL in the dashboard and set this to "mongo".
+              # Timeline read model in MongoDB Atlas; the URL must end in /his
+              # (the database name). Pending events are copied there by the relay.
+              - key: MONGO_URL
+                sync: false
               - key: TIMELINE_STORE
-                value: postgres
+                value: mongo
               - key: RELAY_INTERVAL_MS
                 value: "500"
 
@@ -75,10 +75,19 @@ projects:
             envVars:
               - key: NODE_VERSION
                 value: "24"
-              - key: NEXT_PUBLIC_HEXCLAVE_PROJECT_ID
-                value: 19322352-710d-49a8-afa3-b5b3cdf0e893
-              - key: HEXCLAVE_SECRET_SERVER_KEY
+              # NEXT_PUBLIC_* values are baked into the build.
+              - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
                 sync: false
+              - key: CLERK_SECRET_KEY
+                sync: false
+              - key: NEXT_PUBLIC_CLERK_SIGN_IN_URL
+                value: /sign-in
+              - key: NEXT_PUBLIC_CLERK_SIGN_UP_URL
+                value: /sign-up
+              - key: NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL
+                value: /dashboard
+              - key: NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL
+                value: /dashboard
               # Without /api/v1: the client adds the prefix.
               - key: NEXT_PUBLIC_API_URL
                 value: https://ips-api.onrender.com

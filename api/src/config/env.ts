@@ -10,17 +10,15 @@ export interface Env {
   TIMELINE_STORE: TimelineStore;
   /** How often trace events are copied to Mongo; 0 disables the timer. */
   RELAY_INTERVAL_MS: number;
-  HEXCLAVE_API_URL: string;
-  HEXCLAVE_PROJECT_ID: string;
-  HEXCLAVE_SECRET_SERVER_KEY: string;
-  HEXCLAVE_PUBLISHABLE_CLIENT_KEY?: string;
+  /** Clerk secret key (sk_test_… / sk_live_…): verifies tokens, reads memberships. */
+  CLERK_SECRET_KEY: string;
+  /** Optional PEM public key: verifies tokens without calling Clerk. */
+  CLERK_JWT_KEY?: string;
+  /** Frontend origins whose tokens are accepted (`azp` claim). */
+  CLERK_AUTHORIZED_PARTIES: string[];
 }
 
-const REQUIRED = [
-  'DATABASE_URL',
-  'HEXCLAVE_PROJECT_ID',
-  'HEXCLAVE_SECRET_SERVER_KEY',
-] as const;
+const REQUIRED = ['DATABASE_URL', 'CLERK_SECRET_KEY'] as const;
 
 const TIMELINE_STORES: readonly TimelineStore[] = ['mongo', 'postgres'];
 
@@ -43,17 +41,21 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     throw new Error('TIMELINE_STORE=mongo requires MONGO_URL');
   }
 
+  const corsOrigin = raw.CORS_ORIGIN ?? 'http://localhost:3000';
+
   return {
     PORT: Number(raw.PORT ?? 3001),
-    CORS_ORIGIN: raw.CORS_ORIGIN ?? 'http://localhost:3000',
+    CORS_ORIGIN: corsOrigin,
     DATABASE_URL: raw.DATABASE_URL!,
     MONGO_URL: mongoUrl,
     TIMELINE_STORE: timelineStore,
     RELAY_INTERVAL_MS: Number(raw.RELAY_INTERVAL_MS ?? 500),
-    HEXCLAVE_API_URL: raw.HEXCLAVE_API_URL ?? 'https://api.hexclave.com',
-    HEXCLAVE_PROJECT_ID: raw.HEXCLAVE_PROJECT_ID!,
-    HEXCLAVE_SECRET_SERVER_KEY: raw.HEXCLAVE_SECRET_SERVER_KEY!,
-    HEXCLAVE_PUBLISHABLE_CLIENT_KEY:
-      raw.HEXCLAVE_PUBLISHABLE_CLIENT_KEY || undefined,
+    CLERK_SECRET_KEY: raw.CLERK_SECRET_KEY!,
+    CLERK_JWT_KEY: raw.CLERK_JWT_KEY || undefined,
+    // Comma-separated; by default, the frontend allowed by CORS.
+    CLERK_AUTHORIZED_PARTIES: (raw.CLERK_AUTHORIZED_PARTIES || corsOrigin)
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
   };
 }

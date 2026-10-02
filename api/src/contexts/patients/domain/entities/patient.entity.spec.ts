@@ -13,7 +13,7 @@ import { Patient } from './patient.entity.js';
 import { PersonName } from './person-name.vo.js';
 
 const now = new Date('2026-10-01T12:00:00Z');
-const teamId = TeamId.of('7c9e6679-7425-40de-944b-e07fc1f90ae7');
+const teamId = TeamId.of('org_2xTeamA9fKq4LmN8pRsT1uVwY');
 
 const register = (birthDate = '1990-05-20') =>
   Patient.register({

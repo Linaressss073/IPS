@@ -9,7 +9,7 @@ import {
   TEAM_MEMBERSHIP_CHECKER,
 } from '../../src/contexts/identity-access/application/constants/injection-tokens.js';
 import { AuthenticatedUser } from '../../src/contexts/identity-access/domain/entities/authenticated-user.entity.js';
-import { UserId } from '../../src/shared/domain/index.js';
+import { TeamId, UserId } from '../../src/shared/domain/index.js';
 import {
   DRIZZLE,
   Database,
@@ -18,10 +18,10 @@ import { MONGO_DB } from '../../src/shared/infrastructure/persistence/mongo.js';
 import { TraceEventRelay } from '../../src/shared/infrastructure/providers/trace-event-relay.js';
 import type { Db } from 'mongodb';
 
-export const TEAM_A = '7c9e6679-7425-40de-944b-e07fc1f90ae7';
-export const TEAM_B = '16fd2706-8baf-433b-82eb-8c7fada847da';
+export const TEAM_A = 'org_2xTeamA9fKq4LmN8pRsT1uVwY';
+export const TEAM_B = 'org_2xTeamB3gHj7KlP0qWeR5tYuI';
 
-// Hexclave is replaced by fakes: tokens "alice" and "carol" belong to team A,
+// Clerk is replaced by fakes: tokens "alice" and "carol" belong to team A,
 // "bob" to team B.
 const membership: Record<string, string> = {
   alice: TEAM_A,
@@ -29,15 +29,18 @@ const membership: Record<string, string> = {
   bob: TEAM_B,
 };
 
-/** Boots the real AppModule against the docker-compose Postgres, with Hexclave faked. */
+/** Boots the real AppModule against the docker-compose Postgres, with Clerk faked. */
 export async function createTestApp() {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(ACCESS_TOKEN_VERIFIER)
     .useValue({
+      // "dana" is not a member per the checker, but her token selects team A.
       verify: async (token: string) =>
-        membership[token]
-          ? new AuthenticatedUser(UserId.of(token), null)
-          : null,
+        token === 'dana'
+          ? new AuthenticatedUser(UserId.of(token), TeamId.of(TEAM_A))
+          : membership[token]
+            ? new AuthenticatedUser(UserId.of(token), null)
+            : null,
     })
     .overrideProvider(TEAM_MEMBERSHIP_CHECKER)
     .useValue({

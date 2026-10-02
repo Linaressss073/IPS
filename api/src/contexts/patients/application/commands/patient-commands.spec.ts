@@ -14,8 +14,8 @@ import { RecordCompanion } from './record-companion.command.js';
 import { RegisterPatient } from './register-patient.command.js';
 import { UpdatePatient } from './update-patient.command.js';
 
-const teamA = TeamId.of('7c9e6679-7425-40de-944b-e07fc1f90ae7');
-const teamB = TeamId.of('16fd2706-8baf-433b-82eb-8c7fada847da');
+const teamA = TeamId.of('org_2xTeamA9fKq4LmN8pRsT1uVwY');
+const teamB = TeamId.of('org_2xTeamB3gHj7KlP0qWeR5tYuI');
 const admission = UserId.of('admission-user');
 const doctor = UserId.of('doctor-user');
 const outsider = UserId.of('outsider-user');

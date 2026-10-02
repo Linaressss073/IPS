@@ -13,16 +13,14 @@ export default defineConfig({
     // Specs share one database and truncate tables: run files one at a time.
     fileParallelism: false,
     // Real Postgres and Mongo, each with a database of its own that the specs
-    // wipe (never the development ones); Hexclave is faked in the specs.
+    // wipe (never the development ones); Clerk is faked in the specs.
     env: {
       DATABASE_URL: TEST_DATABASE_URL,
       MONGO_URL: TEST_MONGO_URL,
       TIMELINE_STORE: 'mongo',
       // No timer: specs publish to Mongo explicitly with relay.flush().
       RELAY_INTERVAL_MS: '0',
-      HEXCLAVE_PROJECT_ID: '9f1c2b3a-4d5e-4f60-8a7b-1c2d3e4f5a6b',
-      HEXCLAVE_PUBLISHABLE_CLIENT_KEY: 'pck_test',
-      HEXCLAVE_SECRET_SERVER_KEY: 'ssk_test',
+      CLERK_SECRET_KEY: 'sk_test_e2e',
     },
   },
 });

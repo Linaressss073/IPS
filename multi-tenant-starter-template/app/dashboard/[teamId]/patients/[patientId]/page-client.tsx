@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useUser } from "@hexclave/next";
 import { ArrowLeft, Pencil, RefreshCw } from "lucide-react";
 import { useParams } from "next/navigation";
 import { errorMessage } from "@/components/patients/error-message";
@@ -26,16 +25,15 @@ import {
   TimelineEntry,
   updatePatient,
 } from "@/lib/api/patients";
+import { useApiAuth } from "@/lib/api/use-api-auth";
 
 /** The timeline is read from Mongo, which lags the write by up to one relay interval. */
 const TIMELINE_REFRESH_DELAY_MS = 1000;
 
 export function PageClient() {
   const { teamId, patientId } = useParams<{ teamId: string; patientId: string }>();
-  const user = useUser({ or: "redirect" });
-  const userRef = React.useRef(user);
-  userRef.current = user;
-  const members = useTeamMembers(teamId);
+  const auth = useApiAuth();
+  const members = useTeamMembers();
 
   const [patient, setPatient] = React.useState<Patient | null>(null);
   const [timeline, setTimeline] = React.useState<TimelineEntry[] | null>(null);
@@ -45,19 +43,19 @@ export function PageClient() {
   const loadPatient = React.useCallback(async () => {
     setError(null);
     try {
-      setPatient(await getPatient(userRef.current, teamId, patientId));
+      setPatient(await getPatient(auth, teamId, patientId));
     } catch (e) {
       setError(errorMessage(e));
     }
-  }, [teamId, patientId]);
+  }, [auth, teamId, patientId]);
 
   const loadTimeline = React.useCallback(async () => {
     try {
-      setTimeline(await getPatientTimeline(userRef.current, teamId, patientId));
+      setTimeline(await getPatientTimeline(auth, teamId, patientId));
     } catch {
       setTimeline([]);
     }
-  }, [teamId, patientId]);
+  }, [auth, teamId, patientId]);
 
   React.useEffect(() => {
     loadPatient();
@@ -119,7 +117,7 @@ export function PageClient() {
                       submitLabel="Guardar cambios"
                       onCancel={() => setEditing(false)}
                       onSubmit={async (input) => {
-                        setPatient(await updatePatient(user, teamId, patientId, patient.version, input));
+                        setPatient(await updatePatient(auth, teamId, patientId, patient.version, input));
                         setEditing(false);
                         setTimeout(loadTimeline, TIMELINE_REFRESH_DELAY_MS);
                       }}
@@ -131,7 +129,7 @@ export function PageClient() {
               </Card>
 
               <CompanionsCard
-                auth={user}
+                auth={auth}
                 teamId={teamId}
                 patientId={patientId}
                 members={members}

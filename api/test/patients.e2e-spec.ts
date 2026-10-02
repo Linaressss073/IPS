@@ -47,6 +47,11 @@ describe('Patients API (e2e)', () => {
     expect(res.body.code).toBe('NOT_A_TEAM_MEMBER');
   });
 
+  it('trusts the team selected in the signed token without asking the provider', async () => {
+    await api('dana').get(patientsA).expect(200);
+    await api('dana').get(`/teams/${TEAM_B}/patients`).expect(403);
+  });
+
   it('registers a patient with normalized data', async () => {
     const res = await registerAs('alice').expect(201);
     expect(res.body).toMatchObject({

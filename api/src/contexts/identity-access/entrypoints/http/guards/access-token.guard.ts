@@ -9,7 +9,7 @@ import { ACCESS_TOKEN_VERIFIER } from '../../../application/constants/injection-
 import type { AccessTokenVerifier } from '../../../application/ports/access-token-verifier.port.js';
 import { AuthenticatedRequest } from './authenticated-request.js';
 
-/** Requires `Authorization: Bearer <Hexclave access token>`. */
+/** Requires `Authorization: Bearer <Clerk session token>`. */
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
   constructor(
