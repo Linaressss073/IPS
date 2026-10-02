@@ -21,7 +21,8 @@ export const traceEvents = pgTable(
     id: uuid('id').primaryKey(),
     // Insertion order: the relay publishes in this order.
     position: bigserial('position', { mode: 'number' }).notNull().unique(),
-    teamId: uuid('team_id').notNull(),
+    // Identity-provider organization id (e.g. Clerk "org_…"), not a UUID.
+    teamId: varchar('team_id', { length: 64 }).notNull(),
     patientId: uuid('patient_id'),
     type: varchar('type', { length: 64 }).notNull(),
     requestedBy: text('requested_by').notNull(),

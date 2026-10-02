@@ -16,3 +16,6 @@ coverage/
 .claude/settings.local.json
 .DS_Store
 Thumbs.db
+
+# Clerk keyless mode stores temporary keys here
+.clerk/

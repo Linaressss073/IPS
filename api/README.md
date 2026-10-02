@@ -1,7 +1,7 @@
 # B2B API
 
 Backend multi-tenant en **NestJS + Drizzle (PostgreSQL)** organizado con **Domain-Driven Design**.
-La identidad (login, usuarios, equipos) la gestiona **Hexclave**, igual que el frontend
+La identidad (login, usuarios, organizaciones) la gestiona **Clerk**, igual que el frontend
 (`../multi-tenant-starter-template`); esta API solo verifica sus tokens y es dueña de los datos de negocio.
 
 Es el backend del **Sistema de Información Hospitalaria Web para la Consulta Externa** (agendamiento, admisión,
@@ -12,7 +12,7 @@ contexto **Pacientes**.
 
 | Término | Significado |
 |---|---|
-| **Team** (equipo / tenant / IPS) | La institución de salud. Dueña de todos los datos. Se identifica con `TeamId` (UUID de Hexclave). |
+| **Team** (equipo / tenant / IPS) | La institución de salud. Dueña de todos los datos. Es una *Organization* de Clerk y se identifica con `TeamId` (su id, p. ej. `org_2abc…`). |
 | **Member** (miembro) | Usuario del personal que pertenece a una IPS. Solo los miembros acceden a sus datos. |
 | **Patient** (paciente) | Persona atendida por la IPS, registrada **una sola vez** para que ningún área vuelva a pedirle sus datos. Nunca se borra. |
 | **Identity document** (documento) | Tipo colombiano (CC, CE, TI, RC, NIT, PA, PPT, PEP, CD, SC, CN, AS, MS) + número sin separadores. Único dentro de la IPS. |
@@ -27,7 +27,7 @@ contexto **Pacientes**.
 
 | Contexto | Responsabilidad |
 |---|---|
-| `identity-access` | Quién llama (verifica el JWT de Hexclave) y si es miembro del Team. Capa anticorrupción sobre Hexclave. |
+| `identity-access` | Quién llama (verifica el token de sesión de Clerk) y si es miembro del Team (organización activa del token o consulta a Clerk). Capa anticorrupción sobre Clerk. |
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
 | `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Money`, `Clock`, eventos de trazabilidad, conexiones a Postgres y Mongo, relay. |
 
@@ -74,7 +74,7 @@ misma plantilla:
 
 ```
 src/contexts/<contexto>/
-├── domain/                  # Modelo de negocio puro: sin NestJS, Drizzle ni Hexclave
+├── domain/                  # Modelo de negocio puro: sin NestJS, Drizzle ni Clerk
 │   ├── constants/           # Límites y patrones de negocio (longitudes, regex…)
 │   ├── entities/            # Agregados/entidades (*.entity.ts) y objetos de valor (*.vo.ts)
 │   ├── errors/              # Invariantes que rompe el propio agregado
@@ -98,7 +98,7 @@ src/contexts/<contexto>/
 ├── infrastructure/
 │   ├── persistence/         # Esquema Drizzle, repositorio, modelo de lectura, mapper, repositorio en memoria (tests)
 │   ├── read-models/         # Lectores de otros motores (p. ej. timeline en Mongo y en Postgres)
-│   └── providers/           # Adaptadores externos (Hexclave) y cableado NestJS de puertos, comandos y consultas
+│   └── providers/           # Adaptadores externos (Clerk) y cableado NestJS de puertos, comandos y consultas
 └── <contexto>.module.ts     # Solo importa módulos, controladores y providers
 ```
 
@@ -125,7 +125,7 @@ El dominio no importa nada de fuera; la aplicación solo conoce puertos, nunca i
 
 Todas las rutas cuelgan del prefijo **`/api/v1`** (`API_PREFIX` en `src/config/http.ts`), p. ej.
 `GET /api/v1/health`; la tabla las muestra sin él. Todas salvo `/health` requieren
-`Authorization: Bearer <access token de Hexclave>`.
+`Authorization: Bearer <token de sesión de Clerk>`.
 
 | Método | Ruta | Caso de uso |
 |---|---|---|
@@ -164,7 +164,7 @@ siempre con un `code` legible por máquina (`INVALID_VALUE`, `INVALID_BIRTH_DATE
 ## Desarrollo local
 
 ```bash
-cp .env.example .env      # completar HEXCLAVE_* con el mismo proyecto del frontend
+cp .env.example .env      # completar CLERK_SECRET_KEY con la misma aplicación de Clerk del frontend
 pnpm install
 pnpm db:up                # Postgres 17 en Docker (puerto 5433)
                           # + un MongoDB propio en MONGO_URL (p. ej. localhost:27017), o MONGO_URL vacío
@@ -179,7 +179,7 @@ Cambiar el esquema: editar el `*.schema.ts` del contexto → `pnpm db:generate -
 
 ```bash
 pnpm test        # unitarios: dominio y casos de uso (repositorio en memoria)
-pnpm test:e2e    # HTTP + Postgres y Mongo reales; Hexclave sustituido por dobles (requiere db:up y Mongo)
+pnpm test:e2e    # HTTP + Postgres y Mongo reales; Clerk sustituido por dobles (requiere db:up y Mongo)
                  # Usa bases propias que se vacían en cada test: Postgres b2b_test (se crea y migra sola)
                  # y Mongo his_test. Se cambian con DATABASE_URL_TEST / MONGO_URL_TEST, y se niega a
                  # correr si el nombre no termina en "_test", para no tocar nunca los datos de desarrollo.

@@ -1,7 +1,7 @@
 import { PageClient } from "./page-client";
 
 export const metadata = {
-  title: "Dashboard - Stack Template",
+  title: "Elegir IPS",
 };
 
 export default function Dashboard() {

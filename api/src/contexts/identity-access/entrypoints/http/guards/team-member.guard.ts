@@ -13,7 +13,8 @@ import { AuthenticatedRequest } from './authenticated-request.js';
 
 /**
  * Tenant isolation: the `:teamId` route param must be a team the caller
- * belongs to. Must run after AccessTokenGuard.
+ * belongs to. Must run after AccessTokenGuard. The team selected in the
+ * signed token is trusted as is; any other team is checked with the provider.
  */
 @Injectable()
 export class TeamMemberGuard implements CanActivate {
@@ -27,7 +28,11 @@ export class TeamMemberGuard implements CanActivate {
     if (!request.auth) throw new UnauthorizedException();
 
     const teamId = TeamId.of(String(request.params.teamId));
-    if (!(await this.membership.isMember(request.auth.userId, teamId))) {
+    const selectedInToken = teamId.equals(request.auth.selectedTeamId ?? undefined);
+    if (
+      !selectedInToken &&
+      !(await this.membership.isMember(request.auth.userId, teamId))
+    ) {
       throw new NotATeamMemberError(teamId);
     }
 

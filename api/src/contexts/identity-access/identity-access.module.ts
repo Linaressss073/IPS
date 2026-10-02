@@ -9,7 +9,7 @@ import { identityAccessProviders } from './infrastructure/providers/identity-acc
 
 /**
  * Bounded context "Identity & Access": who the caller is and which teams
- * (tenants) they belong to. Identity is delegated to Hexclave; this module
+ * (tenants) they belong to. Identity is delegated to Clerk; this module
  * only exposes ports and guards to the other contexts.
  */
 @Module({

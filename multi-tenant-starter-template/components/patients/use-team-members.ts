@@ -1,40 +1,22 @@
 "use client";
 
-import * as React from "react";
-import { useUser } from "@hexclave/next";
+import { useOrganization } from "@clerk/nextjs";
 
 export type TeamMember = { id: string; name: string };
 
-/** Members of the team (IPS), to pick "requested by" and to show names instead of user ids. */
-export function useTeamMembers(teamId: string): TeamMember[] {
-  const user = useUser({ or: "redirect" });
-  const team = user.useTeam(teamId);
-  const [members, setMembers] = React.useState<TeamMember[]>([]);
+/**
+ * Members of the active organization (the IPS in the URL, see the dashboard
+ * layout), to pick "requested by" and to show names instead of user ids.
+ */
+export function useTeamMembers(): TeamMember[] {
+  const { memberships } = useOrganization({ memberships: { pageSize: 100 } });
 
-  // Keep the latest team in a ref so the effect only re-runs when the team id changes.
-  const teamRef = React.useRef(team);
-  teamRef.current = team;
-
-  React.useEffect(() => {
-    let cancelled = false;
-    teamRef.current
-      ?.listUsers()
-      .then((users) => {
-        if (cancelled) return;
-        setMembers(
-          users.map((member) => ({
-            id: member.id,
-            name: member.teamProfile.displayName ?? member.id,
-          })),
-        );
-      })
-      .catch(() => !cancelled && setMembers([]));
-    return () => {
-      cancelled = true;
-    };
-  }, [team?.id]);
-
-  return members;
+  return (memberships?.data ?? []).flatMap((membership) => {
+    const user = membership.publicUserData;
+    if (!user?.userId) return [];
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+    return [{ id: user.userId, name: fullName || user.identifier || user.userId }];
+  });
 }
 
 export function memberName(members: TeamMember[], userId: string) {

@@ -16,7 +16,8 @@ export const patients = pgTable(
   'patients_patients',
   {
     id: uuid('id').primaryKey(),
-    teamId: uuid('team_id').notNull(),
+    // Identity-provider organization id (e.g. Clerk "org_…"), not a UUID.
+    teamId: varchar('team_id', { length: 64 }).notNull(),
     documentType: varchar('document_type', { length: 4 }).notNull(),
     documentNumber: varchar('document_number', { length: 20 }).notNull(),
     firstName: text('first_name').notNull(),

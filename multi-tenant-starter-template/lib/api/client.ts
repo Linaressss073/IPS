@@ -2,7 +2,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 /** Must match API_PREFIX in api/src/config/http.ts. */
 const API_PREFIX = "/api/v1";
 
-/** Anything that can hand out the current Hexclave access token (e.g. the user from useUser()). */
+/** Anything that can hand out the current session token (see useApiAuth). */
 export type TokenSource = { getAccessToken(): Promise<string | null> };
 
 export class ApiError extends Error {
@@ -15,7 +15,7 @@ export class ApiError extends Error {
   }
 }
 
-/** fetch() against the B2B API, authenticated with the user's Hexclave JWT. */
+/** fetch() against the API, authenticated with the user's Clerk session token. */
 export async function apiFetch<T>(
   auth: TokenSource,
   path: string,

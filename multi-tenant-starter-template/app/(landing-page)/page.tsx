@@ -1,27 +1,10 @@
 import { FeatureGrid } from "@/components/features";
 import { Hero } from "@/components/hero";
 import { PricingGrid } from "@/components/pricing";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { ComponentIcon, Users } from "lucide-react";
 
-export default async function IndexPage() {
-  const project = await hexclaveServerApp.getProject();
-  if (!project.config.clientTeamCreationEnabled) {
-    return (
-      <div className="w-full min-h-96 flex items-center justify-center">
-        <div className="max-w-xl gap-4">
-          <p className="font-bold text-xl">Setup Required</p>
-          <p className="">
-            {
-              "To start using this project, please enable client-side team creation in hexclave.config.ts (teams.allowClientTeamCreation) or the Hexclave dashboard. This message will disappear once the feature is enabled."
-            }
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+export default function IndexPage() {
   return (
     <>
       <Hero

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useUser } from "@hexclave/next";
 import { ChevronLeft, ChevronRight, Search, UserPlus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { errorMessage } from "@/components/patients/error-message";
@@ -11,17 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ageFrom, Page, Patient, REGIMES, searchPatients } from "@/lib/api/patients";
+import { useApiAuth } from "@/lib/api/use-api-auth";
 
 const PAGE_SIZE = 20;
 
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const router = useRouter();
-  const user = useUser({ or: "redirect" });
-  // Keep the latest user in a ref so `load` doesn't re-run when useUser()
-  // hands back a new object for the same session.
-  const userRef = React.useRef(user);
-  userRef.current = user;
+  const auth = useApiAuth();
 
   const [q, setQ] = React.useState("");
   const [query, setQuery] = React.useState("");
@@ -41,7 +37,7 @@ export function PageClient() {
   React.useEffect(() => {
     let cancelled = false;
     setError(null);
-    searchPatients(userRef.current, teamId, { q: query, page, pageSize: PAGE_SIZE })
+    searchPatients(auth, teamId, { q: query, page, pageSize: PAGE_SIZE })
       .then((data) => !cancelled && setResult(data))
       .catch((e) => {
         if (cancelled) return;
@@ -51,7 +47,7 @@ export function PageClient() {
     return () => {
       cancelled = true;
     };
-  }, [teamId, query, page]);
+  }, [auth, teamId, query, page]);
 
   const lastPage = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
   const detailUrl = (id: string) => `/dashboard/${teamId}/patients/${id}`;

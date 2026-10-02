@@ -1,4 +1,4 @@
-import { HexclaveServerApp } from '@hexclave/js';
+import { createClerkClient } from '@clerk/backend';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Env } from '../../../../config/env.js';
@@ -6,38 +6,27 @@ import {
   ACCESS_TOKEN_VERIFIER,
   TEAM_MEMBERSHIP_CHECKER,
 } from '../../application/constants/injection-tokens.js';
-import { HexclaveAccessTokenVerifier } from './hexclave/hexclave-access-token-verifier.js';
-import { HexclaveTeamMembershipChecker } from './hexclave/hexclave-team-membership-checker.js';
+import { ClerkAccessTokenVerifier } from './clerk/clerk-access-token-verifier.js';
+import { ClerkTeamMembershipChecker } from './clerk/clerk-team-membership-checker.js';
 
-const HEXCLAVE_SERVER_APP = Symbol('HexclaveServerApp');
-
-/** Binds the identity ports to their Hexclave adapters. */
+/** Binds the identity ports to their Clerk adapters. */
 export const identityAccessProviders: Provider[] = [
-  {
-    provide: HEXCLAVE_SERVER_APP,
-    inject: [ConfigService],
-    useFactory: (config: ConfigService<Env, true>) =>
-      new HexclaveServerApp({
-        tokenStore: null,
-        baseUrl: config.get('HEXCLAVE_API_URL'),
-        projectId: config.get('HEXCLAVE_PROJECT_ID'),
-        publishableClientKey: config.get('HEXCLAVE_PUBLISHABLE_CLIENT_KEY'),
-        secretServerKey: config.get('HEXCLAVE_SECRET_SERVER_KEY'),
-      }),
-  },
   {
     provide: ACCESS_TOKEN_VERIFIER,
     inject: [ConfigService],
     useFactory: (config: ConfigService<Env, true>) =>
-      new HexclaveAccessTokenVerifier(
-        config.get('HEXCLAVE_API_URL'),
-        config.get('HEXCLAVE_PROJECT_ID'),
-      ),
+      new ClerkAccessTokenVerifier({
+        secretKey: config.get('CLERK_SECRET_KEY'),
+        jwtKey: config.get('CLERK_JWT_KEY'),
+        authorizedParties: config.get('CLERK_AUTHORIZED_PARTIES'),
+      }),
   },
   {
     provide: TEAM_MEMBERSHIP_CHECKER,
-    inject: [HEXCLAVE_SERVER_APP],
-    useFactory: (hexclave: HexclaveServerApp) =>
-      new HexclaveTeamMembershipChecker(hexclave),
+    inject: [ConfigService],
+    useFactory: (config: ConfigService<Env, true>) =>
+      new ClerkTeamMembershipChecker(
+        createClerkClient({ secretKey: config.get('CLERK_SECRET_KEY') }),
+      ),
   },
 ];

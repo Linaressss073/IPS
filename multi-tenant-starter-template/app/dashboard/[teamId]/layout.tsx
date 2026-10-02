@@ -1,9 +1,10 @@
 'use client';
 
 import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
-import { SelectedTeamSwitcher, useUser } from "@hexclave/next";
+import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
 import { Contact, Home } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import * as React from "react";
 
 const navigationItems: SidebarItem[] = [
   {
@@ -25,27 +26,41 @@ const navigationItems: SidebarItem[] = [
 ];
 
 export default function Layout(props: { children: React.ReactNode }) {
-  const params = useParams<{ teamId: string }>();
-  const user = useUser({ or: 'redirect' });
-  const team = user.useTeam(params.teamId);
+  const { teamId } = useParams<{ teamId: string }>();
   const router = useRouter();
+  const { organization, isLoaded } = useOrganization();
+  const { setActive, isLoaded: listLoaded } = useOrganizationList();
 
-  if (!team) {
-    router.push('/dashboard');
-    return null;
+  // The middleware makes the URL's organization active; if it is not yet
+  // (e.g. client-side navigation), activate it here. Failing means the user
+  // is not a member of that IPS, so send them back to pick one.
+  React.useEffect(() => {
+    if (!isLoaded || !listLoaded || organization?.id === teamId) return;
+    setActive({ organization: teamId }).catch(() => router.replace("/dashboard"));
+  }, [isLoaded, listLoaded, organization?.id, teamId, setActive, router]);
+
+  if (!organization || organization.id !== teamId) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <span className="loader" />
+      </div>
+    );
   }
 
   return (
-    <SidebarLayout 
+    <SidebarLayout
       items={navigationItems}
-      basePath={`/dashboard/${team.id}`}
-      sidebarTop={<SelectedTeamSwitcher 
-        selectedTeam={team}
-        urlMap={(team) => `/dashboard/${team.id}`}
-      />}
+      basePath={`/dashboard/${organization.id}`}
+      sidebarTop={
+        <OrganizationSwitcher
+          hidePersonal
+          afterSelectOrganizationUrl="/dashboard/:id"
+          afterCreateOrganizationUrl="/dashboard/:id"
+        />
+      }
       baseBreadcrumb={[{
-        title: team.displayName,
-        href: `/dashboard/${team.id}`,
+        title: organization.name,
+        href: `/dashboard/${organization.id}`,
       }]}
     >
       {props.children}

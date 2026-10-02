@@ -9,7 +9,7 @@ repetir información y poder seguir la traza de la atención de cada paciente.
 | Carpeta | Qué es |
 |---|---|
 | [`api/`](api/README.md) | Backend NestJS + PostgreSQL (fuente de verdad) + MongoDB (historial), organizado con DDD y CQRS. |
-| [`multi-tenant-starter-template/`](multi-tenant-starter-template/README.md) | Frontend Next.js 15 (Turbopack) + Hexclave (login, usuarios e IPS como equipos). |
+| [`multi-tenant-starter-template/`](multi-tenant-starter-template/README.md) | Frontend Next.js 15 (Turbopack) + Clerk (login, usuarios e IPS como organizaciones). |
 
 Módulos actuales: **Pacientes** (registro único por IPS, búsqueda, acompañantes numerados e historial con
 `requestedBy` / `executedBy`). Siguientes: agendamiento, admisión y turnos, consulta médica y farmacia.
@@ -19,7 +19,7 @@ Módulos actuales: **Pacientes** (registro único por IPS, búsqueda, acompañan
 ```bash
 # API: http://localhost:3001/api/v1
 cd api
-cp .env.example .env          # completar HEXCLAVE_* con el mismo proyecto del frontend
+cp .env.example .env          # completar CLERK_SECRET_KEY (la misma aplicación de Clerk del frontend)
 pnpm install
 pnpm db:up && pnpm db:migrate # Postgres en Docker; Mongo propio en MONGO_URL (opcional)
 pnpm start:dev
@@ -37,5 +37,4 @@ Los detalles (arquitectura, endpoints, tests) están en el README de cada carpet
 
 [`render.yaml`](render.yaml) es un *Blueprint* de Render: en **New → Blueprint** se elige este repositorio y crea
 `ips-api` y `ips-web` en el proyecto *Practica / Production*, conectados a la base `ips-db-postgres`. Solo pide
-los secretos (`HEXCLAVE_SECRET_SERVER_KEY`). Las migraciones se aplican al arrancar la API, y el dominio del
-frontend debe estar permitido en Hexclave para que funcione el login.
+los secretos (las llaves de Clerk). Las migraciones se aplican al arrancar la API.

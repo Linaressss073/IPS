@@ -1,15 +1,14 @@
-import { HexclaveProvider, HexclaveTheme } from "@hexclave/next";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
 import { Provider } from "./provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Stack Template",
-  description: "A Multi-tenant Next.js Starter Template",
+  title: "IPS · Consulta externa",
+  description: "Sistema de información hospitalaria para la consulta externa",
 };
 
 export default function RootLayout({
@@ -18,13 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-        <Provider>
-          <HexclaveProvider app={hexclaveServerApp}>
-            <HexclaveTheme>{children}</HexclaveTheme>
-          </HexclaveProvider>
-        </Provider>
+        <ClerkProvider>
+          <Provider>{children}</Provider>
+        </ClerkProvider>
       </body>
     </html>
   );

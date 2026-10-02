@@ -1,9 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { UserButton } from "@hexclave/next";
+import { UserButton } from "@clerk/nextjs";
 import { LucideIcon, Menu } from "lucide-react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -15,6 +14,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb";
+import { ColorModeSwitcher } from "./color-mode-switcher";
 import { buttonVariants } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
@@ -149,7 +149,6 @@ export default function SidebarLayout(props: {
   basePath: string;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <div className="w-full flex">
@@ -185,11 +184,10 @@ export default function SidebarLayout(props: {
             </div>
           </div>
 
-          <UserButton
-            colorModeToggle={() =>
-              setTheme(resolvedTheme === "light" ? "dark" : "light")
-            }
-          />
+          <div className="flex items-center gap-2">
+            <ColorModeSwitcher />
+            <UserButton />
+          </div>
         </div>
         <div className="flex-grow">{props.children}</div>
       </div>
