@@ -1,4 +1,5 @@
-import { DomainError, UserId } from '../../../../shared/domain/index.js';
+import { DomainError } from '../../../../shared/domain/index.js';
+export { RequesterNotATeamMemberError } from '../../../../shared/application/index.js';
 import { IdentityDocument } from '../../domain/entities/identity-document.vo.js';
 import { PatientId } from '../../domain/entities/patient-id.vo.js';
 
@@ -30,17 +31,6 @@ export class PatientVersionConflictError extends DomainError {
     super(
       `Patient ${id.value} was modified by someone else; reload it and try again`,
       'PATIENT_VERSION_CONFLICT',
-    );
-  }
-}
-
-export class RequesterNotATeamMemberError extends DomainError {
-  readonly kind = 'validation';
-
-  constructor(userId: UserId) {
-    super(
-      `requestedBy "${userId.value}" is not a member of this team`,
-      'INVALID_REQUESTER',
     );
   }
 }

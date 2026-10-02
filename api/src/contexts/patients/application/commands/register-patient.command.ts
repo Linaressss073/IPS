@@ -1,4 +1,4 @@
-import { Clock, newTraceEvent } from '../../../../shared/application/index.js';
+import { ActorResolver, Clock, newTraceEvent } from '../../../../shared/application/index.js';
 import { Companion } from '../../domain/entities/companion.vo.js';
 import { Patient } from '../../domain/entities/patient.entity.js';
 import { PATIENT_REGISTERED } from '../constants/trace-event-types.js';
@@ -7,7 +7,6 @@ import { companionRecordedEvent } from '../mappings/companion.mapper.js';
 import { PatientInputMapper } from '../mappings/patient-input.mapper.js';
 import { toPatientView } from '../mappings/patient-view.mapper.js';
 import { PatientRepository } from '../ports/patient.repository.port.js';
-import { ActorResolver } from '../services/actor-resolver.service.js';
 import { PatientView, RegisterPatientCommand } from '../types/patient.types.js';
 
 /**

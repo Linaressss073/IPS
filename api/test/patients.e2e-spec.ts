@@ -1,4 +1,5 @@
 import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
+import { STAFF_COLLECTION } from '../src/contexts/staff/infrastructure/persistence/staff.document.js';
 import { TRACE_EVENTS_COLLECTION } from '../src/shared/infrastructure/persistence/mongo.js';
 import { createTestApp, TEAM_A, TEAM_B } from './support/test-app.js';
 
@@ -12,7 +13,8 @@ describe('Patients API (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await t.wipe(PATIENTS_COLLECTION, TRACE_EVENTS_COLLECTION);
+    // Staff too: roles assigned by other specs would grant permissions.
+    await t.wipe(PATIENTS_COLLECTION, STAFF_COLLECTION, TRACE_EVENTS_COLLECTION);
   });
 
   afterAll(async () => {

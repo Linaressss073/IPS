@@ -1,4 +1,4 @@
-import { TeamId, UserId } from '../../../../shared/domain/index.js';
+import { TeamId, UserId } from '../../domain/index.js';
 
 /** Port: whether a user belongs to a team (used to validate requestedBy). */
 export interface TeamMembers {

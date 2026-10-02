@@ -4,7 +4,7 @@ import { AccessProvider, useAccess } from "@/components/access/access-context";
 import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
 import { Permission } from "@/lib/api/staff";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
-import { Building2, Contact, Home, Users } from "lucide-react";
+import { Building2, CalendarDays, Contact, Home, Stethoscope, Users } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -28,6 +28,13 @@ const navigationItems: (SidebarItem & { requires?: Permission })[] = [
     requires: "patients:read",
   },
   {
+    name: "Agenda",
+    href: "/agenda",
+    icon: CalendarDays,
+    type: "item",
+    requires: "appointments:read",
+  },
+  {
     type: 'label',
     name: 'Administración',
   },
@@ -37,6 +44,13 @@ const navigationItems: (SidebarItem & { requires?: Permission })[] = [
     icon: Users,
     type: "item",
     requires: "staff:manage",
+  },
+  {
+    name: "Servicios y consultorios",
+    href: "/scheduling-settings",
+    icon: Stethoscope,
+    type: "item",
+    requires: "settings:manage",
   },
   {
     name: "Datos de la IPS",

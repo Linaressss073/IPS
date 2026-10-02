@@ -1,8 +1,13 @@
-import { Actor } from '../../../../shared/application/index.js';
-import { TeamId } from '../../../../shared/domain/index.js';
-import { RequesterNotATeamMemberError } from '../errors/patient.errors.js';
+import { TeamId, UserId } from '../../domain/index.js';
+import { RequesterNotATeamMemberError } from '../errors/actor.errors.js';
 import { TeamMembers } from '../ports/team-members.port.js';
-import { ActorInput } from '../types/patient.types.js';
+import { Actor } from '../types/trace-event.types.js';
+
+/** Who executes a command and, optionally, who asked for it. */
+export interface ActorInput {
+  executedBy: UserId;
+  requestedBy?: UserId;
+}
 
 /**
  * Turns the command's actor into the one recorded in the trace: the
@@ -22,3 +27,4 @@ export class ActorResolver {
     return { requestedBy, executedBy: input.executedBy };
   }
 }
+

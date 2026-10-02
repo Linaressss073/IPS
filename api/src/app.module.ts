@@ -5,6 +5,7 @@ import { loadDeploymentConfig } from './config/deployment-config.js';
 import { validateEnv } from './config/env.js';
 import { IdentityAccessModule } from './contexts/identity-access/identity-access.module.js';
 import { PatientsModule } from './contexts/patients/patients.module.js';
+import { SchedulingModule } from './contexts/scheduling/scheduling.module.js';
 import { OrganizationsModule } from './contexts/organizations/organizations.module.js';
 import { StaffModule } from './contexts/staff/staff.module.js';
 import { ClerkIntegrationModule } from './integrations/clerk/clerk-integration.module.js';
@@ -25,6 +26,7 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
     MongoModule,
     IdentityAccessModule,
     PatientsModule,
+    SchedulingModule,
     StaffModule,
     OrganizationsModule,
     ClerkIntegrationModule,

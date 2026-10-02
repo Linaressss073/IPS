@@ -71,6 +71,65 @@ Authorization: Bearer {{token}}
 
 ### ─── Personal ────────────────────────────────────────────────
 
+### Servicios (prefijo de turnos)
+GET {{baseUrl}}/teams/{{teamId}}/services
+Authorization: Bearer {{token}}
+
+### Crear servicio (administradores)
+POST {{baseUrl}}/teams/{{teamId}}/services
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "code": "RTH", "name": "Rehabilitación" }
+
+### Crear ubicación (administradores)
+POST {{baseUrl}}/teams/{{teamId}}/locations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "kind": "Consultorio", "number": "502" }
+
+### Profesionales (rol médico)
+GET {{baseUrl}}/teams/{{teamId}}/professionals
+Authorization: Bearer {{token}}
+
+### Agendas del día
+GET {{baseUrl}}/teams/{{teamId}}/agendas?date=2026-10-05
+Authorization: Bearer {{token}}
+
+### Abrir agenda
+POST {{baseUrl}}/teams/{{teamId}}/agendas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "professionalId": "user_...",
+  "serviceId": "...",
+  "locationId": "...",
+  "date": "2026-10-05",
+  "startTime": "07:00",
+  "endTime": "12:00",
+  "slotMinutes": 20
+}
+
+### Agendar cita
+POST {{baseUrl}}/teams/{{teamId}}/appointments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "patientId": "...", "agendaId": "...", "time": "07:20" }
+
+### Citas del día
+GET {{baseUrl}}/teams/{{teamId}}/appointments?date=2026-10-05
+Authorization: Bearer {{token}}
+
+### Confirmar cita
+POST {{baseUrl}}/teams/{{teamId}}/appointments/.../confirm
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "version": 1 }
+
 ### Personal de la IPS
 GET {{baseUrl}}/teams/{{teamId}}/staff
 Authorization: Bearer {{token}}

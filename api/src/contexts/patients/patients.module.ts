@@ -8,6 +8,8 @@ import { PatientCommandsController } from './entrypoints/http/controllers/patien
 import { PatientQueriesController } from './entrypoints/http/controllers/patient-queries.controller.js';
 import { ensurePatientIndexes } from './infrastructure/persistence/patient.document.js';
 import { patientsProviders } from './infrastructure/providers/patients.providers.js';
+import { GetPatient } from './application/queries/get-patient.query.js';
+import { GetPatientSummaries } from './application/queries/get-patient-summaries.query.js';
 
 /**
  * Bounded context "Patients": a single record per patient and team (IPS),
@@ -18,6 +20,8 @@ import { patientsProviders } from './infrastructure/providers/patients.providers
   imports: [IdentityAccessModule, StaffModule],
   controllers: [PatientCommandsController, PatientQueriesController],
   providers: patientsProviders,
+  // Public queries for other contexts (scheduling, admission…).
+  exports: [GetPatient, GetPatientSummaries],
 })
 export class PatientsModule implements OnModuleInit {
   constructor(

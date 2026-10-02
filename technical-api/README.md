@@ -10,6 +10,7 @@ Esta carpeta documenta todos los endpoints disponibles; el código fuente está 
 | [03-staff.md](03-staff.md) | Personal de la IPS (directorio ofuscado) |
 | [04-organizations.md](04-organizations.md) | Datos de la IPS (colección `organizations` de MongoDB) |
 | [05-webhooks.md](05-webhooks.md) | Webhooks de Clerk |
+| [06-scheduling.md](06-scheduling.md) | Agendamiento: servicios, consultorios, agendas y citas |
 | [errors.md](errors.md) | Formato de errores y catálogo de códigos |
 | [requests.http](requests.http) | Colección de peticiones lista para ejecutar (VS Code REST Client / IntelliJ) |
 
@@ -39,6 +40,20 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | GET | `/teams/:teamId/staff` | Miembro | 200 | [Personal](03-staff.md#listar-el-personal) |
 | GET | `/teams/:teamId/staff/me` | Miembro | 200 | [Personal](03-staff.md#mi-acceso) |
 | PUT | `/teams/:teamId/staff/:userId/roles` | `staff:manage` | 200 | [Personal](03-staff.md#asignar-roles) |
+| GET | `/teams/:teamId/services` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#servicios) |
+| POST | `/teams/:teamId/services` | `settings:manage` | 201 | [Agendamiento](06-scheduling.md#servicios) |
+| PATCH | `/teams/:teamId/services/:serviceId` | `settings:manage` | 200 | [Agendamiento](06-scheduling.md#servicios) |
+| GET | `/teams/:teamId/locations` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#ubicaciones) |
+| POST | `/teams/:teamId/locations` | `settings:manage` | 201 | [Agendamiento](06-scheduling.md#ubicaciones) |
+| PATCH | `/teams/:teamId/locations/:locationId` | `settings:manage` | 200 | [Agendamiento](06-scheduling.md#ubicaciones) |
+| GET | `/teams/:teamId/professionals` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#profesionales) |
+| GET | `/teams/:teamId/agendas?date=` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#ver-el-día) |
+| POST | `/teams/:teamId/agendas` | `appointments:manage` | 201 | [Agendamiento](06-scheduling.md#abrir-una-agenda) |
+| DELETE | `/teams/:teamId/agendas/:agendaId` | `appointments:manage` | 204 | [Agendamiento](06-scheduling.md#eliminar-una-agenda) |
+| GET | `/teams/:teamId/appointments` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#buscar) |
+| GET | `/teams/:teamId/appointments/:appointmentId` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#appointmentview) |
+| POST | `/teams/:teamId/appointments` | `appointments:manage` | 201 | [Agendamiento](06-scheduling.md#agendar) |
+| POST | `/teams/:teamId/appointments/:id/confirm` · `/cancel` · `/reschedule` | `appointments:manage` | 200 | [Agendamiento](06-scheduling.md#confirmar-cancelar-reprogramar) |
 | GET | `/organizations/:teamId` | Miembro | 200 | [Organizaciones](04-organizations.md#ver-ips) |
 | PATCH | `/organizations/:teamId` | **Administrador** | 200 | [Organizaciones](04-organizations.md#actualizar-ips) |
 | DELETE | `/organizations/:teamId` | **Administrador** | 204 | [Organizaciones](04-organizations.md#eliminar-ips) |
@@ -69,14 +84,14 @@ La API valida la firma del token contra Clerk y que haya sido emitido para el fr
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
 | `patients:read` | ✓ | ✓ | ✓ | ✓ | ✓ | |
 | `patients:write` | ✓ | ✓ | ✓ | | | |
+| `appointments:read` | ✓ | ✓ | ✓ | ✓ | | |
 | `appointments:manage` | ✓ | ✓ | | | | |
 | `admission:manage` | ✓ | | ✓ | | | |
 | `turns:call` | | | ✓ | ✓ | ✓ | |
 | `settings:manage` | ✓ | | | | | |
 | `staff:manage` | ✓ | | | | | |
 
-`appointments:manage`, `admission:manage`, `turns:call` y `settings:manage` quedan definidos para los módulos de
-agendamiento, admisión y turnos.
+`admission:manage` y `turns:call` quedan definidos para los módulos de admisión y turnos.
 
 ## Convenciones
 

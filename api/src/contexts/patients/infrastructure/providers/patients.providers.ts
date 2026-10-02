@@ -1,5 +1,10 @@
 import { Provider } from '@nestjs/common';
-import { CLOCK, Clock } from '../../../../shared/application/index.js';
+import {
+  ActorResolver,
+  CLOCK,
+  Clock,
+  type TeamMembers,
+} from '../../../../shared/application/index.js';
 import type { Db, MongoClient } from 'mongodb';
 import {
   MONGO_CLIENT,
@@ -21,12 +26,11 @@ import type { PatientReadModel } from '../../application/ports/patient-read-mode
 import type { StaffNames } from '../../application/ports/staff-names.port.js';
 import { GetStaffNames } from '../../../staff/application/queries/get-staff-names.query.js';
 import type { PatientRepository } from '../../application/ports/patient.repository.port.js';
-import type { TeamMembers } from '../../application/ports/team-members.port.js';
 import { GetPatientCompanions } from '../../application/queries/get-patient-companions.query.js';
 import { GetPatientTimeline } from '../../application/queries/get-patient-timeline.query.js';
+import { GetPatientSummaries } from '../../application/queries/get-patient-summaries.query.js';
 import { GetPatient } from '../../application/queries/get-patient.query.js';
 import { SearchPatients } from '../../application/queries/search-patients.query.js';
-import { ActorResolver } from '../../application/services/actor-resolver.service.js';
 import { PatientFinder } from '../../application/services/patient-finder.service.js';
 import type { PatientTimelineReader } from '../../application/ports/patient-timeline.port.js';
 import { MongoPatientReadModel } from '../persistence/mongo-patient.read-model.js';
@@ -105,6 +109,11 @@ export const patientsProviders: Provider[] = [
     provide: SearchPatients,
     inject: [PATIENT_READ_MODEL],
     useFactory: (readModel: PatientReadModel) => new SearchPatients(readModel),
+  },
+  {
+    provide: GetPatientSummaries,
+    inject: [PATIENT_READ_MODEL],
+    useFactory: (readModel: PatientReadModel) => new GetPatientSummaries(readModel),
   },
   {
     provide: GetPatient,

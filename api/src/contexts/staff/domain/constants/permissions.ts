@@ -4,6 +4,7 @@ import type { StaffRole } from '../types/staff.types.js';
 export const PERMISSIONS = [
   'patients:read',
   'patients:write',
+  'appointments:read',
   'appointments:manage',
   'admission:manage',
   'turns:call',
@@ -15,9 +16,9 @@ export type Permission = (typeof PERMISSIONS)[number];
 
 /** The matrix agreed for the project (Administración is Clerk's org:admin). */
 export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
-  agendamiento: ['patients:read', 'patients:write', 'appointments:manage'],
-  admision: ['patients:read', 'patients:write', 'admission:manage', 'turns:call'],
-  medico: ['patients:read', 'turns:call'],
+  agendamiento: ['patients:read', 'patients:write', 'appointments:read', 'appointments:manage'],
+  admision: ['patients:read', 'patients:write', 'appointments:read', 'admission:manage', 'turns:call'],
+  medico: ['patients:read', 'appointments:read', 'turns:call'],
   farmacia: ['patients:read', 'turns:call'],
   soporte: [],
 };
@@ -25,6 +26,7 @@ export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
 export const ADMIN_PERMISSIONS: readonly Permission[] = [
   'patients:read',
   'patients:write',
+  'appointments:read',
   'appointments:manage',
   'admission:manage',
   'settings:manage',

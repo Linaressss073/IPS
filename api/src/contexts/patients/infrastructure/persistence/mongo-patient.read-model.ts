@@ -1,10 +1,14 @@
 import type { Collection, Db, Filter } from 'mongodb';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { PatientReadModel } from '../../application/ports/patient-read-model.port.js';
-import { Page, PatientView } from '../../application/types/patient.types.js';
+import {
+  Page,
+  PatientSummaryView,
+  PatientView,
+} from '../../application/types/patient.types.js';
 import { PatientDocument, PATIENTS_COLLECTION } from './patient.document.js';
 import { PatientMapper } from './patient.mapper.js';
-import { escapeRegex, normalizeForSearch } from './search-text.js';
+import { escapeRegex, normalizeForSearch } from '../../../../shared/domain/index.js';
 
 /** Read side over the patients collection: documents go straight to views. */
 export class MongoPatientReadModel implements PatientReadModel {
@@ -20,6 +24,28 @@ export class MongoPatientReadModel implements PatientReadModel {
   ): Promise<PatientView | null> {
     const doc = await this.patients.findOne({ _id: patientId, teamId: teamId.value });
     return doc ? PatientMapper.toView(doc) : null;
+  }
+
+  async summaries(
+    teamId: TeamId,
+    patientIds: string[],
+  ): Promise<Map<string, PatientSummaryView>> {
+    const docs = await this.patients
+      .find(
+        { teamId: teamId.value, _id: { $in: patientIds } },
+        { projection: { name: 1, document: 1 } },
+      )
+      .toArray();
+    return new Map(
+      docs.map((doc) => [
+        doc._id,
+        {
+          id: doc._id,
+          fullName: Object.values(doc.name).filter(Boolean).join(' '),
+          document: { ...doc.document },
+        },
+      ]),
+    );
   }
 
   /** Every word of `q` must appear in the document number or the names. */

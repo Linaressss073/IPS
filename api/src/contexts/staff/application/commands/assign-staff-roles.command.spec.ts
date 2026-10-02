@@ -20,11 +20,13 @@ describe('Permissions matrix', () => {
     expect(permissionsFor({ isAdmin: false, roles: [] })).toEqual([]);
     expect(permissionsFor({ isAdmin: false, roles: ['medico'] })).toEqual([
       'patients:read',
+      'appointments:read',
       'turns:call',
     ]);
     expect(permissionsFor({ isAdmin: false, roles: ['agendamiento', 'admision'] })).toEqual([
       'patients:read',
       'patients:write',
+      'appointments:read',
       'appointments:manage',
       'admission:manage',
       'turns:call',
@@ -33,6 +35,7 @@ describe('Permissions matrix', () => {
     expect(permissionsFor({ isAdmin: true, roles: [] })).toEqual([
       'patients:read',
       'patients:write',
+      'appointments:read',
       'appointments:manage',
       'admission:manage',
       'settings:manage',

@@ -20,6 +20,7 @@ export type MyAccess = {
 export type Permission =
   | "patients:read"
   | "patients:write"
+  | "appointments:read"
   | "appointments:manage"
   | "admission:manage"
   | "turns:call"
