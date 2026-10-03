@@ -239,6 +239,9 @@ function Timeline(props: { entries: TimelineEntry[] | null; members: TeamMember[
             {entry.type.startsWith("appointment.") && (
               <p className="text-muted-foreground">{appointmentSummary(entry.data)}</p>
             )}
+            {entry.type.startsWith("turn.") && (
+              <p className="text-muted-foreground">{turnSummary(entry.data)}</p>
+            )}
             {changes.length > 0 && (
               <p className="text-muted-foreground">
                 Cambió: {changes.map((change) => FIELD_LABELS[change.field] ?? change.field).join(", ")}
@@ -282,6 +285,18 @@ function appointmentSummary(data: Record<string, unknown>) {
     slot(data as SlotData),
     from && `antes: ${from.date}, ${from.time}`,
     typeof data.reason === "string" && `Motivo: ${data.reason}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/** "Turno RTH 4 · Consultorio 502 · llamado 2 (automático)" */
+function turnSummary(data: Record<string, unknown>) {
+  const location = (data.location as { label?: string } | undefined)?.label;
+  return [
+    `Turno ${String(data.label)}`,
+    location,
+    Number(data.calls) > 0 && `llamado ${String(data.calls)}${data.automatic ? " (automático)" : ""}`,
   ]
     .filter(Boolean)
     .join(" · ");

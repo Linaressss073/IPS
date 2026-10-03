@@ -9,6 +9,7 @@ import { DomainError } from '../../../domain/index.js';
 
 const STATUS_BY_KIND: Record<DomainError['kind'], HttpStatus> = {
   validation: HttpStatus.BAD_REQUEST,
+  unauthorized: HttpStatus.UNAUTHORIZED,
   'not-found': HttpStatus.NOT_FOUND,
   conflict: HttpStatus.CONFLICT,
   forbidden: HttpStatus.FORBIDDEN,

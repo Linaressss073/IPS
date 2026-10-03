@@ -26,5 +26,7 @@ export function useTeamMembers(): TeamMember[] {
  * anonymized users), else the live Clerk member, else the raw id.
  */
 export function memberName(members: TeamMember[], userId: string, apiName?: string | null) {
+  // Automatic steps (turn re-announcements, no-shows) are done by the system.
+  if (userId === "system") return "el sistema";
   return apiName ?? members.find((member) => member.id === userId)?.name ?? userId;
 }

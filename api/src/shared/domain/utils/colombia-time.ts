@@ -1,4 +1,4 @@
-import { InvalidValueError } from '../../../../shared/domain/index.js';
+import { InvalidValueError } from '../errors/domain-error.js';
 
 /**
  * Agendas are kept in Colombia's local time (UTC-5 all year, no daylight

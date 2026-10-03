@@ -1,5 +1,6 @@
 import type { Collection, Db } from 'mongodb';
 import { TeamId } from '../../../../shared/domain/index.js';
+import { StaffMemberNotFoundError } from '../../application/errors/staff.errors.js';
 import { StaffReadModel } from '../../application/ports/staff-read-model.port.js';
 import { StaffMemberView } from '../../application/types/staff.types.js';
 import { DELETED_USER_NAME } from '../../domain/constants/staff.constants.js';
@@ -18,25 +19,25 @@ export class MongoStaffReadModel implements StaffReadModel {
       .find({ 'teams.teamId': teamId.value, deleted: false })
       .toArray();
     return docs
-      .map((doc) => toView(doc, teamId)!)
+      .map((doc) => toView(doc, teamId))
       .sort(
         (a, b) =>
           compareNames(a.displayName, b.displayName) || a.userId.localeCompare(b.userId),
       );
   }
 
-  async member(teamId: TeamId, userId: string): Promise<StaffMemberView | null> {
+  async getMember(teamId: TeamId, userId: string): Promise<StaffMemberView> {
     const doc = await this.staff.findOne({ _id: userId, 'teams.teamId': teamId.value });
-    return doc ? toView(doc, teamId) : null;
+    if (!doc) throw new StaffMemberNotFoundError(teamId, userId);
+    return toView(doc, teamId);
   }
 
-  async rolesOf(teamId: TeamId, userId: string): Promise<string[] | null> {
+  async rolesOf(teamId: TeamId, userId: string): Promise<string[]> {
     const doc = await this.staff.findOne(
       { _id: userId, 'teams.teamId': teamId.value },
       { projection: { teams: 1 } },
     );
-    const team = doc?.teams.find((entry) => entry.teamId === teamId.value);
-    return team ? (team.roles ?? []) : null;
+    return doc?.teams.find((entry) => entry.teamId === teamId.value)?.roles ?? [];
   }
 
   async namesFor(userIds: readonly string[]): Promise<Map<string, string>> {
@@ -56,9 +57,9 @@ export class MongoStaffReadModel implements StaffReadModel {
   }
 }
 
-function toView(doc: StaffDocument, teamId: TeamId): StaffMemberView | null {
-  const team = doc.teams.find((entry) => entry.teamId === teamId.value);
-  if (!team) return null;
+/** The document was found by teams.teamId, so the entry is there. */
+function toView(doc: StaffDocument, teamId: TeamId): StaffMemberView {
+  const team = doc.teams.find((entry) => entry.teamId === teamId.value)!;
   return {
     userId: doc._id,
     displayName: doc.displayName,

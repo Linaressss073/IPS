@@ -9,7 +9,8 @@ import { Patient } from '../../domain/entities/patient.entity.js';
  * stores the patient and its trace events atomically.
  */
 export interface PatientRepository {
-  findById(teamId: TeamId, id: PatientId): Promise<Patient | null>;
+  /** Throws PatientNotFoundError if the team has no such patient. */
+  getById(teamId: TeamId, id: PatientId): Promise<Patient>;
 
   existsByDocument(teamId: TeamId, document: IdentityDocument): Promise<boolean>;
 
@@ -26,11 +27,12 @@ export interface PatientRepository {
    * Numbers and stores the patient's next companion atomically: the number
    * is the previous companion count + 1, with no gaps or duplicates even
    * under concurrent calls. `toEvent` builds the event for that number.
-   * Returns the stored event, or null if the patient does not exist in the team.
+   * Returns the stored event; throws PatientNotFoundError if the patient
+   * does not exist in the team.
    */
   recordCompanion(
     teamId: TeamId,
     patientId: PatientId,
     toEvent: (number: number) => TraceEvent,
-  ): Promise<TraceEvent | null>;
+  ): Promise<TraceEvent>;
 }

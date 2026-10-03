@@ -6,7 +6,7 @@ La identidad (login, usuarios, organizaciones) la gestiona **Clerk**, igual que 
 
 Es el backend del **Sistema de Información Hospitalaria Web para la Consulta Externa** (agendamiento, admisión,
 consulta médica y farmacia). Hoy incluye la base (identidad, multi-tenancy, trazabilidad, `/health`) y los
-contextos **Pacientes**, **Personal** y **Agendamiento**.
+contextos **Pacientes**, **Personal**, **Agendamiento** y **Admisión**.
 
 ## Lenguaje ubicuo
 
@@ -34,6 +34,7 @@ contextos **Pacientes**, **Personal** y **Agendamiento**.
 | `patients` | Registro único de pacientes por IPS, búsqueda y su historial (timeline). |
 | `organizations` | Ficha de cada IPS en la colección **`organizations` de MongoDB**: nombre (igual al de Clerk) y datos propios (NIT con dígito de verificación DIAN, código de habilitación REPS, dirección, municipio, departamento, teléfono, correo institucional). Clerk sigue siendo dueño del acceso. |
 | `scheduling` | Agendamiento: servicios, ubicaciones, agendas con cupos y citas (colecciones `scheduling_*`). Índices únicos parciales impiden dar un cupo a dos pacientes o dos citas a la vez a un paciente. Cada paso de una cita va al historial del paciente. |
+| `admission` | Admisión y turnos: llegada de la cita de hoy, turno por servicio y día (RTH 4), llamado en la pantalla de sala con reanuncio automático (`TurnAnnouncer`) y cierre como atendido o no se presentó. Configuración del llamado por IPS. |
 | `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol de Clerk y roles funcionales), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
 | `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexión y transacciones de MongoDB. |
 
@@ -120,6 +121,10 @@ Carpetas extra fuera de la plantilla, porque sus piezas no encajan en otras:
 **Comunicación entre contextos:** un contexto nunca importa el dominio de otro. Declara un puerto en su
 `application/ports` y lo implementa con un adaptador en `infrastructure/providers/<otro-contexto>/` que usa la
 consulta pública exportada por el módulo del otro contexto.
+
+**"No encontrado" es un error, no un valor:** los puertos exponen `getById(...): Promise<T>`, que lanza el 404 del
+dominio (`PATIENT_NOT_FOUND`, `TURN_NOT_FOUND`…); nunca devuelven `null` ni `undefined`. Para comprobar sin error hay
+`exists…` (booleano) o listas.
 
 **Reglas de dependencia:** `entrypoints → application → domain` e `infrastructure → application / domain`.
 El dominio no importa nada de fuera; la aplicación solo conoce puertos, nunca implementaciones.
@@ -220,7 +225,7 @@ ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm
 `ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
 `ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
 `his_consulta_externa`; si falta, la de la ruta de la URL, y si tampoco hay, la API no arranca),
-`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS` (ver `src/config/env.ts`).
+`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS`, `TURN_ANNOUNCER_INTERVAL_MS` (ver `src/config/env.ts`).
 
 ## Desarrollo local
 

@@ -1,5 +1,4 @@
-import { TeamId } from '../../../../shared/domain/index.js';
-import { parseCalendarDate } from '../../domain/utils/colombia-time.js';
+import { parseCalendarDate, TeamId } from '../../../../shared/domain/index.js';
 import { Professionals } from '../ports/other-contexts.port.js';
 import { SchedulingReadModel } from '../ports/scheduling-read-model.port.js';
 import { NameResolver } from '../services/name-resolver.service.js';

@@ -3,7 +3,7 @@
  * kind to an HTTP status, so the domain never knows about HTTP.
  */
 export abstract class DomainError extends Error {
-  abstract readonly kind: 'validation' | 'not-found' | 'conflict' | 'forbidden';
+  abstract readonly kind: 'validation' | 'unauthorized' | 'not-found' | 'conflict' | 'forbidden';
 
   constructor(
     message: string,

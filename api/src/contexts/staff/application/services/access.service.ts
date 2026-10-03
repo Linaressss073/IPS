@@ -17,7 +17,7 @@ export class AccessService {
     userId: string;
     isAdmin: boolean;
   }): Promise<MyAccessView> {
-    const stored = (await this.readModel.rolesOf(input.teamId, input.userId)) ?? [];
+    const stored = await this.readModel.rolesOf(input.teamId, input.userId);
     const roles = stored.filter((role): role is StaffRole =>
       STAFF_ROLES.includes(role as StaffRole),
     );

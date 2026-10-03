@@ -1,7 +1,6 @@
 import { ActorResolver, Clock } from '../../../../shared/application/index.js';
 import { Companion } from '../../domain/entities/companion.vo.js';
 import { PatientId } from '../../domain/entities/patient-id.vo.js';
-import { PatientNotFoundError } from '../errors/patient.errors.js';
 import {
   companionRecordedEvent,
   toCompanionView,
@@ -42,7 +41,6 @@ export class RecordCompanion {
           occurredAt: now,
         }),
     );
-    if (!event) throw new PatientNotFoundError(patientId);
 
     return toCompanionView({
       ...event,

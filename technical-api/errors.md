@@ -38,6 +38,8 @@
 | 400 | `NOT_A_PROFESSIONAL` | La persona no tiene el rol médico en la IPS |
 | 400 | `INACTIVE_RESOURCE` | El servicio o la ubicación están inactivos |
 | 400 | `RESCHEDULE_SERVICE_MISMATCH` | Se intentó mover la cita a una agenda de otro servicio |
+| 400 | `APPOINTMENT_NOT_TODAY` | Se intentó registrar la llegada de una cita de otro día |
+| 401 | `INVALID_ACCESS_TOKEN` | Token de sesión inválido o vencido |
 | 400 | *(sin code)* | Forma del cuerpo inválida o campo desconocido |
 | 400 | *(sin code)* | `Invalid webhook signature` |
 | 401 | — | Sin token, token inválido, vencido o emitido para otro origen |
@@ -59,6 +61,12 @@
 | 409 | `SLOT_TAKEN` | Otra persona tomó el cupo |
 | 409 | `PATIENT_ALREADY_BOOKED` | El paciente ya tiene una cita a esa hora |
 | 409 | `INVALID_APPOINTMENT_TRANSITION` | El estado de la cita no permite esa acción |
+| 404 | `TURN_NOT_FOUND` | El turno no existe en esa IPS |
+| 409 | `ALREADY_CHECKED_IN` | La cita ya tiene turno |
+| 409 | `APPOINTMENT_NOT_ADMISSIBLE` | La cita está cancelada |
+| 409 | `INVALID_TURN_TRANSITION` | El turno ya está cerrado |
+| 409 | `MAX_CALLS_REACHED` | El turno ya se llamó el máximo de veces |
+| 409 | `TURN_VERSION_CONFLICT` | El turno cambió (otro llamado o un reanuncio automático) |
 | 503 | — | Base de datos caída (`/health`), MongoDB no configurado para organizaciones, o webhooks sin configurar |
 
 ## Cómo reaccionar

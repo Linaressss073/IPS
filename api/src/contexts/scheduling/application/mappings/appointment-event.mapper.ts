@@ -1,6 +1,6 @@
+import { formatTime } from '../../../../shared/domain/index.js';
 import { Actor, newTraceEvent, TraceEvent } from '../../../../shared/application/index.js';
 import { Appointment, AppointmentSlot } from '../../domain/entities/appointment.entity.js';
-import { formatTime } from '../../domain/utils/colombia-time.js';
 
 /** What the patient's history shows of a slot (names are resolved when read). */
 export function slotData(slot: AppointmentSlot): Record<string, unknown> {

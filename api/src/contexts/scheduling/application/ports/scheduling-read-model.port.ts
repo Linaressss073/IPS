@@ -18,5 +18,6 @@ export interface SchedulingReadModel {
   /** Agendas of the day with every slot and the appointment holding it. */
   dayAgendas(query: DayAgendaQuery): Promise<AgendaView[]>;
   searchAppointments(query: SearchAppointmentsQuery): Promise<AppointmentView[]>;
-  findAppointment(teamId: TeamId, appointmentId: string): Promise<AppointmentView | null>;
+  /** Throws SchedulingNotFoundError('APPOINTMENT') if the team has no such appointment. */
+  getAppointment(teamId: TeamId, appointmentId: string): Promise<AppointmentView>;
 }

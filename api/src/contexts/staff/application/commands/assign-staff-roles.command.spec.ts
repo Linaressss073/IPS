@@ -70,14 +70,18 @@ describe('AssignStaffRoles', () => {
       },
     } as unknown as StaffRepository;
     const readModel = {
-      rolesOf: async (_team: TeamId, userId: string) => roles.get(userId) ?? null,
-      member: async (_team: TeamId, userId: string) =>
-        roles.has(userId)
-          ? { userId, displayName: null, emailMasked: null, providerRole: 'org:member', roles: roles.get(userId)! }
-          : null,
+      rolesOf: async (_team: TeamId, userId: string) => roles.get(userId) ?? [],
+      getMember: async (_team: TeamId, userId: string) => ({
+        userId,
+        displayName: null,
+        emailMasked: null,
+        providerRole: 'org:member',
+        roles: roles.get(userId) ?? [],
+      }),
     } as unknown as StaffReadModel;
     const members = {
-      roleIn: async (userId: UserId) => (userId.value === 'user_nurse' ? 'member' : null),
+      isMember: async (userId: UserId) => userId.value === 'user_nurse',
+      roleIn: async () => 'member',
     };
     assign = new AssignStaffRoles(repo, readModel, members, clock);
   });

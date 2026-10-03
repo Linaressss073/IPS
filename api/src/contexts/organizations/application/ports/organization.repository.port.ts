@@ -3,7 +3,10 @@ import { Organization } from '../../domain/entities/organization.entity.js';
 
 /** Port: the `organizations` document store (MongoDB). */
 export interface OrganizationRepository {
-  findById(id: TeamId): Promise<Organization | null>;
+  exists(id: TeamId): Promise<boolean>;
+
+  /** Also deleted ones (tombstones); throws OrganizationNotFoundError if never stored. */
+  getById(id: TeamId): Promise<Organization>;
 
   /** Throws OrganizationAlreadyStoredError if another request stored it first. */
   insert(organization: Organization): Promise<void>;

@@ -12,29 +12,33 @@ import { SchedulingId } from '../../domain/entities/scheduling-id.vo.js';
  */
 
 export interface ServiceRepository {
-  findById(teamId: TeamId, id: SchedulingId): Promise<MedicalService | null>;
+  /** Throws the matching SchedulingNotFoundError (404). */
+  getById(teamId: TeamId, id: SchedulingId): Promise<MedicalService>;
   /** Throws ServiceCodeTakenError if the code is used in the team. */
   add(service: MedicalService, events: readonly TraceEvent[]): Promise<void>;
   save(service: MedicalService, events: readonly TraceEvent[]): Promise<void>;
 }
 
 export interface LocationRepository {
-  findById(teamId: TeamId, id: SchedulingId): Promise<CareLocation | null>;
+  /** Throws the matching SchedulingNotFoundError (404). */
+  getById(teamId: TeamId, id: SchedulingId): Promise<CareLocation>;
   /** Throws LocationTakenError if kind + number exists in the team. */
   add(location: CareLocation, events: readonly TraceEvent[]): Promise<void>;
   save(location: CareLocation, events: readonly TraceEvent[]): Promise<void>;
 }
 
 export interface AgendaRepository {
-  findById(teamId: TeamId, id: SchedulingId): Promise<Agenda | null>;
-  /** Who already has an agenda overlapping the new one, if anyone. */
-  findOverlap(agenda: Agenda): Promise<'professional' | 'location' | null>;
+  /** Throws the matching SchedulingNotFoundError (404). */
+  getById(teamId: TeamId, id: SchedulingId): Promise<Agenda>;
+  /** Throws AgendaOverlapError if the professional or the location already has an overlapping agenda. */
+  assertNoOverlap(agenda: Agenda): Promise<void>;
   add(agenda: Agenda, events: readonly TraceEvent[]): Promise<void>;
   remove(agenda: Agenda, events: readonly TraceEvent[]): Promise<void>;
 }
 
 export interface AppointmentRepository {
-  findById(teamId: TeamId, id: SchedulingId): Promise<Appointment | null>;
+  /** Throws the matching SchedulingNotFoundError (404). */
+  getById(teamId: TeamId, id: SchedulingId): Promise<Appointment>;
   countActiveIn(teamId: TeamId, agendaId: SchedulingId): Promise<number>;
   /** Throws SlotTakenError / PatientAlreadyBookedError on a clash. */
   add(appointment: Appointment, events: readonly TraceEvent[]): Promise<void>;

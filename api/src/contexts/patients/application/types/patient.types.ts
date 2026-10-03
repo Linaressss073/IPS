@@ -125,6 +125,8 @@ export interface CompanionView {
 export interface PatientSummaryView {
   id: string;
   fullName: string;
+  /** First name and first last name: what the waiting-room screen shows. */
+  shortName: string;
   document: { type: string; number: string };
 }
 

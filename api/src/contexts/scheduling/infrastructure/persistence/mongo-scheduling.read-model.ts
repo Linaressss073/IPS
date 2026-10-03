@@ -1,5 +1,6 @@
 import type { Db, Filter } from 'mongodb';
-import { TeamId } from '../../../../shared/domain/index.js';
+import { colombiaInstant, formatTime, TeamId } from '../../../../shared/domain/index.js';
+import { SchedulingNotFoundError } from '../../application/errors/scheduling.errors.js';
 import { SchedulingReadModel } from '../../application/ports/scheduling-read-model.port.js';
 import {
   AgendaView,
@@ -9,7 +10,6 @@ import {
   SearchAppointmentsQuery,
   ServiceView,
 } from '../../application/types/scheduling.types.js';
-import { colombiaInstant, formatTime } from '../../domain/utils/colombia-time.js';
 import {
   AGENDAS_COLLECTION,
   AgendaDocument,
@@ -132,11 +132,12 @@ export class MongoSchedulingReadModel implements SchedulingReadModel {
     return docs.map(toAppointmentView);
   }
 
-  async findAppointment(teamId: TeamId, appointmentId: string): Promise<AppointmentView | null> {
+  async getAppointment(teamId: TeamId, appointmentId: string): Promise<AppointmentView> {
     const doc = await this.db
       .collection<AppointmentDocument>(APPOINTMENTS_COLLECTION)
       .findOne({ _id: appointmentId, teamId: teamId.value });
-    return doc ? toAppointmentView(doc) : null;
+    if (!doc) throw new SchedulingNotFoundError('APPOINTMENT', appointmentId);
+    return toAppointmentView(doc);
   }
 }
 

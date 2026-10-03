@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { NoPermission, useAccess } from "@/components/access/access-context";
+import { CallSettingsCard } from "@/components/admission/call-settings-card";
 import { errorMessage } from "@/components/patients/error-message";
 import { Field } from "@/components/patients/form-controls";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ export function PageClient() {
       <PageHeader
         eyebrow="Administración"
         title="Servicios y consultorios"
-        description="Lo que necesitan las agendas: servicios con su prefijo de turno y los lugares de atención."
+        description="Lo que necesitan las agendas y la sala: servicios con su prefijo de turno, lugares de atención y el llamado de turnos."
       />
       {error && (
         <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
@@ -124,6 +125,9 @@ export function PageClient() {
             />
           </CardContent>
         </Card>
+      </div>
+      <div className="max-w-xl">
+        <CallSettingsCard auth={auth} teamId={teamId} />
       </div>
     </PageShell>
   );

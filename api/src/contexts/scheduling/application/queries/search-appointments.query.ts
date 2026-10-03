@@ -1,7 +1,6 @@
-import { InvalidValueError } from '../../../../shared/domain/index.js';
+import { InvalidValueError, parseCalendarDate } from '../../../../shared/domain/index.js';
 import { APPOINTMENT_STATUSES } from '../../domain/constants/scheduling.constants.js';
 import { AppointmentStatus } from '../../domain/types/scheduling.types.js';
-import { parseCalendarDate } from '../../domain/utils/colombia-time.js';
 import { SchedulingReadModel } from '../ports/scheduling-read-model.port.js';
 import { NameResolver } from '../services/name-resolver.service.js';
 import { AppointmentView, SearchAppointmentsQuery } from '../types/scheduling.types.js';
