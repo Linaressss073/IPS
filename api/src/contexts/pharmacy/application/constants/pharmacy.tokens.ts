@@ -1,4 +1,5 @@
 export const DISPENSATION_REPOSITORY = Symbol('DispensationRepository');
+export const PRODUCT_REPOSITORY = Symbol('ProductRepository');
 export const PRESCRIPTION_SOURCE = Symbol('PharmacyPrescriptionSource');
 export const PHARMACY_TURNS = Symbol('PharmacyTurns');
 export const PHARMACY_WINDOWS = Symbol('PharmacyWindows');

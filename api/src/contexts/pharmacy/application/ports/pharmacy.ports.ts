@@ -1,14 +1,25 @@
 import { TraceEvent } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { Dispensation, DispensationId } from '../../domain/entities/dispensation.entity.js';
+import { Product, ProductId } from '../../domain/entities/product.entity.js';
+import { Movement } from '../../domain/types/pharmacy.types.js';
 
 /** Port (write side); every write stores its trace events atomically. */
 export interface DispensationRepository {
   /** Dispensations of these consultations (those that have one). */
   findMany(teamId: TeamId, consultationIds: readonly string[]): Promise<Dispensation[]>;
   exists(teamId: TeamId, id: DispensationId): Promise<boolean>;
-  /** Throws DispensationVersionConflictError if it changed since loaded (or was created meanwhile). */
-  save(dispensation: Dispensation, events: readonly TraceEvent[]): Promise<void>;
+  /**
+   * Stores a delivery in one transaction: the dispensation, the products it
+   * took stock from and their kardex lines. Throws
+   * DispensationVersionConflictError / StockChangedError if either changed.
+   */
+  saveDelivery(
+    dispensation: Dispensation,
+    products: readonly Product[],
+    movements: readonly Movement[],
+    events: readonly TraceEvent[],
+  ): Promise<void>;
   /** Throws if the team has none for this consultation: check `exists` first. */
   getById(teamId: TeamId, id: DispensationId): Promise<Dispensation>;
 }
@@ -58,4 +69,17 @@ export interface PharmacyWindows {
 export interface PharmacyNames {
   patients(teamId: TeamId, ids: readonly string[]): Promise<Map<string, { fullName: string; document: { type: string; number: string } }>>;
   staff(ids: readonly string[]): Promise<Map<string, string>>;
+}
+
+/** Port: the pharmacy's catalog and stock; every change stores its kardex lines atomically. */
+export interface ProductRepository {
+  /** Throws ProductNotFoundError. */
+  getById(teamId: TeamId, id: ProductId): Promise<Product>;
+  list(teamId: TeamId): Promise<Product[]>;
+  /** Throws ProductTakenError if name + presentation exists in the team. */
+  add(product: Product): Promise<void>;
+  /** Throws StockChangedError if it changed since loaded. */
+  save(product: Product, movements: readonly Movement[]): Promise<void>;
+  /** The product's kardex, newest first. */
+  movements(teamId: TeamId, id: ProductId): Promise<Movement[]>;
 }

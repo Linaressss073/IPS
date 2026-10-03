@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 
 // HTTP shape only; quantities and the rest are checked by the domain.
 
@@ -10,6 +10,10 @@ export class DeliveryLineDto {
 
   @IsInt()
   quantity: number;
+
+  /** Catalog product the units come from. */
+  @IsString()
+  productId: string;
 }
 
 export class DispenseDto {
@@ -44,4 +48,53 @@ export class PrescriptionsQueryDto {
   @IsOptional()
   @IsString()
   status?: string;
+}
+
+export class CreateProductDto {
+  @IsString()
+  name: string;
+
+  @IsString()
+  presentation: string;
+
+  @IsInt()
+  minStock: number;
+}
+
+export class UpdateProductDto {
+  @IsOptional()
+  @IsInt()
+  minStock?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
+}
+
+export class ReceiveLotDto {
+  @IsString()
+  lotNumber: string;
+
+  /** YYYY-MM-DD */
+  @IsString()
+  expiresOn: string;
+
+  @IsInt()
+  quantity: number;
+
+  @IsOptional()
+  @IsString()
+  supplier?: string;
+}
+
+export class AdjustLotDto {
+  @IsString()
+  lotNumber: string;
+
+  /** Signed: negative to write off. */
+  @IsInt()
+  quantity: number;
+
+  @IsString()
+  reason: string;
 }

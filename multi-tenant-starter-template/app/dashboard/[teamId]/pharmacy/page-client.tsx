@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useParams } from "next/navigation";
-import { BellRing, PackageCheck, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { BellRing, Boxes, PackageCheck, RefreshCw } from "lucide-react";
 import { NoPermission, useAccess } from "@/components/access/access-context";
 import { PageHeader, PageShell } from "@/components/page-header";
 import { errorMessage } from "@/components/patients/error-message";
@@ -18,7 +19,10 @@ import {
   DispensationStatus,
   issuePharmacyTurn,
   listPrescriptions,
+  listProducts,
+  matchingProducts,
   PharmacyPrescription,
+  Product,
 } from "@/lib/api/pharmacy";
 import { colombiaToday, listLocations, Location } from "@/lib/api/scheduling";
 import { useApiAuth } from "@/lib/api/use-api-auth";
@@ -43,11 +47,14 @@ export function PageClient() {
     loading: true,
   });
   const [windows, setWindows] = React.useState<Location[]>([]);
+  const [catalog, setCatalog] = React.useState<Product[]>([]);
   const [error, setError] = React.useState("");
 
   const load = React.useCallback(async () => {
     try {
-      setState({ loading: false, items: await listPrescriptions(auth, teamId, { date, status }) });
+      const [items, products] = await Promise.all([listPrescriptions(auth, teamId, { date, status }), listProducts(auth, teamId)]);
+      setState({ loading: false, items });
+      setCatalog(products);
       setError("");
     } catch (e) {
       setError(errorMessage(e));
@@ -79,9 +86,16 @@ export function PageClient() {
         title="Fórmulas por dispensar"
         description="Fórmulas médicas firmadas: llama al paciente a la ventanilla y entrega todo o parte; lo que falte queda pendiente."
         actions={
-          <Button variant="outline" onClick={() => void load()}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/${teamId}/pharmacy/inventory`}>
+                <Boxes className="mr-2 h-4 w-4" /> Inventario
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={() => void load()}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
+            </Button>
+          </div>
         }
       />
       <div className="flex flex-wrap gap-2">
@@ -109,6 +123,7 @@ export function PageClient() {
               key={prescription.consultationId}
               prescription={prescription}
               windows={windows}
+              catalog={catalog}
               onDeliver={async (lines, note) => {
                 await deliver(auth, teamId, prescription, lines, note);
                 await load();
@@ -128,18 +143,31 @@ export function PageClient() {
 function PrescriptionCard(props: {
   prescription: PharmacyPrescription;
   windows: Location[];
-  onDeliver: (lines: { index: number; quantity: number }[], note: string) => Promise<void>;
+  catalog: Product[];
+  onDeliver: (lines: { index: number; quantity: number; productId: string }[], note: string) => Promise<void>;
   onTurn: (windowId: string) => Promise<string>;
 }) {
   const { prescription: p } = props;
   const [delivering, setDelivering] = React.useState(false);
   const [quantities, setQuantities] = React.useState<Record<number, string>>({});
+  const [chosen, setChosen] = React.useState<Record<number, string>>({});
   const [note, setNote] = React.useState("");
   const [windowId, setWindowId] = React.useState("");
   const [turn, setTurn] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
   const pending = p.items.filter((item) => item.pending > 0);
+  const options = (item: PharmacyPrescription["items"][number]) => {
+    const matches = matchingProducts(props.catalog, item.medication, item.presentation);
+    return [...matches, ...props.catalog.filter((product) => product.active && !matches.includes(product))];
+  };
+  /** The product picked for an item: the user's choice, else the best name match ("" if none). */
+  const productFor = (item: PharmacyPrescription["items"][number]) =>
+    chosen[item.index] ?? matchingProducts(props.catalog, item.medication, item.presentation).map((m) => m.id).concat("")[0];
+  const lines = pending
+    .map((item) => ({ index: item.index, quantity: Number(quantities[item.index] ?? item.pending), productId: productFor(item) }))
+    .filter((line) => line.quantity > 0);
+  const missingProduct = lines.some((line) => !line.productId);
 
   const run = async (action: () => Promise<void>) => {
     setBusy(true);
@@ -179,10 +207,25 @@ function PrescriptionCard(props: {
                   {item.instructions && ` · ${item.instructions}`}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-3">
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
                 <span className="text-xs tabular-nums text-muted-foreground">
                   {item.delivered}/{item.prescribed} entregadas
                 </span>
+                {delivering && item.pending > 0 && (
+                  <Select
+                    className="w-56"
+                    aria-label={`Producto para ${item.medication}`}
+                    value={productFor(item)}
+                    onChange={(e) => setChosen((c) => ({ ...c, [item.index]: e.target.value }))}
+                  >
+                    <option value="">Producto del inventario…</option>
+                    {options(item).map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.label} · {product.available} disp.
+                      </option>
+                    ))}
+                  </Select>
+                )}
                 {delivering && item.pending > 0 && (
                   <Input
                     type="number"
@@ -206,7 +249,14 @@ function PrescriptionCard(props: {
               {p.deliveries.map((d, index) => (
                 <li key={index} className="text-xs text-muted-foreground">
                   {new Date(d.at).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })} ·{" "}
-                  {d.byName || d.by}: {d.lines.map((line) => `${line.quantity} ${line.medication}`).join(", ")}
+                  {d.byName || d.by}:{" "}
+                  {d.lines
+                    .map(
+                      (line) =>
+                        `${line.quantity} ${line.medication}` +
+                        (line.lots.length > 0 ? ` (lote ${line.lots.map((lot) => lot.lotNumber).join(", ")})` : ""),
+                    )
+                    .join(", ")}
                   {d.note && ` · ${d.note}`}
                 </li>
               ))}
@@ -218,19 +268,22 @@ function PrescriptionCard(props: {
           <div className="space-y-3">
             {delivering ? (
               <div className="space-y-2">
+                {missingProduct && (
+                  <p className="text-xs text-muted-foreground">
+                    Elige de qué producto del inventario sale cada medicamento (o pon 0 si no lo entregas).
+                  </p>
+                )}
                 <Input placeholder="Nota (p. ej. faltan existencias)" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
                 <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
-                    disabled={busy}
+                    disabled={busy || lines.length === 0 || missingProduct}
                     onClick={() =>
                       run(async () => {
-                        const lines = pending
-                          .map((item) => ({ index: item.index, quantity: Number(quantities[item.index] ?? item.pending) }))
-                          .filter((line) => line.quantity > 0);
                         await props.onDeliver(lines, note);
                         setDelivering(false);
                         setQuantities({});
+                        setChosen({});
                         setNote("");
                       })
                     }

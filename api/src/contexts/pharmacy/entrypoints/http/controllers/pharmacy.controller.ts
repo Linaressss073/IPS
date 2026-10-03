@@ -47,7 +47,7 @@ export class PharmacyController {
       teamId,
       consultationId,
       expectedVersion: dto.version,
-      lines: dto.lines.map((line) => ({ index: line.index, quantity: line.quantity })),
+      lines: dto.lines.map((line) => ({ index: line.index, quantity: line.quantity, productId: line.productId })),
       note: dto.note ?? '',
       actor: { executedBy: user.userId },
     });

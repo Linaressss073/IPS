@@ -9,7 +9,9 @@ import { appendTraceEvents } from '../../../../shared/infrastructure/persistence
 import { DispensationVersionConflictError } from '../../application/errors/pharmacy.errors.js';
 import { DispensationRepository } from '../../application/ports/pharmacy.ports.js';
 import { Dispensation, DispensationId } from '../../domain/entities/dispensation.entity.js';
-import { DeliveryProps, DispensedItemProps } from '../../domain/types/pharmacy.types.js';
+import { Product } from '../../domain/entities/product.entity.js';
+import { DeliveryProps, DispensedItemProps, Movement } from '../../domain/types/pharmacy.types.js';
+import { writeStock } from './mongo-product.js';
 
 export const DISPENSATIONS_COLLECTION = 'pharmacy_dispensations';
 
@@ -45,7 +47,11 @@ function toDomain(doc: DispensationDocument): Dispensation {
     teamId: TeamId.of(doc.teamId),
     patientId: doc.patientId,
     items: doc.items,
-    deliveries: doc.deliveries,
+    // Deliveries made before the inventory existed have no product or lots.
+    deliveries: doc.deliveries.map((delivery) => ({
+      ...delivery,
+      lines: delivery.lines.map((line) => ({ ...line, productId: line.productId ?? '', lots: line.lots ?? [] })),
+    })),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
     version: doc.version,
@@ -79,8 +85,16 @@ export class MongoDispensationRepository implements DispensationRepository {
     return toDomain(doc);
   }
 
-  /** The first delivery inserts (version 1); later ones update the previous version. */
-  async save(dispensation: Dispensation, events: readonly TraceEvent[]): Promise<void> {
+  /**
+   * The first delivery inserts the dispensation (version 1); later ones
+   * update the previous version. Stock and kardex go in the same transaction.
+   */
+  async saveDelivery(
+    dispensation: Dispensation,
+    products: readonly Product[],
+    movements: readonly Movement[],
+    events: readonly TraceEvent[],
+  ): Promise<void> {
     const doc: DispensationDocument = {
       _id: dispensation.consultationId,
       teamId: dispensation.teamId.value,
@@ -105,6 +119,7 @@ export class MongoDispensationRepository implements DispensationRepository {
           );
           if (result.matchedCount === 0) throw new DispensationVersionConflictError(_id);
         }
+        await writeStock(this.db, session, products, movements);
         await appendTraceEvents(this.db, events, session);
       });
     } catch (error) {

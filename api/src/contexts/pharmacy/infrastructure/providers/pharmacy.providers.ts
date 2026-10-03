@@ -21,6 +21,7 @@ import {
 } from '../../application/commands/pharmacy.commands.js';
 import {
   DISPENSATION_REPOSITORY,
+  PRODUCT_REPOSITORY,
   PHARMACY_NAMES,
   PHARMACY_TEAM_MEMBERS,
   PHARMACY_TURNS,
@@ -33,8 +34,17 @@ import type {
   PharmacyTurns,
   PharmacyWindows,
   PrescriptionSource,
+  ProductRepository,
 } from '../../application/ports/pharmacy.ports.js';
 import { PharmacyQueries } from '../../application/queries/pharmacy.queries.js';
+import { InventoryQueries } from '../../application/queries/inventory.queries.js';
+import {
+  AdjustLot,
+  CreateProduct,
+  ReceiveLot,
+  UpdateProduct,
+} from '../../application/commands/inventory.commands.js';
+import { MongoProductRepository } from '../persistence/mongo-product.js';
 import { MongoDispensationRepository } from '../persistence/mongo-dispensation.js';
 
 /** The only place where the pharmacy classes are wired to the framework. */
@@ -103,14 +113,52 @@ export const pharmacyProviders: Provider[] = [
   },
   {
     provide: Dispense,
-    inject: [DISPENSATION_REPOSITORY, PRESCRIPTION_SOURCE, PharmacyQueries, ActorResolver, CLOCK],
+    inject: [DISPENSATION_REPOSITORY, PRODUCT_REPOSITORY, PRESCRIPTION_SOURCE, PharmacyQueries, ActorResolver, CLOCK],
     useFactory: (
       dispensations: DispensationRepository,
+      products: ProductRepository,
       prescriptions: PrescriptionSource,
       queries: PharmacyQueries,
       actors: ActorResolver,
       clock: Clock,
-    ) => new Dispense(dispensations, prescriptions, queries, actors, clock),
+    ) => new Dispense(dispensations, products, prescriptions, queries, actors, clock),
+  },
+
+  // Inventory
+  {
+    provide: PRODUCT_REPOSITORY,
+    inject: [MONGO_CLIENT, MONGO_DB],
+    useFactory: (client: MongoClient, db: Db) => new MongoProductRepository(client, db),
+  },
+  {
+    provide: InventoryQueries,
+    inject: [PRODUCT_REPOSITORY, PHARMACY_NAMES, CLOCK],
+    useFactory: (products: ProductRepository, names: PharmacyNames, clock: Clock) =>
+      new InventoryQueries(products, names, clock),
+  },
+  {
+    provide: CreateProduct,
+    inject: [PRODUCT_REPOSITORY, InventoryQueries, CLOCK],
+    useFactory: (products: ProductRepository, queries: InventoryQueries, clock: Clock) =>
+      new CreateProduct(products, queries, clock),
+  },
+  {
+    provide: UpdateProduct,
+    inject: [PRODUCT_REPOSITORY, InventoryQueries, CLOCK],
+    useFactory: (products: ProductRepository, queries: InventoryQueries, clock: Clock) =>
+      new UpdateProduct(products, queries, clock),
+  },
+  {
+    provide: ReceiveLot,
+    inject: [PRODUCT_REPOSITORY, InventoryQueries, ActorResolver, CLOCK],
+    useFactory: (products: ProductRepository, queries: InventoryQueries, actors: ActorResolver, clock: Clock) =>
+      new ReceiveLot(products, queries, actors, clock),
+  },
+  {
+    provide: AdjustLot,
+    inject: [PRODUCT_REPOSITORY, InventoryQueries, ActorResolver, CLOCK],
+    useFactory: (products: ProductRepository, queries: InventoryQueries, actors: ActorResolver, clock: Clock) =>
+      new AdjustLot(products, queries, actors, clock),
   },
   {
     provide: IssuePharmacyTurnForPrescription,

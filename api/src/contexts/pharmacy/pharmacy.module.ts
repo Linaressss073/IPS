@@ -8,8 +8,10 @@ import { IdentityAccessModule } from '../identity-access/identity-access.module.
 import { PatientsModule } from '../patients/patients.module.js';
 import { SchedulingModule } from '../scheduling/scheduling.module.js';
 import { StaffModule } from '../staff/staff.module.js';
+import { InventoryController } from './entrypoints/http/controllers/inventory.controller.js';
 import { PharmacyController } from './entrypoints/http/controllers/pharmacy.controller.js';
 import { ensureDispensationIndexes } from './infrastructure/persistence/mongo-dispensation.js';
+import { ensureProductIndexes } from './infrastructure/persistence/mongo-product.js';
 import { pharmacyProviders } from './infrastructure/providers/pharmacy.providers.js';
 
 /**
@@ -20,7 +22,7 @@ import { pharmacyProviders } from './infrastructure/providers/pharmacy.providers
  */
 @Module({
   imports: [IdentityAccessModule, PatientsModule, SchedulingModule, StaffModule, ConsultationModule, AdmissionModule],
-  controllers: [PharmacyController],
+  controllers: [PharmacyController, InventoryController],
   providers: pharmacyProviders,
 })
 export class PharmacyModule implements OnModuleInit {
@@ -30,6 +32,8 @@ export class PharmacyModule implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.connection.afterConnect('pharmacy indexes', () => ensureDispensationIndexes(this.db));
+    this.connection.afterConnect('pharmacy indexes', () =>
+      Promise.all([ensureDispensationIndexes(this.db), ensureProductIndexes(this.db)]),
+    );
   }
 }

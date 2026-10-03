@@ -3,6 +3,7 @@ import { NothingPendingError, OverDeliveryError } from '../errors/pharmacy.error
 import { Dispensation } from './dispensation.entity.js';
 
 const now = new Date('2026-10-05T15:00:00Z');
+const allocate = () => ({ productId: 'prod', lots: [] });
 const open = () =>
   Dispensation.open({
     teamId: TeamId.of('org_2xTeamA9fKq4LmN8pRsT1uVwY'),
@@ -20,14 +21,14 @@ describe('Dispensation', () => {
     const dispensation = open();
     expect(dispensation).toMatchObject({ status: 'pendiente', version: 0 });
 
-    dispensation.deliver({ lines: [{ index: 0, quantity: 15 }, { index: 1, quantity: 4 }], note: 'Faltan 6 de loratadina', deliveredBy: 'u1', now });
+    dispensation.deliver({ lines: [{ index: 0, quantity: 15 }, { index: 1, quantity: 4 }], note: 'Faltan 6 de loratadina', deliveredBy: 'u1', now, allocate });
     expect(dispensation).toMatchObject({ status: 'parcial', version: 1 });
     expect(dispensation.items.map((i) => i.delivered)).toEqual([15, 4]);
 
-    dispensation.deliver({ lines: [{ index: 1, quantity: 6 }], note: '', deliveredBy: 'u1', now });
+    dispensation.deliver({ lines: [{ index: 1, quantity: 6 }], note: '', deliveredBy: 'u1', now, allocate });
     expect(dispensation).toMatchObject({ status: 'completa', version: 2 });
     expect(dispensation.deliveries).toHaveLength(2);
-    expect(() => dispensation.deliver({ lines: [{ index: 0, quantity: 1 }], note: '', deliveredBy: 'u1', now })).toThrow(
+    expect(() => dispensation.deliver({ lines: [{ index: 0, quantity: 1 }], note: '', deliveredBy: 'u1', now, allocate })).toThrow(
       NothingPendingError,
     );
   });
@@ -35,7 +36,7 @@ describe('Dispensation', () => {
   it('never delivers more than prescribed, nor nothing, nor unknown items', () => {
     const dispensation = open();
     const deliver = (lines: { index: number; quantity: number }[]) =>
-      dispensation.deliver({ lines, note: '', deliveredBy: 'u1', now });
+      dispensation.deliver({ lines, note: '', deliveredBy: 'u1', now, allocate });
     expect(() => deliver([{ index: 0, quantity: 16 }])).toThrow(OverDeliveryError);
     expect(() => deliver([])).toThrow(InvalidValueError);
     expect(() => deliver([{ index: 0, quantity: 0 }])).toThrow(InvalidValueError);
