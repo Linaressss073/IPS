@@ -13,9 +13,11 @@ const app = await NestFactory.createApplicationContext(AppModule, {
 });
 try {
   const organizations = await app.get(SyncOrganizationsFromProvider).execute();
-  console.log(`Organizations synced: ${organizations.applied}`);
+  console.log(`Organizations synced: ${organizations.applied}, marked deleted: ${organizations.removed}`);
   const staff = await app.get(SyncStaffFromProvider).execute();
-  console.log(`Staff directory synced: ${staff.applied} changes applied`);
+  console.log(
+    `Staff directory synced: ${staff.applied} changes applied, ${staff.removedUsers} users and ${staff.removedMemberships} memberships removed`,
+  );
 } finally {
   await app.close();
 }

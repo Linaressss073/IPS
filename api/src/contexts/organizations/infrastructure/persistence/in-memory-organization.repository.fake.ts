@@ -28,6 +28,12 @@ export class InMemoryOrganizationRepository implements OrganizationRepository {
     }
     this.items.set(organization.id.value, clone(organization));
   }
+
+  async listActive(): Promise<{ id: TeamId; providerUpdatedAt: Date }[]> {
+    return [...this.items.values()]
+      .filter((organization) => !organization.isDeleted)
+      .map((organization) => ({ id: organization.id, providerUpdatedAt: organization.providerUpdatedAt }));
+  }
 }
 
 function clone(organization: Organization): Organization {

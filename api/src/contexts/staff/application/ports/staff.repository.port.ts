@@ -41,6 +41,18 @@ export interface StaffRepository {
     events: readonly TraceEvent[],
   ): Promise<void>;
 
+  /**
+   * Users not anonymized, with the dates the provider last changed them and
+   * their memberships: used to find what the provider no longer has.
+   */
+  listActive(): Promise<StoredStaffUser[]>;
+
   /** Removes every membership of the team; returns the users it had. */
   removeTeam(teamId: TeamId): Promise<string[]>;
+}
+
+export interface StoredStaffUser {
+  userId: string;
+  sourceUpdatedAt: Date;
+  teams: { teamId: string; sourceUpdatedAt: Date }[];
 }

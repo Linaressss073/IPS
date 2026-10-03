@@ -54,6 +54,13 @@ export class MongoOrganizationRepository implements OrganizationRepository {
     }
   }
 
+  async listActive(): Promise<{ id: TeamId; providerUpdatedAt: Date }[]> {
+    const docs = await this.collection
+      .find({ status: { $ne: 'deleted' } }, { projection: { providerUpdatedAt: 1 } })
+      .toArray();
+    return docs.map((doc) => ({ id: TeamId.of(doc._id), providerUpdatedAt: doc.providerUpdatedAt }));
+  }
+
   /** Optimistic locking: the stored document must still be at `expectedVersion`. */
   async save(organization: Organization, expectedVersion: number): Promise<void> {
     const { _id, ...fields } = toDocument(organization);

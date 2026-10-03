@@ -79,8 +79,12 @@ export const organizationsProviders: Provider[] = [
   },
   {
     provide: SyncOrganizationsFromProvider,
-    inject: [ORGANIZATION_PROVIDER, ApplyOrganizationChange],
-    useFactory: (provider: OrganizationProvider, apply: ApplyOrganizationChange) =>
-      new SyncOrganizationsFromProvider(provider, apply),
+    inject: [ORGANIZATION_PROVIDER, ApplyOrganizationChange, ORGANIZATION_REPOSITORY, CLOCK],
+    useFactory: (
+      provider: OrganizationProvider,
+      apply: ApplyOrganizationChange,
+      repo: OrganizationRepository,
+      clock: Clock,
+    ) => new SyncOrganizationsFromProvider(provider, apply, repo, clock),
   },
 ];

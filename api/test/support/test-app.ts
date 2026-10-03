@@ -10,6 +10,8 @@ import {
 } from '../../src/contexts/identity-access/application/constants/injection-tokens.js';
 import { AuthenticatedUser } from '../../src/contexts/identity-access/domain/entities/authenticated-user.entity.js';
 import { ORGANIZATION_PROVIDER } from '../../src/contexts/organizations/application/constants/injection-tokens.js';
+import { IDENTITY_SOURCE } from '../../src/contexts/staff/application/constants/injection-tokens.js';
+import type { IdentityChange } from '../../src/contexts/staff/application/types/staff.types.js';
 import { TeamId, UserId } from '../../src/shared/domain/index.js';
 import { MONGO_DB } from '../../src/shared/infrastructure/persistence/mongo.js';
 import type { Db } from 'mongodb';
@@ -70,10 +72,20 @@ export class FakeOrganizationProvider {
   }
 }
 
+/** Fake Clerk users and memberships for the bulk sync / reconciliation. */
+export class FakeIdentitySource {
+  changes: IdentityChange[] = [];
+
+  async *snapshot() {
+    yield* this.changes;
+  }
+}
+
 /** Boots the real AppModule against the docker-compose MongoDB, with Clerk faked. */
 export async function createTestApp() {
   const organizationProvider = new FakeOrganizationProvider();
   organizationProvider.reset();
+  const identitySource = new FakeIdentitySource();
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(ACCESS_TOKEN_VERIFIER)
     .useValue({
@@ -94,6 +106,8 @@ export async function createTestApp() {
     })
     .overrideProvider(ORGANIZATION_PROVIDER)
     .useValue(organizationProvider)
+    .overrideProvider(IDENTITY_SOURCE)
+    .useValue(identitySource)
     .compile();
 
   const app: INestApplication<App> = moduleRef.createNestApplication({
@@ -127,5 +141,5 @@ export async function createTestApp() {
     };
   };
 
-  return { app, mongo, wipe, api, organizationProvider };
+  return { app, mongo, wipe, api, organizationProvider, identitySource };
 }

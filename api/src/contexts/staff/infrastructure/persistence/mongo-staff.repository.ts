@@ -6,7 +6,10 @@ import {
   isDuplicateKey,
 } from '../../../../shared/infrastructure/persistence/mongo.js';
 import { appendTraceEvents } from '../../../../shared/infrastructure/persistence/trace-event.writer.js';
-import { StaffRepository } from '../../application/ports/staff.repository.port.js';
+import {
+  StaffRepository,
+  StoredStaffUser,
+} from '../../application/ports/staff.repository.port.js';
 import { StaffProfile } from '../../domain/entities/staff-profile.vo.js';
 import {
   STAFF_COLLECTION,
@@ -134,6 +137,21 @@ export class MongoStaffRepository implements StaffRepository {
       );
       await appendTraceEvents(this.db, events, session);
     });
+  }
+
+  async listActive(): Promise<StoredStaffUser[]> {
+    const docs = await this.staff
+      .find({ deleted: false }, { projection: { sourceUpdatedAt: 1, teams: 1 } })
+      .toArray();
+    return docs.map((doc) => ({
+      userId: doc._id,
+      sourceUpdatedAt: doc.sourceUpdatedAt,
+      teams: doc.teams.map((team) => ({
+        teamId: team.teamId,
+        // Documents from before per-team dates existed: treat as unknown.
+        sourceUpdatedAt: team.sourceUpdatedAt ?? new Date(0),
+      })),
+    }));
   }
 
   async removeTeam(teamId: TeamId): Promise<string[]> {

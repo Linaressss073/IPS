@@ -60,4 +60,22 @@ pnpm build
 ENV=prod pnpm clerk:sync     # PowerShell: $env:ENV="prod"; pnpm clerk:sync
 ```
 
-Carga organizaciones, usuarios y membresías, y reconstruye la colección `staff`. Es idempotente.
+Carga organizaciones, usuarios y membresías y aplica las bajas pendientes. Es idempotente.
+
+## Reconciliación automática
+
+Además de los webhooks, la API compara con Clerk **al arrancar (a los 15 s) y cada 10 minutos**
+(`CLERK_SYNC_INTERVAL_MS`, en milisegundos; `0` la apaga). Aplica lo que un webhook no alcanzó a traer:
+
+- altas y cambios de organizaciones, usuarios y membresías;
+- **bajas**: IPS que ya no están en Clerk → `status: deleted`; usuarios eliminados → anonimizados; membresías
+  quitadas → la persona deja de aparecer en esa IPS.
+
+Salvaguardas: solo da de baja datos cambiados antes de empezar la pasada (lo que un webhook agrega mientras
+tanto no se toca) y, si Clerk devuelve una lista vacía, no borra nada. Las pasadas no se solapan.
+
+Por qué no cada pocos milisegundos: cada pasada recorre todo con varias llamadas a la API de Clerk, que tiene
+límite de peticiones; superarlo (429) rompería también la verificación de membresías de cada petición.
+
+> En el plan gratuito de Render la API se duerme tras ~15 min sin tráfico: los webhooks llegan cuando despierta
+> (Clerk reintenta) y la reconciliación al arrancar pone todo al día.

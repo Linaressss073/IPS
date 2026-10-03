@@ -13,6 +13,7 @@ import { OrganizationFinder } from '../services/organization-finder.service.js';
 import { ProviderOrganization } from '../types/organization.types.js';
 import { ApplyOrganizationChange } from './apply-organization-change.command.js';
 import { DeleteOrganization } from './delete-organization.command.js';
+import { SyncOrganizationsFromProvider } from './sync-organizations-from-provider.command.js';
 import { UpdateOrganization } from './update-organization.command.js';
 
 const ipsId = TeamId.of('org_2xTeamA9fKq4LmN8pRsT1uVwY');
@@ -131,5 +132,23 @@ describe('Organization commands', () => {
 
     await apply.execute({ kind: 'organization.deleted', id: ipsId });
     expect((await repo.findById(ipsId))?.isDeleted).toBe(true);
+  });
+
+  it('reconciles with the provider, marking the ones it no longer has as deleted', async () => {
+    const other = TeamId.of('org_2xTeamB3gHj7KlP0qWeR5tYuI');
+    provider.organizations.set(other.value, { id: other, name: 'IPS Beta', updatedAt: new Date('2026-10-01T00:00:00Z') });
+    const sync = new SyncOrganizationsFromProvider(provider, new ApplyOrganizationChange(repo, clock), repo, clock);
+    expect(await sync.execute()).toEqual({ applied: 2, removed: 0 });
+
+    // Deleted in Clerk while its webhook was missed.
+    provider.organizations.delete(other.value);
+    expect(await sync.execute()).toEqual({ applied: 1, removed: 1 });
+    expect((await repo.findById(other))?.isDeleted).toBe(true);
+    expect((await repo.findById(ipsId))?.isDeleted).toBe(false);
+
+    // An empty answer from the provider deletes nothing.
+    provider.organizations.clear();
+    expect(await sync.execute()).toEqual({ applied: 0, removed: 0 });
+    expect((await repo.findById(ipsId))?.isDeleted).toBe(false);
   });
 });
