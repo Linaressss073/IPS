@@ -38,6 +38,8 @@ export function OpenAgendaForm(props: {
     locations.length === 0 && "consultorios activos",
   ].filter(Boolean);
 
+  const plan = slotPlan(input.startTime, input.endTime, input.slotMinutes);
+
   if (missing.length > 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -122,9 +124,32 @@ export function OpenAgendaForm(props: {
           />
         </Field>
       </div>
+      {plan.kind === "ok" && (
+        <p className="text-sm text-muted-foreground">
+          {plan.slots} cupos de {input.slotMinutes} min, de {input.startTime} a {input.endTime}.
+        </p>
+      )}
+      {plan.kind === "end-before-start" && (
+        <p className="text-sm text-destructive">La hora de fin debe ser posterior a la de inicio.</p>
+      )}
+      {plan.kind === "not-whole" && (
+        <div className="space-y-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
+          <p className="text-destructive">
+            De {input.startTime} a {input.endTime} son {plan.length} min: no se dividen en cupos completos de{" "}
+            {input.slotMinutes} min. Ajusta la hora de fin:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {plan.suggestions.map((end) => (
+              <Button key={end} type="button" size="sm" variant="outline" onClick={() => set("endTime", end)}>
+                Terminar a las {end}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-2">
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving || plan.kind !== "ok"}>
           {saving ? "Abriendo…" : "Abrir agenda"}
         </Button>
         <Button type="button" variant="ghost" onClick={props.onCancel}>
@@ -133,4 +158,29 @@ export function OpenAgendaForm(props: {
       </div>
     </form>
   );
+}
+
+type SlotPlan =
+  | { kind: "ok"; slots: number }
+  | { kind: "end-before-start" }
+  | { kind: "not-whole"; length: number; suggestions: string[] }
+  | { kind: "incomplete" };
+
+/** The same rules as the API, checked while typing. */
+function slotPlan(start: string, end: string, slotMinutes: number): SlotPlan {
+  const toMinutes = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+  if (!start || !end || !slotMinutes) return { kind: "incomplete" };
+  const length = toMinutes(end) - toMinutes(start);
+  if (length <= 0) return { kind: "end-before-start" };
+  if (length % slotMinutes === 0) return { kind: "ok", slots: length / slotMinutes };
+  const shorter = toMinutes(start) + Math.floor(length / slotMinutes) * slotMinutes;
+  const format = (minutes: number) =>
+    `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+  const suggestions = [shorter, shorter + slotMinutes]
+    .filter((minutes) => minutes > toMinutes(start) && minutes <= 24 * 60)
+    .map(format);
+  return { kind: "not-whole", length, suggestions };
 }

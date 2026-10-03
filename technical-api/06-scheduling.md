@@ -130,7 +130,9 @@ POST /api/v1/teams/:teamId/agendas
 |---|---|
 | El profesional debe tener el rol médico | 400 `NOT_A_PROFESSIONAL` |
 | Servicio y ubicación activos | 400 `INACTIVE_RESOURCE` |
-| `slotMinutes` de 5 a 240; fin después del inicio; el bloque se divide en cupos completos | 400 `INVALID_AGENDA` |
+| `slotMinutes` de 5 a 240 | 400 `INVALID_SLOT_MINUTES` |
+| Fin después del inicio | 400 `AGENDA_END_BEFORE_START` |
+| El bloque se divide en cupos completos (el mensaje sugiere la hora de fin) | 400 `AGENDA_SLOTS_NOT_WHOLE` |
 | Fecha de hoy en adelante | 400 `SCHEDULE_IN_THE_PAST` |
 | Ni el profesional ni la ubicación tienen otra agenda que se cruce | 409 `AGENDA_OVERLAP` |
 

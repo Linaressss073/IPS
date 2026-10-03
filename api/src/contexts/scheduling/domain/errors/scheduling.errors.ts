@@ -2,11 +2,19 @@ import { DomainError } from '../../../../shared/domain/index.js';
 
 /** Invariants of the scheduling aggregates. */
 
+/**
+ * The agenda's hours are not usable. `code` says which rule failed so the
+ * client can explain it: INVALID_SLOT_MINUTES, AGENDA_END_BEFORE_START or
+ * AGENDA_SLOTS_NOT_WHOLE.
+ */
 export class InvalidAgendaError extends DomainError {
   readonly kind = 'validation';
 
-  constructor(message: string) {
-    super(message, 'INVALID_AGENDA');
+  constructor(
+    code: 'INVALID_SLOT_MINUTES' | 'AGENDA_END_BEFORE_START' | 'AGENDA_SLOTS_NOT_WHOLE',
+    message: string,
+  ) {
+    super(message, code);
   }
 }
 

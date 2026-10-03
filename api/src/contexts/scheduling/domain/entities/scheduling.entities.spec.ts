@@ -64,8 +64,12 @@ describe('Agenda', () => {
   });
 
   it('rejects blocks that do not split, are inverted or in the past', () => {
-    expect(() => openAgenda({ endTime: '08:10' })).toThrow(InvalidAgendaError);
-    expect(() => openAgenda({ startTime: '09:00' })).toThrow(InvalidAgendaError);
+    expect(() => openAgenda({ endTime: '08:10' })).toThrow(
+      expect.objectContaining({ code: 'AGENDA_SLOTS_NOT_WHOLE', message: expect.stringContaining('end it at 08:00 or 08:20') }),
+    );
+    expect(() => openAgenda({ startTime: '09:00' })).toThrow(
+      expect.objectContaining({ code: 'AGENDA_END_BEFORE_START' }),
+    );
     expect(() => openAgenda({ slotMinutes: 3 })).toThrow(InvalidAgendaError);
     expect(() => openAgenda({ date: '2026-10-01' })).toThrow(PastScheduleError);
     expect(() => openAgenda({ date: '2026-02-30' })).toThrow(InvalidValueError);
