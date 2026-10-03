@@ -13,4 +13,7 @@ export interface OrganizationRepository {
    * OrganizationVersionConflictError if someone else saved it in between.
    */
   save(organization: Organization, expectedVersion: number): Promise<void>;
+
+  /** Organizations not deleted, with the date the provider last changed them. */
+  listActive(): Promise<{ id: TeamId; providerUpdatedAt: Date }[]>;
 }

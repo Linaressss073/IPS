@@ -17,6 +17,8 @@ export interface Env {
   CLERK_AUTHORIZED_PARTIES: string[];
   /** Signing secret (whsec_…) of the Clerk webhook; without it the endpoint is off. */
   CLERK_WEBHOOK_SIGNING_SECRET?: string;
+  /** How often to reconcile with Clerk (missed webhooks, deletions); 0 turns it off. */
+  CLERK_SYNC_INTERVAL_MS: number;
 }
 
 const REQUIRED = ['MONGO_URL', 'CLERK_SECRET_KEY'] as const;
@@ -47,6 +49,8 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
       ? toOrigins(raw.CLERK_AUTHORIZED_PARTIES)
       : corsOrigin,
     CLERK_WEBHOOK_SIGNING_SECRET: raw.CLERK_WEBHOOK_SIGNING_SECRET || undefined,
+    // Every 10 minutes by default: well within Clerk's API rate limits.
+    CLERK_SYNC_INTERVAL_MS: Number(raw.CLERK_SYNC_INTERVAL_MS ?? 600_000),
   };
 }
 

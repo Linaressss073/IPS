@@ -20,6 +20,8 @@ export default defineConfig({
       MONGO_URL: TEST_MONGO_URL,
       MONGO_DB_NAME: TEST_MONGO_DB_NAME,
       CLERK_SECRET_KEY: 'sk_test_e2e',
+      // Clerk is faked: no periodic reconciliation against the real one.
+      CLERK_SYNC_INTERVAL_MS: '0',
       CLERK_WEBHOOK_SIGNING_SECRET: TEST_WEBHOOK_SECRET,
     },
   },

@@ -61,9 +61,13 @@ export const staffProviders: Provider[] = [
   },
   {
     provide: SyncStaffFromProvider,
-    inject: [IDENTITY_SOURCE, ApplyIdentityChange],
-    useFactory: (source: IdentitySource, apply: ApplyIdentityChange) =>
-      new SyncStaffFromProvider(source, apply),
+    inject: [IDENTITY_SOURCE, ApplyIdentityChange, STAFF_REPOSITORY, CLOCK],
+    useFactory: (
+      source: IdentitySource,
+      apply: ApplyIdentityChange,
+      staff: StaffRepository,
+      clock: Clock,
+    ) => new SyncStaffFromProvider(source, apply, staff, clock),
   },
   {
     provide: AccessService,

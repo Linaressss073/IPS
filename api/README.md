@@ -199,7 +199,9 @@ Configuración: en Clerk → **Webhooks**, crear un endpoint `https://<api>/api/
 `user.created`, `user.updated`, `user.deleted`, `organization.created`, `organization.updated`,
 `organization.deleted` y `organizationMembership.*`, y poner su
 *signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`. Para cargar a los usuarios que ya existían:
-`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías).
+`pnpm build && pnpm clerk:sync` (idempotente; carga organizaciones, usuarios y membresías y aplica las bajas).
+La API además **se reconcilia sola con Clerk** al arrancar y cada 10 minutos (`CLERK_SYNC_INTERVAL_MS`; `0` la apaga),
+incluidas las bajas que un webhook no trajo: ver `ClerkReconciler` en `src/integrations/clerk`.
 
 ## Configuración por entorno
 
@@ -218,7 +220,7 @@ ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm
 `ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
 `ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
 `his_consulta_externa`; si falta, la de la ruta de la URL, y si tampoco hay, la API no arranca),
-`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET` (ver `src/config/env.ts`).
+`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS` (ver `src/config/env.ts`).
 
 ## Desarrollo local
 

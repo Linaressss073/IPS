@@ -37,6 +37,7 @@ describe('ApplyIdentityChange', () => {
         return ['user_ana', 'user_luis'];
       },
       ensureMembership: async () => {},
+      listActive: async () => [],
       setRoles: async () => {},
     };
     apply = new ApplyIdentityChange(repo, clock);
