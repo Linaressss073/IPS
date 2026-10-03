@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ageFrom, Page, Patient, REGIMES, searchPatients } from "@/lib/api/patients";
 import { useApiAuth } from "@/lib/api/use-api-auth";
+import { PageHeader, PageShell } from "@/components/page-header";
 
 const PAGE_SIZE = 20;
 
@@ -59,18 +60,22 @@ export function PageClient() {
   if (access && !allowed) return <NoPermission what="ver pacientes" />;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Pacientes</h2>
-        {can("patients:write") && (
-        <Button asChild>
-          <Link href={`/dashboard/${teamId}/patients/new`}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Registrar paciente
-          </Link>
-        </Button>
-        )}
-      </div>
+    <PageShell>
+      <PageHeader
+        eyebrow="Consulta externa"
+        title="Pacientes"
+        description="Busca por documento o nombre; cada paciente se registra una sola vez."
+        actions={
+          can("patients:write") && (
+            <Button asChild>
+              <Link href={`/dashboard/${teamId}/patients/new`}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Registrar paciente
+              </Link>
+            </Button>
+          )
+        }
+      />
 
       <Card>
         <CardHeader className="space-y-3">
@@ -178,6 +183,6 @@ export function PageClient() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

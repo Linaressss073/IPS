@@ -2,6 +2,7 @@
 
 import { AccessProvider, useAccess } from "@/components/access/access-context";
 import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
+import { useClerkAppearance } from "@/lib/clerk-appearance";
 import { Permission } from "@/lib/api/staff";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
 import { Building2, CalendarDays, Contact, Home, Stethoscope, Users } from "lucide-react";
@@ -93,6 +94,7 @@ export default function Layout(props: { children: React.ReactNode }) {
 
 function TeamShell(props: { teamId: string; teamName: string; children: React.ReactNode }) {
   const { can } = useAccess();
+  const appearance = useClerkAppearance();
   const items = navigationItems.filter((item) => !item.requires || can(item.requires));
 
   return (
@@ -102,6 +104,10 @@ function TeamShell(props: { teamId: string; teamName: string; children: React.Re
       sidebarTop={
         <OrganizationSwitcher
           hidePersonal
+          appearance={{
+            ...appearance,
+            elements: { rootBox: "w-full", organizationSwitcherTrigger: "w-full justify-between" },
+          }}
           afterSelectOrganizationUrl="/dashboard/:id"
           afterCreateOrganizationUrl="/dashboard/:id"
         />
