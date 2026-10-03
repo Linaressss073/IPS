@@ -32,7 +32,9 @@
 | 400 | `INVALID_VALUE` | Un dato no cumple su regla (documento, nombre, e-mail, teléfono, NIT, código REPS, id…) |
 | 400 | `INVALID_BIRTH_DATE` | Fecha de nacimiento futura o de hace más de 130 años |
 | 400 | `INVALID_REQUESTER` | `requestedBy` no es miembro de la IPS |
-| 400 | `INVALID_AGENDA` | Horario de agenda inválido: fin antes del inicio, cupo fuera de 5-240 min o bloque que no se divide en cupos |
+| 400 | `INVALID_SLOT_MINUTES` | Duración de cupo fuera de 5-240 minutos |
+| 400 | `AGENDA_END_BEFORE_START` | La hora de fin de la agenda no es posterior a la de inicio |
+| 400 | `AGENDA_SLOTS_NOT_WHOLE` | El bloque no se divide en cupos completos; el mensaje sugiere la hora de fin |
 | 400 | `SCHEDULE_IN_THE_PAST` | Agenda o cita en el pasado |
 | 400 | `SLOT_NOT_IN_AGENDA` | La hora no es un cupo de la agenda |
 | 400 | `NOT_A_PROFESSIONAL` | La persona no tiene el rol médico en la IPS |

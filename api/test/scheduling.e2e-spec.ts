@@ -130,7 +130,7 @@ describe('Scheduling API (e2e)', () => {
     expect((await api('alice').post(`${team}/agendas`, { ...agenda, professionalId: 'alice' }).expect(400)).body.code)
       .toBe('NOT_A_PROFESSIONAL');
     expect((await api('alice').post(`${team}/agendas`, { ...agenda, endTime: '08:50' }).expect(400)).body.code)
-      .toBe('INVALID_AGENDA');
+      .toBe('AGENDA_SLOTS_NOT_WHOLE');
     expect((await api('alice').post(`${team}/agendas`, agenda).expect(409)).body.code).toBe('AGENDA_OVERLAP');
     await api('alice').post(`${team}/agendas`, { ...agenda, startTime: '08:00' }).expect(201);
   });

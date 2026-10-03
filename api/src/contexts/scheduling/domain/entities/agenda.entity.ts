@@ -47,15 +47,21 @@ export class Agenda extends Entity<SchedulingId> {
     const slot = input.slotMinutes;
     if (!Number.isInteger(slot) || slot < MIN_SLOT_MINUTES || slot > MAX_SLOT_MINUTES) {
       throw new InvalidAgendaError(
+        'INVALID_SLOT_MINUTES',
         `slotMinutes must be a whole number from ${MIN_SLOT_MINUTES} to ${MAX_SLOT_MINUTES}`,
       );
     }
     if (endMinute <= startMinute) {
-      throw new InvalidAgendaError('endTime must be after startTime');
+      throw new InvalidAgendaError('AGENDA_END_BEFORE_START', 'endTime must be after startTime');
     }
-    if ((endMinute - startMinute) % slot !== 0) {
+    const length = endMinute - startMinute;
+    if (length % slot !== 0) {
+      // E.g. 21:00-22:30 is 90 min: with 20-min slots it ends at 22:20 or 22:40.
+      const shorter = startMinute + Math.floor(length / slot) * slot;
       throw new InvalidAgendaError(
-        `The block (${formatTime(startMinute)}-${formatTime(endMinute)}) must split into whole ${slot}-minute slots`,
+        'AGENDA_SLOTS_NOT_WHOLE',
+        `The block ${formatTime(startMinute)}-${formatTime(endMinute)} (${length} min) does not split into whole ` +
+          `${slot}-minute slots: end it at ${formatTime(shorter)} or ${formatTime(shorter + slot)}`,
       );
     }
     if (date < colombiaDate(input.now)) throw new PastScheduleError('An agenda');
