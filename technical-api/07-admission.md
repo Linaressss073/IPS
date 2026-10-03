@@ -131,4 +131,6 @@ Intervalo de 30 a 900 s y de 1 a 5 llamados (si no, 400 `INVALID_VALUE`). Por de
 | `turn.attended` | Igual |
 | `turn.no_show` | Igual; `automatic: true` si lo cerró el reanuncio |
 
+Los turnos de farmacia (`FAR n`) se crean desde [Farmacia](09-pharmacy.md#dar-turno) y traen `origin: { kind: "farmacia" }`; los de cita, `origin: { kind: "cita" }`.
+
 Colecciones: `admission_turns` (índice único por `appointment.id`), `admission_turn_counters`, `admission_settings`.

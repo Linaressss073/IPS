@@ -11,6 +11,7 @@ import { SchedulingSettingsController } from './entrypoints/http/controllers/sch
 import { ensureSchedulingIndexes } from './infrastructure/persistence/scheduling.documents.js';
 import { schedulingProviders } from './infrastructure/providers/scheduling.providers.js';
 import { GetAppointment } from './application/queries/get-appointment.query.js';
+import { ListLocations } from './application/queries/scheduling.queries.js';
 
 /**
  * Bounded context "Scheduling" (agendamiento): services and locations of
@@ -22,8 +23,8 @@ import { GetAppointment } from './application/queries/get-appointment.query.js';
   imports: [IdentityAccessModule, PatientsModule, StaffModule],
   controllers: [SchedulingSettingsController, AgendasController, AppointmentsController],
   providers: schedulingProviders,
-  // Public query for admission (check-in reads the appointment).
-  exports: [GetAppointment],
+  // Public queries: admission reads the appointment; pharmacy, its windows (locations).
+  exports: [GetAppointment, ListLocations],
 })
 export class SchedulingModule implements OnModuleInit {
   constructor(

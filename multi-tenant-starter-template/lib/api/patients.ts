@@ -127,6 +127,7 @@ export const TIMELINE_EVENTS: Record<string, string> = {
   "consultation.started": "Consulta iniciada",
   "consultation.signed": "Consulta firmada",
   "consultation.addendum_added": "Nota aclaratoria en la consulta",
+  "pharmacy.dispensed": "Medicamentos entregados",
 };
 
 const base = (teamId: string) => `/teams/${encodeURIComponent(teamId)}/patients`;

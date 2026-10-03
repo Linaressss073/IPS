@@ -45,3 +45,9 @@ export function colombiaInstant(date: string, minutes: number): Date {
 export function colombiaDate(at: Date): string {
   return new Date(at.getTime() - OFFSET_MS).toISOString().slice(0, 10);
 }
+
+/** Minutes from midnight in Colombia at the given instant. */
+export function colombiaMinute(at: Date): number {
+  const local = new Date(at.getTime() - OFFSET_MS);
+  return local.getUTCHours() * 60 + local.getUTCMinutes();
+}

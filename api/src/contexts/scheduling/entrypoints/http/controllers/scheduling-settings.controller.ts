@@ -79,7 +79,8 @@ export class SchedulingSettingsController {
     });
   }
 
-  @RequirePermission('appointments:read')
+  // The pharmacy picks its window among the locations.
+  @RequirePermission('appointments:read', 'pharmacy:dispense')
   @Get('locations')
   locations(@CurrentTeam() teamId: TeamId): Promise<LocationView[]> {
     return this.listLocations.execute(teamId);

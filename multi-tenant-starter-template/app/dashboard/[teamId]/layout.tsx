@@ -5,7 +5,7 @@ import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
 import { useClerkAppearance } from "@/lib/clerk-appearance";
 import { Permission } from "@/lib/api/staff";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
-import { Building2, CalendarDays, ClipboardCheck, Contact, Home, ListOrdered, MonitorPlay, Stethoscope, Users } from "lucide-react";
+import { Building2, CalendarDays, ClipboardCheck, Contact, Home, ListOrdered, MonitorPlay, Pill, Stethoscope, Users } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -48,6 +48,13 @@ const navigationItems: (SidebarItem & { requires?: Permission[] })[] = [
     icon: ListOrdered,
     type: "item",
     requires: ["turns:call", "admission:manage"],
+  },
+  {
+    name: "Farmacia",
+    href: "/pharmacy",
+    icon: Pill,
+    type: "item",
+    requires: ["pharmacy:dispense"],
   },
   {
     name: "Pantalla de sala",

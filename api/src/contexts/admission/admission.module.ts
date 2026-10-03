@@ -9,6 +9,7 @@ import { StaffModule } from '../staff/staff.module.js';
 import { AdmissionController } from './entrypoints/http/controllers/admission.controller.js';
 import { ensureAdmissionIndexes } from './infrastructure/persistence/mongo-admission.js';
 import { admissionProviders } from './infrastructure/providers/admission.providers.js';
+import { IssuePharmacyTurn } from './application/commands/admission.commands.js';
 
 /**
  * Bounded context "Admission": the patient arrives for today's appointment,
@@ -21,6 +22,8 @@ import { admissionProviders } from './infrastructure/providers/admission.provide
   imports: [IdentityAccessModule, PatientsModule, SchedulingModule, StaffModule],
   controllers: [AdmissionController],
   providers: admissionProviders,
+  // Public command for the pharmacy (its turns go to the same waiting-room screen).
+  exports: [IssuePharmacyTurn],
 })
 export class AdmissionModule implements OnModuleInit {
   constructor(

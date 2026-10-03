@@ -244,6 +244,12 @@ function Timeline(props: { entries: TimelineEntry[] | null; members: TeamMember[
             {entry.type.startsWith("appointment.") && (
               <p className="text-muted-foreground">{appointmentSummary(entry.data)}</p>
             )}
+            {entry.type === "pharmacy.dispensed" && (
+              <p className="text-muted-foreground">
+                {String(entry.data.units)} unidades ·{" "}
+                {entry.data.status === "completa" ? "fórmula completa" : "quedan pendientes"}
+              </p>
+            )}
             {entry.type.startsWith("turn.") && (
               <p className="text-muted-foreground">{turnSummary(entry.data)}</p>
             )}

@@ -10,6 +10,7 @@ export const PERMISSIONS = [
   'turns:call',
   'clinical:read',
   'clinical:write',
+  'pharmacy:dispense',
   'settings:manage',
   'staff:manage',
 ] as const;
@@ -22,7 +23,7 @@ export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
   admision: ['patients:read', 'patients:write', 'appointments:read', 'admission:manage', 'turns:call'],
   // Clinical records only for physicians: not even administrators read them.
   medico: ['patients:read', 'appointments:read', 'turns:call', 'clinical:read', 'clinical:write'],
-  farmacia: ['patients:read', 'turns:call'],
+  farmacia: ['patients:read', 'turns:call', 'pharmacy:dispense'],
   soporte: [],
 };
 

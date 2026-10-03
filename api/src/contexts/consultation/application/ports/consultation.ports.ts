@@ -1,7 +1,7 @@
 import { TraceEvent } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { AppointmentSnapshot, Consultation, ConsultationId } from '../../domain/entities/consultation.entity.js';
-import { ConsultationView } from '../types/consultation.types.js';
+import { ConsultationView, PrescriptionView } from '../types/consultation.types.js';
 
 /** Port (write side); every write stores its trace events atomically. */
 export interface ConsultationRepository {
@@ -20,6 +20,12 @@ export interface ConsultationReadModel {
   /** Throws ConsultationNotFoundError. */
   getById(teamId: TeamId, id: string): Promise<ConsultationView>;
   list(teamId: TeamId, filter: { patientId?: string; appointmentId?: string }): Promise<ConsultationView[]>;
+
+  /** Signed consultations with medications, newest first. */
+  prescriptions(teamId: TeamId, filter: { date?: string; patientId?: string }): Promise<PrescriptionView[]>;
+
+  /** Throws PrescriptionNotFoundError unless signed and with medications. */
+  prescription(teamId: TeamId, consultationId: string): Promise<PrescriptionView>;
 }
 
 /** Port to Scheduling (throws its 404 for unknown appointments). */

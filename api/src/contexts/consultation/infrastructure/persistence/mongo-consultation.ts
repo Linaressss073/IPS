@@ -10,13 +10,14 @@ import {
   ConsultationAlreadyStartedError,
   ConsultationNotFoundError,
   ConsultationVersionConflictError,
+  PrescriptionNotFoundError,
 } from '../../application/errors/consultation.errors.js';
 import { toConsultationView } from '../../application/mappings/consultation.mapper.js';
 import {
   ConsultationReadModel,
   ConsultationRepository,
 } from '../../application/ports/consultation.ports.js';
-import { ConsultationView } from '../../application/types/consultation.types.js';
+import { ConsultationView, PrescriptionView } from '../../application/types/consultation.types.js';
 import {
   ClinicalNote,
   Diagnoses,
@@ -60,6 +61,7 @@ export async function ensureConsultationIndexes(db: Db): Promise<void> {
     // One consultation per appointment, even with two clicks at once.
     { key: { 'appointment.id': 1 }, name: 'appointment_uq', unique: true },
     { key: { teamId: 1, 'appointment.patientId': 1, startedAt: -1 }, name: 'team_patient' },
+    { key: { teamId: 1, 'appointment.date': 1, 'signature.signed': 1 }, name: 'team_date_signed' },
   ]);
 }
 
@@ -172,4 +174,41 @@ export class MongoConsultationReadModel implements ConsultationReadModel {
       .toArray();
     return docs.map((doc) => toConsultationView(toDomain(doc)));
   }
+
+  async prescriptions(teamId: TeamId, filter: { date?: string; patientId?: string }): Promise<PrescriptionView[]> {
+    const docs = await this.consultations
+      .find({
+        teamId: teamId.value,
+        'signature.signed': true,
+        'prescription.0': { $exists: true },
+        ...(filter.date && { 'appointment.date': filter.date }),
+        ...(filter.patientId && { 'appointment.patientId': filter.patientId }),
+      })
+      .project<ConsultationDocument>({ note: 0, diagnoses: 0, vitals: 0, addenda: 0 })
+      .sort({ 'signature.at': -1 })
+      .limit(500)
+      .toArray();
+    return docs.map(toPrescriptionView);
+  }
+
+  async prescription(teamId: TeamId, consultationId: string): Promise<PrescriptionView> {
+    const doc = await this.consultations.findOne(
+      { _id: consultationId, teamId: teamId.value, 'signature.signed': true, 'prescription.0': { $exists: true } },
+      { projection: { note: 0, diagnoses: 0, vitals: 0, addenda: 0 } },
+    );
+    if (!doc) throw new PrescriptionNotFoundError(consultationId);
+    return toPrescriptionView(doc);
+  }
+}
+
+/** Only the prescription: the clinical note never leaves for the pharmacy. */
+function toPrescriptionView(doc: Pick<ConsultationDocument, '_id' | 'appointment' | 'signature' | 'prescription'>): PrescriptionView {
+  return {
+    consultationId: doc._id,
+    patientId: doc.appointment.patientId,
+    physicianId: doc.appointment.professionalId,
+    date: doc.appointment.date,
+    signedAt: doc.signature.signed ? doc.signature.at.toISOString() : '',
+    items: doc.prescription,
+  };
 }

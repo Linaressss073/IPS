@@ -9,6 +9,7 @@ import {
   Contact,
   ListOrdered,
   MonitorPlay,
+  Pill,
   type LucideIcon,
   Stethoscope,
   UserPlus,
@@ -69,6 +70,14 @@ const SHORTCUTS: Shortcut[] = [
     title: "Turnos",
     description: "Llama al siguiente paciente y márcalo como atendido.",
     requires: ["turns:call", "admission:manage"],
+    main: true,
+  },
+  {
+    href: "/pharmacy",
+    icon: Pill,
+    title: "Farmacia",
+    description: "Fórmulas firmadas del día: da turno y entrega, también por partes.",
+    requires: ["pharmacy:dispense"],
     main: true,
   },
   {

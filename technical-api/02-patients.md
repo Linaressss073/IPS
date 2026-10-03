@@ -187,6 +187,7 @@ Todo lo que ha pasado con el paciente, **del más antiguo al más reciente**, le
 | `patient.companion_recorded` | El acompañante y su `number` |
 | `appointment.*` | Pasos de sus citas: ver [Agendamiento](06-scheduling.md#historial-del-paciente) |
 | `consultation.*` | Consulta iniciada, firmada o con nota aclaratoria, **sin contenido clínico**: ver [Consulta](08-consultation.md#historial-del-paciente) |
+| `pharmacy.dispensed` | Unidades entregadas y estado de la fórmula, sin nombres de medicamentos: ver [Farmacia](09-pharmacy.md#historial-del-paciente) |
 | `turn.*` | Llegada, llamados (también automáticos, por `system`), atendido o no se presentó: ver [Admisión](07-admission.md#historial-del-paciente) |
 
 `requestedByName` / `executedByName`: nombre del directorio de personal; `"Usuario eliminado"` si fue anonimizado;

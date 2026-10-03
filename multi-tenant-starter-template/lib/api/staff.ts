@@ -26,6 +26,7 @@ export type Permission =
   | "turns:call"
   | "clinical:read"
   | "clinical:write"
+  | "pharmacy:dispense"
   | "settings:manage"
   | "staff:manage";
 
