@@ -69,6 +69,13 @@
 | 409 | `INVALID_TURN_TRANSITION` | El turno ya está cerrado |
 | 409 | `MAX_CALLS_REACHED` | El turno ya se llamó el máximo de veces |
 | 409 | `TURN_VERSION_CONFLICT` | El turno cambió (otro llamado o un reanuncio automático) |
+| 400 | `CONSULTATION_INCOMPLETE` | Para firmar falta el motivo o el diagnóstico principal |
+| 403 | `NOT_THE_TREATING_PHYSICIAN` | Solo el médico de la cita escribe su consulta |
+| 404 | `CONSULTATION_NOT_FOUND` | La consulta no existe en esa IPS |
+| 409 | `APPOINTMENT_NOT_ATTENDABLE` | La cita está cancelada o es de un día futuro |
+| 409 | `CONSULTATION_SIGNED` | La consulta firmada no se modifica (usar nota aclaratoria) |
+| 409 | `CONSULTATION_NOT_SIGNED` | Las notas aclaratorias van en consultas firmadas |
+| 409 | `CONSULTATION_VERSION_CONFLICT` | La consulta cambió desde que se leyó |
 | 503 | — | Base de datos caída (`/health`), MongoDB no configurado para organizaciones, o webhooks sin configurar |
 
 ## Cómo reaccionar

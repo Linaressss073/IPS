@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { CalendarPlus, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { NoPermission, useAccess } from "@/components/access/access-context";
 import { errorMessage } from "@/components/patients/error-message";
 import { Select } from "@/components/patients/form-controls";
@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { startConsultation } from "@/lib/api/consultation";
 import { getPatient, Patient } from "@/lib/api/patients";
 import {
   Agenda,
@@ -48,6 +49,7 @@ type Panel =
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const auth = useApiAuth();
   const { access, can } = useAccess();
   const canManage = can("appointments:manage");
@@ -298,6 +300,14 @@ export function PageClient() {
                   setMoving(panel.appointment);
                   setPanel(null);
                 }}
+                onConsult={
+                  can("clinical:write") && panel.appointment.professional.userId === access?.userId
+                    ? async () => {
+                        const consultation = await startConsultation(auth, teamId, panel.appointment.id);
+                        router.push(`/dashboard/${teamId}/consultations/${consultation.id}`);
+                      }
+                    : undefined
+                }
               />
             </>
           )}

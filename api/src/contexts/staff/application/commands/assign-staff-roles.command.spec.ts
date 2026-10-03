@@ -22,6 +22,8 @@ describe('Permissions matrix', () => {
       'patients:read',
       'appointments:read',
       'turns:call',
+      'clinical:read',
+      'clinical:write',
     ]);
     expect(permissionsFor({ isAdmin: false, roles: ['agendamiento', 'admision'] })).toEqual([
       'patients:read',

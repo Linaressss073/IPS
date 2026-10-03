@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { BellRing, CheckCircle2, MonitorPlay, UserX } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { BellRing, CheckCircle2, MonitorPlay, Stethoscope, UserX } from "lucide-react";
 import { NoPermission, useAccess } from "@/components/access/access-context";
 import { TurnStatusBadge } from "@/components/admission/turn-status-badge";
 import { PageHeader, PageShell } from "@/components/page-header";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { attendTurn, callTurn, listTurns, markNoShow, Turn, TurnStatus } from "@/lib/api/admission";
+import { startConsultation } from "@/lib/api/consultation";
 import { colombiaToday } from "@/lib/api/scheduling";
 import { useApiAuth } from "@/lib/api/use-api-auth";
 
@@ -27,6 +28,7 @@ const GROUPS: { title: string; statuses: TurnStatus[] }[] = [
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const auth = useApiAuth();
+  const router = useRouter();
   const { access, can } = useAccess();
   const allowed = can("turns:call") || can("admission:manage");
   const canCall = can("turns:call");
@@ -65,6 +67,21 @@ export function PageClient() {
   }, [allowed, load]);
 
   if (access && !allowed) return <NoPermission what="ver los turnos" />;
+
+  /** Their own patient: close the turn and open the consultation. */
+  const isMine = (turn: Turn) => can("clinical:write") && turn.professional.userId === access?.userId;
+  const attendAndConsult = async (turn: Turn) => {
+    setBusy(turn.id);
+    try {
+      if (turn.status !== "atendido") await attendTurn(auth, teamId, turn);
+      const consultation = await startConsultation(auth, teamId, turn.appointment.id);
+      router.push(`/dashboard/${teamId}/consultations/${consultation.id}`);
+    } catch (e) {
+      setError(errorMessage(e));
+      setBusy("");
+      await load();
+    }
+  };
 
   const act = async (turn: Turn, action: typeof callTurn) => {
     setBusy(turn.id);
@@ -137,14 +154,25 @@ export function PageClient() {
                             <BellRing className="mr-1.5 h-4 w-4" />
                             {turn.status === "anunciado" ? "Llamar de nuevo" : "Llamar"}
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={busy === turn.id}
-                            onClick={() => act(turn, attendTurn)}
-                          >
-                            <CheckCircle2 className="mr-1.5 h-4 w-4" /> Atendido
-                          </Button>
+                          {isMine(turn) ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={busy === turn.id}
+                              onClick={() => attendAndConsult(turn)}
+                            >
+                              <Stethoscope className="mr-1.5 h-4 w-4" /> Atender
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={busy === turn.id}
+                              onClick={() => act(turn, attendTurn)}
+                            >
+                              <CheckCircle2 className="mr-1.5 h-4 w-4" /> Atendido
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"
@@ -154,6 +182,17 @@ export function PageClient() {
                             <UserX className="mr-1.5 h-4 w-4" /> No se presentó
                           </Button>
                         </div>
+                      )}
+                      {turn.status === "atendido" && isMine(turn) && (
+                        <Button
+                          size="sm"
+                          variant="link"
+                          className="mt-1 h-auto px-0"
+                          disabled={busy === turn.id}
+                          onClick={() => attendAndConsult(turn)}
+                        >
+                          Abrir consulta
+                        </Button>
                       )}
                     </div>
                   ))}
