@@ -1,159 +1,101 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useSelectedLayoutSegment } from "next/navigation";
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import { ColorModeSwitcher } from "./color-mode-switcher";
 import { Logo } from "./logo";
 import { Button, buttonVariants } from "./ui/button";
 
-interface NavProps {
-  items?: {
-    title: string;
-    href: string;
-    disabled?: boolean;
-    external?: boolean;
-  }[];
-}
+type NavItem = { title: string; href: string };
 
-function SignInSignUpButtons() {
+function AuthButtons(props: { stacked?: boolean }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const size = props.stacked ? "default" : "sm";
+
+  if (isLoaded && isSignedIn) {
+    return (
+      <Link href="/dashboard" className={buttonVariants({ size })}>
+        Ir al panel
+      </Link>
+    );
+  }
   return (
     <>
-      <Link
-        href="/sign-in"
-        className={buttonVariants({ variant: "secondary" })}
-      >
-        Sign In
+      <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size })}>
+        Iniciar sesión
       </Link>
-
-      <Link
-        href="/sign-up"
-        className={buttonVariants({ variant: "default" })}
-      >
-        Sign Up
+      <Link href="/sign-up" className={buttonVariants({ size })}>
+        Crear cuenta
       </Link>
     </>
   );
 }
 
-function AuthButtonsInner() {
-  const { isSignedIn } = useAuth();
+export function LandingPageHeader(props: { items: NavItem[] }) {
+  const [open, setOpen] = React.useState(false);
 
-  if (isSignedIn) {
-    return (
-      <Link
-        href="/dashboard"
-        className={buttonVariants({ variant: "default" })}
-      >
-        Dashboard
-      </Link>
-    );
-  } else {
-    return <SignInSignUpButtons />;
-  }
-}
+  // Close the mobile menu on Escape.
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
-function AuthButtons() {
   return (
-    <React.Suspense fallback={<SignInSignUpButtons />}>
-      <AuthButtonsInner />
-    </React.Suspense>
-  );
-}
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className="container flex h-16 items-center justify-between gap-4 px-4 md:px-8">
+        <Logo />
 
-function MobileItems(props: NavProps) {
-  return (
-    <div className="fixed inset-0 top-16 z-50 grid h-[calc(100vh-4rem)] grid-flow-row auto-rows-max overflow-auto p-6 pb-32 animate-in slide-in-from-bottom-80 md:hidden">
-      <div className="relative z-20 grid gap-6 rounded-md bg-popover p-4 text-popover-foreground shadow-md">
-        <nav className="grid grid-flow-row auto-rows-max text-sm">
-          {props.items?.map((item, index) => (
+        <nav className="hidden items-center gap-6 md:flex" aria-label="Secciones">
+          {props.items.map((item) => (
             <Link
-              key={index}
-              href={item.disabled ? "#" : item.href}
-              className={cn(
-                "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline",
-                item.disabled && "cursor-not-allowed opacity-60"
-              )}
-              target={item.external ? "_blank" : undefined}
-              rel={item.external ? "noreferrer" : undefined}
+              key={item.href}
+              href={item.href}
+              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
               {item.title}
             </Link>
           ))}
+        </nav>
 
-          <div className="flex flex-col gap-2 mt-4">
+        <div className="flex items-center gap-1 md:gap-2">
+          <ColorModeSwitcher />
+          <div className="hidden items-center gap-2 md:flex">
             <AuthButtons />
           </div>
-        </nav>
-      </div>
-    </div>
-  );
-}
-
-function DesktopItems(props: NavProps) {
-  const segment = useSelectedLayoutSegment();
-
-  return (
-    <nav className="hidden gap-6 md:flex">
-      {props.items?.map((item, index) => (
-        <Link
-          key={index}
-          href={item.disabled ? "#" : item.href}
-          className={cn(
-            "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
-            item.href.startsWith(`/${segment}`)
-              ? "text-foreground"
-              : "text-foreground/60",
-            item.disabled && "cursor-not-allowed opacity-80"
-          )}
-          target={item.external ? "_blank" : undefined}
-          rel={item.external ? "noreferrer" : undefined}
-        >
-          {item.title}
-        </Link>
-      ))}
-    </nav>
-  );
-}
-
-export function LandingPageHeader(props: NavProps) {
-  const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
-
-  return (
-    <header className="fixed w-full z-50 bg-background/80 px-4 md:px-8 backdrop-blur">
-      <div className="flex h-18 items-center justify-between py-4">
-        <div className="flex items-center gap-4 md:gap-10">
-          <Logo className="hidden md:flex" />
-
-          {props.items?.length ? <DesktopItems items={props.items} /> : null}
-
           <Button
-            className="space-x-2 md:hidden"
             variant="ghost"
             size="icon"
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="md:hidden"
+            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
           >
-            {showMobileMenu ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-
-          <Logo className="md:hidden" />
-
-          {showMobileMenu && props.items && <MobileItems items={props.items} />}
         </div>
+      </div>
 
-        <div className="flex gap-4 items-center">
-          <ColorModeSwitcher />
-          <nav className="gap-4 items-center hidden md:flex">
-            <AuthButtons />
-          </nav>
-        </div>
+      <div className={cn("border-t bg-background md:hidden", open ? "block" : "hidden")}>
+        <nav className="container flex flex-col gap-1 px-4 py-4" aria-label="Secciones">
+          {props.items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className="rounded-md px-2 py-2 text-sm font-medium hover:bg-muted"
+            >
+              {item.title}
+            </Link>
+          ))}
+          <div className="mt-3 grid gap-2">
+            <AuthButtons stacked />
+          </div>
+        </nav>
       </div>
     </header>
   );

@@ -52,6 +52,11 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Blue of trust and calm: security, data, secondary accents.
+        trust: {
+          DEFAULT: "hsl(var(--trust))",
+          foreground: "hsl(var(--trust-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
