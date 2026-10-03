@@ -26,3 +26,27 @@ export class AlreadyDispensedError extends DomainError {
     super('Everything prescribed was already delivered; no turn needed', 'ALREADY_DISPENSED');
   }
 }
+
+export class ProductNotFoundError extends DomainError {
+  readonly kind = 'not-found';
+
+  constructor(id: string) {
+    super(`Product ${id} not found`, 'PRODUCT_NOT_FOUND');
+  }
+}
+
+export class ProductTakenError extends DomainError {
+  readonly kind = 'conflict';
+
+  constructor(label: string) {
+    super(`${label} is already in the catalog`, 'PRODUCT_TAKEN');
+  }
+}
+
+export class StockChangedError extends DomainError {
+  readonly kind = 'conflict';
+
+  constructor(label: string) {
+    super(`The stock of ${label} changed meanwhile (another delivery or receipt); try again`, 'STOCK_CHANGED');
+  }
+}

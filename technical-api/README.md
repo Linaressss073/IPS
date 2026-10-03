@@ -13,7 +13,7 @@ Esta carpeta documenta todos los endpoints disponibles; el código fuente está 
 | [06-scheduling.md](06-scheduling.md) | Agendamiento: servicios, consultorios, agendas y citas |
 | [07-admission.md](07-admission.md) | Admisión, turnos, pantalla de sala y reanuncio automático |
 | [08-consultation.md](08-consultation.md) | Consulta médica: historia clínica, firma, notas aclaratorias y fórmula |
-| [09-pharmacy.md](09-pharmacy.md) | Farmacia: dispensación total o parcial y turnos FAR |
+| [09-pharmacy.md](09-pharmacy.md) | Farmacia: dispensación total o parcial, inventario por lotes (FEFO, kárdex) y turnos FAR |
 | [errors.md](errors.md) | Formato de errores y catálogo de códigos |
 | [requests.http](requests.http) | Colección de peticiones lista para ejecutar (VS Code REST Client / IntelliJ) |
 
@@ -68,6 +68,8 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | GET | `/teams/:teamId/pharmacy/prescriptions` · `/:consultationId` | `pharmacy:dispense` | 200 | [Farmacia](09-pharmacy.md#endpoints) |
 | POST | `/teams/:teamId/pharmacy/prescriptions/:consultationId/deliveries` | `pharmacy:dispense` | 200 | [Farmacia](09-pharmacy.md#entregar) |
 | POST | `/teams/:teamId/pharmacy/prescriptions/:consultationId/turn` | `pharmacy:dispense` | 201 | [Farmacia](09-pharmacy.md#dar-turno) |
+| GET · POST · PATCH | `/teams/:teamId/pharmacy/products` · `/:productId` | `pharmacy:dispense` | 200 · 201 | [Inventario](09-pharmacy.md#inventario) |
+| POST · GET | `/teams/:teamId/pharmacy/products/:productId/lots` · `/adjustments` · `/movements` | `pharmacy:dispense` | 201 · 200 | [Inventario](09-pharmacy.md#inventario) |
 | GET | `/organizations/:teamId` | Miembro | 200 | [Organizaciones](04-organizations.md#ver-ips) |
 | PATCH | `/organizations/:teamId` | **Administrador** | 200 | [Organizaciones](04-organizations.md#actualizar-ips) |
 | DELETE | `/organizations/:teamId` | **Administrador** | 204 | [Organizaciones](04-organizations.md#eliminar-ips) |

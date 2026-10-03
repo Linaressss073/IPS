@@ -82,6 +82,15 @@
 | 409 | `NOTHING_PENDING` | La fórmula ya se entregó completa |
 | 409 | `ALREADY_DISPENSED` | No se da turno a una fórmula ya entregada |
 | 409 | `DISPENSATION_VERSION_CONFLICT` | Otra entrega se registró antes |
+| 400 | `EXPIRED_LOT` | Se intentó recibir un lote ya vencido |
+| 400 | `INACTIVE_PRODUCT` | Se intentó dispensar un producto inactivo |
+| 404 | `PRODUCT_NOT_FOUND` | Producto desconocido en el inventario |
+| 404 | `LOT_NOT_FOUND` | Lote desconocido en ese producto |
+| 409 | `PRODUCT_TAKEN` | Ya existe un producto con ese nombre y presentación |
+| 409 | `LOT_EXPIRY_MISMATCH` | El lote ya se recibió con otro vencimiento |
+| 409 | `INSUFFICIENT_STOCK` | No hay existencias no vencidas suficientes |
+| 409 | `NEGATIVE_STOCK` | El ajuste dejaría el lote en negativo |
+| 409 | `STOCK_CHANGED` | Las existencias cambiaron mientras tanto; reintentar |
 | 503 | — | Base de datos caída (`/health`), MongoDB no configurado para organizaciones, o webhooks sin configurar |
 
 ## Cómo reaccionar

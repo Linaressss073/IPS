@@ -99,6 +99,8 @@ function toView(
         index: line.index,
         medication: prescription.items[line.index]?.medication ?? '',
         quantity: line.quantity,
+        productId: line.productId,
+        lots: line.lots,
       })),
       note: delivery.note,
     })),

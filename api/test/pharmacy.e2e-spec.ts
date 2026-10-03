@@ -6,6 +6,10 @@ import { CONSULTATIONS_COLLECTION } from '../src/contexts/consultation/infrastru
 import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
 import { DISPENSATIONS_COLLECTION } from '../src/contexts/pharmacy/infrastructure/persistence/mongo-dispensation.js';
 import {
+  MOVEMENTS_COLLECTION,
+  PRODUCTS_COLLECTION,
+} from '../src/contexts/pharmacy/infrastructure/persistence/mongo-product.js';
+import {
   APPOINTMENTS_COLLECTION,
   LOCATIONS_COLLECTION,
 } from '../src/contexts/scheduling/infrastructure/persistence/scheduling.documents.js';
@@ -19,7 +23,10 @@ describe('Pharmacy (e2e)', () => {
   const api = (token?: string) => t.api(token);
   const team = `/teams/${TEAM_A}`;
   const pharmacy = `${team}/pharmacy/prescriptions`;
+  const products = `${team}/pharmacy/products`;
   const today = colombiaDate(new Date());
+  /** Today plus `days`, YYYY-MM-DD. */
+  const inDays = (days: number) => colombiaDate(new Date(Date.now() + days * 86_400_000));
 
   beforeAll(async () => {
     t = await createTestApp();
@@ -28,6 +35,8 @@ describe('Pharmacy (e2e)', () => {
   beforeEach(async () => {
     await t.wipe(
       DISPENSATIONS_COLLECTION,
+      PRODUCTS_COLLECTION,
+      MOVEMENTS_COLLECTION,
       CONSULTATIONS_COLLECTION,
       APPOINTMENTS_COLLECTION,
       LOCATIONS_COLLECTION,
@@ -97,8 +106,21 @@ describe('Pharmacy (e2e)', () => {
     return { patientId, consultationId: consultation.id as string };
   };
 
-  it('delivers in parts, never more than prescribed', async () => {
+  /** Acetaminofén with 30 units and Loratadina with 4 (one lot each, far from expiring). */
+  const stock = async () => {
+    const product = async (name: string, units: number) => {
+      const created = (await api('alice').post(products, { name, presentation: 'Tableta', minStock: 5 }).expect(201)).body;
+      await api('alice')
+        .post(`${products}/${created.id}/lots`, { lotNumber: `L-${units}`, expiresOn: inDays(365), quantity: units })
+        .expect(201);
+      return created.id as string;
+    };
+    return { acetaminofen: await product('Acetaminofén 500 mg', 30), loratadina: await product('Loratadina 10 mg', 4) };
+  };
+
+  it('delivers in parts, never more than prescribed, taking the stock', async () => {
     const { consultationId } = await signedPrescription();
+    const { acetaminofen: a, loratadina: l } = await stock();
 
     const [listed] = (await api('alice').get(pharmacy).expect(200)).body;
     expect(listed).toMatchObject({
@@ -118,25 +140,50 @@ describe('Pharmacy (e2e)', () => {
     const url = `${pharmacy}/${consultationId}/deliveries`;
     const partial = (
       await api('alice')
-        .post(url, { version: 0, lines: [{ index: 0, quantity: 15 }, { index: 1, quantity: 4 }], note: 'Sin existencias de loratadina' })
+        .post(url, {
+          version: 0,
+          lines: [
+            { index: 0, quantity: 15, productId: a },
+            { index: 1, quantity: 4, productId: l },
+          ],
+          note: 'Sin existencias de loratadina',
+        })
         .expect(200)
     ).body;
     expect(partial).toMatchObject({ status: 'parcial', version: 1, items: [{ pending: 0 }, { delivered: 4, pending: 6 }] });
-    expect(partial.deliveries[0]).toMatchObject({ by: 'alice', note: 'Sin existencias de loratadina' });
+    expect(partial.deliveries[0]).toMatchObject({
+      by: 'alice',
+      note: 'Sin existencias de loratadina',
+      lines: [
+        { index: 0, productId: a, lots: [{ lotNumber: 'L-30', quantity: 15 }] },
+        { index: 1, productId: l, lots: [{ lotNumber: 'L-4', quantity: 4 }] },
+      ],
+    });
+    // The stock went down with the delivery.
+    expect((await api('alice').get(`${products}/${l}`).expect(200)).body).toMatchObject({ available: 0, alerts: ['stock_bajo'] });
 
-    expect((await api('alice').post(url, { version: 1, lines: [{ index: 1, quantity: 7 }] }).expect(400)).body.code).toBe('OVER_DELIVERY');
-    expect((await api('alice').post(url, { version: 0, lines: [{ index: 1, quantity: 6 }] }).expect(409)).body.code).toBe(
+    // Out of stock: rejected and nothing changes.
+    const line = (quantity: number) => [{ index: 1, quantity, productId: l }];
+    expect((await api('alice').post(url, { version: 1, lines: line(6) }).expect(409)).body.code).toBe('INSUFFICIENT_STOCK');
+    expect((await api('alice').post(url, { version: 1, lines: line(7) }).expect(400)).body.code).toBe('OVER_DELIVERY');
+    expect((await api('alice').post(url, { version: 0, lines: line(6) }).expect(409)).body.code).toBe(
       'DISPENSATION_VERSION_CONFLICT',
     );
 
-    const complete = (await api('alice').post(url, { version: 1, lines: [{ index: 1, quantity: 6 }] }).expect(200)).body;
+    await api('alice').post(`${products}/${l}/lots`, { lotNumber: 'L-NEW', expiresOn: inDays(200), quantity: 20 }).expect(201);
+    const complete = (await api('alice').post(url, { version: 1, lines: line(6) }).expect(200)).body;
     expect(complete).toMatchObject({ status: 'completa', version: 2 });
-    expect((await api('alice').post(url, { version: 2, lines: [{ index: 0, quantity: 1 }] }).expect(409)).body.code).toBe('NOTHING_PENDING');
+    expect(
+      (await api('alice').post(url, { version: 2, lines: [{ index: 0, quantity: 1, productId: a }] }).expect(409)).body.code,
+    ).toBe('NOTHING_PENDING');
+    expect((await api('alice').get(`${products}/${l}`).expect(200)).body).toMatchObject({ available: 14 });
     expect((await api('alice').get(`${pharmacy}?status=completa`).expect(200)).body).toHaveLength(1);
   });
 
   it('calls the patient with a FAR turn at a pharmacy window, on the shared screen', async () => {
     const { patientId, consultationId } = await signedPrescription();
+    const { acetaminofen: a, loratadina: l } = await stock();
+    await api('alice').post(`${products}/${l}/lots`, { lotNumber: 'L-MORE', expiresOn: inDays(300), quantity: 6 }).expect(201);
     const window = (await api('alice').post(`${team}/locations`, { kind: 'Farmacia', number: '1' }).expect(201)).body;
 
     const turn = (await api('alice').post(`${pharmacy}/${consultationId}/turn`, { windowId: window.id }).expect(201)).body;
@@ -163,7 +210,13 @@ describe('Pharmacy (e2e)', () => {
 
     // Once everything is delivered, no more turns.
     await api('alice')
-      .post(`${pharmacy}/${consultationId}/deliveries`, { version: 0, lines: [{ index: 0, quantity: 15 }, { index: 1, quantity: 10 }] })
+      .post(`${pharmacy}/${consultationId}/deliveries`, {
+        version: 0,
+        lines: [
+          { index: 0, quantity: 15, productId: a },
+          { index: 1, quantity: 10, productId: l },
+        ],
+      })
       .expect(200);
     await t.mongo.collection(TURNS_COLLECTION).deleteMany({});
     expect((await api('alice').post(`${pharmacy}/${consultationId}/turn`, { windowId: window.id }).expect(409)).body.code).toBe(
@@ -182,5 +235,88 @@ describe('Pharmacy (e2e)', () => {
     expect((await api('alice').get(`${pharmacy}/${consultationId}`).expect(404)).body.code).toBe('PRESCRIPTION_NOT_FOUND');
     expect((await api('alice').get(pharmacy).expect(200)).body).toEqual([]);
     expect((await api('carol').get(pharmacy).expect(403)).body.code).toBe('PERMISSION_DENIED');
+  });
+
+  it('keeps lots and a kardex: FEFO, no expired stock, adjustments with a reason', async () => {
+    const product = (
+      await api('alice').post(products, { name: 'Amoxicilina 500 mg', presentation: 'Cápsula', minStock: 10 }).expect(201)
+    ).body;
+    expect(
+      (await api('alice').post(products, { name: 'amoxicilina  500 MG', presentation: 'cápsula', minStock: 0 }).expect(409)).body
+        .code,
+    ).toBe('PRODUCT_TAKEN');
+    const lots = `${products}/${product.id}/lots`;
+    expect((await api('alice').post(lots, { lotNumber: 'OLD', expiresOn: inDays(-1), quantity: 5 }).expect(400)).body.code).toBe(
+      'EXPIRED_LOT',
+    );
+    await api('alice')
+      .post(lots, { lotNumber: 'late', expiresOn: inDays(400), quantity: 20, supplier: 'Droguería Central' })
+      .expect(201);
+    await api('alice').post(lots, { lotNumber: 'SOON', expiresOn: inDays(10), quantity: 8 }).expect(201);
+    expect((await api('alice').post(lots, { lotNumber: 'SOON', expiresOn: inDays(20), quantity: 1 }).expect(409)).body.code).toBe(
+      'LOT_EXPIRY_MISMATCH',
+    );
+
+    expect((await api('alice').get(`${products}/${product.id}`).expect(200)).body).toMatchObject({
+      available: 28,
+      expired: 0,
+      alerts: ['por_vencer'],
+      lots: [
+        { lotNumber: 'SOON', quantity: 8, status: 'por_vencer' },
+        { lotNumber: 'LATE', quantity: 20, status: 'vigente' },
+      ],
+    });
+
+    // A delivery takes from the lot expiring first, then the next.
+    const { consultationId } = await signedPrescription();
+    const deliveries = `${pharmacy}/${consultationId}/deliveries`;
+    const delivered = (
+      await api('alice').post(deliveries, { version: 0, lines: [{ index: 0, quantity: 12, productId: product.id }] }).expect(200)
+    ).body;
+    expect(delivered.deliveries[0].lines[0].lots).toEqual([
+      { lotNumber: 'SOON', expiresOn: inDays(10), quantity: 8 },
+      { lotNumber: 'LATE', expiresOn: inDays(400), quantity: 4 },
+    ]);
+
+    // A write-off needs a reason and never goes below zero.
+    const adjust = `${products}/${product.id}/adjustments`;
+    expect((await api('alice').post(adjust, { lotNumber: 'LATE', quantity: -17, reason: 'Conteo' }).expect(409)).body.code).toBe(
+      'NEGATIVE_STOCK',
+    );
+    expect((await api('alice').post(adjust, { lotNumber: 'LATE', quantity: -2, reason: '' }).expect(400)).body.code).toBe(
+      'INVALID_VALUE',
+    );
+    expect((await api('alice').post(adjust, { lotNumber: 'NOPE', quantity: -2, reason: 'Dañado' }).expect(404)).body.code).toBe(
+      'LOT_NOT_FOUND',
+    );
+    expect(
+      (await api('alice').post(adjust, { lotNumber: 'late', quantity: -2, reason: 'Blíster dañado' }).expect(201)).body,
+    ).toMatchObject({ available: 14, alerts: [] });
+
+    const kardex = (await api('alice').get(`${products}/${product.id}/movements`).expect(200)).body as {
+      type: string;
+      lotNumber: string;
+      quantity: number;
+      reference: unknown;
+    }[];
+    expect(kardex.map((m) => [m.type, m.lotNumber, m.quantity])).toEqual(
+      expect.arrayContaining([
+        ['entrada', 'LATE', 20],
+        ['entrada', 'SOON', 8],
+        ['salida', 'SOON', -8],
+        ['salida', 'LATE', -4],
+        ['ajuste', 'LATE', -2],
+      ]),
+    );
+    expect(kardex).toHaveLength(5);
+    expect(kardex.find((m) => m.type === 'salida')?.reference).toEqual({ kind: 'dispensacion', consultationId });
+
+    // An inactive product is not dispensed; the physician has no access.
+    await api('alice').patch(`${products}/${product.id}`, { active: false }).expect(200);
+    expect(
+      (await api('alice').post(deliveries, { version: 1, lines: [{ index: 0, quantity: 1, productId: product.id }] }).expect(400))
+        .body.code,
+    ).toBe('INACTIVE_PRODUCT');
+    expect((await api('carol').get(products).expect(403)).body.code).toBe('PERMISSION_DENIED');
   });
 });

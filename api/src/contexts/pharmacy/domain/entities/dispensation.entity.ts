@@ -2,6 +2,7 @@ import { Entity, InvalidValueError, TeamId, ValueObject } from '../../../../shar
 import { DELIVERY_NOTE_MAX } from '../constants/pharmacy.constants.js';
 import { NothingPendingError, OverDeliveryError } from '../errors/pharmacy.errors.js';
 import {
+  DeliveredLine,
   DeliveryLine,
   DeliveryProps,
   DispensationStatus,
@@ -61,8 +62,18 @@ export class Dispensation extends Entity<DispensationId> {
     return new Dispensation(id, { ...props, items: props.items.map((i) => ({ ...i })), deliveries: [...props.deliveries] });
   }
 
-  /** Delivers some units of some items (each at most what is pending). */
-  deliver(input: { lines: DeliveryLine[]; note: string; deliveredBy: string; now: Date }): DeliveryProps {
+  /**
+   * Delivers some units of some items (each at most what is pending). Lines
+   * are checked first; only then `allocate` takes each line's stock, so an
+   * invalid request never touches the inventory.
+   */
+  deliver(input: {
+    lines: DeliveryLine[];
+    note: string;
+    deliveredBy: string;
+    now: Date;
+    allocate: (line: DeliveryLine, item: DispensedItemProps) => Pick<DeliveredLine, 'productId' | 'lots'>;
+  }): DeliveryProps {
     if (this.status === 'completa') throw new NothingPendingError();
     const lines = input.lines.filter((line) => line.quantity !== 0);
     if (lines.length === 0) throw new InvalidValueError('Deliver at least one unit');
@@ -83,8 +94,13 @@ export class Dispensation extends Entity<DispensationId> {
     if (note.length > DELIVERY_NOTE_MAX) {
       throw new InvalidValueError(`The note must have at most ${DELIVERY_NOTE_MAX} characters`);
     }
+    const delivered: DeliveredLine[] = lines.map((line) => ({
+      index: line.index,
+      quantity: line.quantity,
+      ...input.allocate(line, this.props.items[line.index]),
+    }));
     for (const line of lines) this.props.items[line.index].delivered += line.quantity;
-    const delivery = { at: input.now, by: input.deliveredBy, lines, note };
+    const delivery = { at: input.now, by: input.deliveredBy, lines: delivered, note };
     this.props.deliveries.push(delivery);
     this.props.updatedAt = input.now;
     this.props.version += 1;

@@ -1,4 +1,8 @@
 import { ActorResolver, Clock, newTraceEvent } from '../../../../shared/application/index.js';
+import { colombiaDate, InvalidValueError } from '../../../../shared/domain/index.js';
+import { Product, ProductId } from '../../domain/entities/product.entity.js';
+import { Movement } from '../../domain/types/pharmacy.types.js';
+import { movement } from './inventory.commands.js';
 import { Dispensation, DispensationId } from '../../domain/entities/dispensation.entity.js';
 import { MEDICATIONS_DELIVERED } from '../constants/pharmacy.tokens.js';
 import {
@@ -11,17 +15,21 @@ import {
   PharmacyTurns,
   PharmacyWindows,
   PrescriptionSource,
+  ProductRepository,
 } from '../ports/pharmacy.ports.js';
 import { PharmacyQueries } from '../queries/pharmacy.queries.js';
 import { DispenseCommand, IssueTurnCommand, PharmacyPrescriptionView } from '../types/pharmacy.types.js';
 
 /**
- * Delivers units of a signed prescription. The first delivery opens the
- * dispensation from the prescription; later ones complete what is pending.
+ * Delivers units of a signed prescription, taking each line's stock from
+ * its catalog product by FEFO. The first delivery opens the dispensation;
+ * later ones complete what is pending. Dispensation, stock and kardex are
+ * stored together.
  */
 export class Dispense {
   constructor(
     private readonly dispensations: DispensationRepository,
+    private readonly products: ProductRepository,
     private readonly prescriptions: PrescriptionSource,
     private readonly queries: PharmacyQueries,
     private readonly actors: ActorResolver,
@@ -54,13 +62,43 @@ export class Dispense {
       throw new DispensationVersionConflictError(prescription.consultationId);
     }
 
+    // Each product once, even if two lines share it.
+    const products = new Map<string, Product>();
+    for (const line of command.lines) {
+      const id = ProductId.of(line.productId);
+      if (!products.has(id.value)) products.set(id.value, await this.products.getById(command.teamId, id));
+    }
+    const productOf = new Map(command.lines.map((line) => [line.index, ProductId.of(line.productId).value]));
+    if (productOf.size !== command.lines.length) throw new InvalidValueError('Each prescription item goes once');
+    const today = colombiaDate(now);
+    const movements: Movement[] = [];
+
     const delivery = dispensation.deliver({
-      lines: command.lines,
+      lines: command.lines.map((line) => ({ index: line.index, quantity: line.quantity })),
       note: command.note,
       deliveredBy: actor.executedBy.value,
       now,
+      allocate: (line) => {
+        const product = products.get(productOf.get(line.index)!)!;
+        const lots = product.take(line.quantity, today, now);
+        for (const lot of lots) {
+          movements.push(
+            movement({
+              productId: product.id.value,
+              type: 'salida',
+              lotNumber: lot.lotNumber,
+              quantity: -lot.quantity,
+              reference: { kind: 'dispensacion', consultationId: prescription.consultationId },
+              at: now,
+              by: actor.executedBy.value,
+            }),
+          );
+        }
+        return { productId: product.id.value, lots };
+      },
     });
-    await this.dispensations.save(dispensation, [
+    const touched = [...products.values()].filter((product) => movements.some((m) => m.productId === product.id.value));
+    await this.dispensations.saveDelivery(dispensation, touched, movements, [
       newTraceEvent({
         teamId: command.teamId,
         patientId: dispensation.patientId,

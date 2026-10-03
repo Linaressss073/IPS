@@ -44,14 +44,22 @@ type Label = {
 
 export type SidebarItem = Item | Sep | Label;
 
-/** Selected when the path is the item or below it (/patients/123 → Pacientes). */
-function isSelected(segment: string, href: string) {
+/** The path is the item or below it (/patients/123 → Pacientes). */
+function matches(segment: string, href: string) {
   return href === "/" ? segment === "/" : segment === href || segment.startsWith(`${href}/`);
 }
 
-function NavItem(props: { item: Item; onClick?: () => void; basePath: string }) {
-  const segment = useSegment(props.basePath);
-  const selected = isSelected(segment, props.item.href);
+/** The most specific item for the path: /pharmacy/inventory → Inventario, not Farmacia ("" if none). */
+function selectedHref(segment: string, items: SidebarItem[]): string {
+  return items
+    .filter((entry): entry is Item => entry.type === "item" && matches(segment, entry.href))
+    .map((entry) => entry.href)
+    .sort((a, b) => b.length - a.length)
+    .concat("")[0];
+}
+
+function NavItem(props: { item: Item; selected: boolean; onClick?: () => void; basePath: string }) {
+  const { selected } = props;
 
   return (
     <Link
@@ -78,6 +86,7 @@ function SidebarContent(props: {
   sidebarTop?: React.ReactNode;
   basePath: string;
 }) {
+  const selected = selectedHref(useSegment(props.basePath), props.items);
   return (
     <div className="flex h-full flex-col items-stretch">
       <div className="flex h-14 shrink-0 items-center border-b px-4">
@@ -92,7 +101,12 @@ function SidebarContent(props: {
           if (item.type === "item") {
             return (
               <div key={index} className="flex">
-                <NavItem item={item} onClick={props.onNavigate} basePath={props.basePath} />
+                <NavItem
+                  item={item}
+                  selected={item.href === selected}
+                  onClick={props.onNavigate}
+                  basePath={props.basePath}
+                />
               </div>
             );
           }
@@ -117,10 +131,8 @@ function HeaderBreadcrumb(props: {
   baseBreadcrumb?: HeaderBreadcrumbItem[];
   basePath: string;
 }) {
-  const segment = useSegment(props.basePath);
-  const item = props.items.find(
-    (entry): entry is Item => entry.type === "item" && isSelected(segment, entry.href),
-  );
+  const selected = selectedHref(useSegment(props.basePath), props.items);
+  const item = props.items.find((entry): entry is Item => entry.type === "item" && entry.href === selected);
 
   return (
     <Breadcrumb>

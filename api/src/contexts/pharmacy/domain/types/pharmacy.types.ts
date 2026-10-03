@@ -1,4 +1,6 @@
-import { DISPENSATION_STATUSES } from '../constants/pharmacy.constants.js';
+import { DISPENSATION_STATUSES, MOVEMENT_TYPES } from '../constants/pharmacy.constants.js';
+
+export type MovementType = (typeof MOVEMENT_TYPES)[number];
 
 export type DispensationStatus = (typeof DISPENSATION_STATUSES)[number];
 
@@ -25,10 +27,50 @@ export interface DeliveryLine {
   quantity: number;
 }
 
+/** Units taken from one lot (FEFO), recorded for traceability. */
+export interface LotAllocation {
+  lotNumber: string;
+  expiresOn: string;
+  quantity: number;
+}
+
+/** A delivered line: which catalog product and which lots. */
+export interface DeliveredLine extends DeliveryLine {
+  productId: string;
+  lots: LotAllocation[];
+}
+
+/** Why stock moved: what the kardex shows. */
+export type MovementReference =
+  | { kind: 'recepcion'; supplier: string }
+  | { kind: 'dispensacion'; consultationId: string }
+  | { kind: 'ajuste'; reason: string };
+
+/** One line of a product's kardex: append-only. */
+export interface Movement {
+  id: string;
+  productId: string;
+  type: MovementType;
+  lotNumber: string;
+  /** Positive for entries, negative for outputs. */
+  quantity: number;
+  reference: MovementReference;
+  at: Date;
+  by: string;
+}
+
+export interface LotProps {
+  lotNumber: string;
+  /** YYYY-MM-DD */
+  expiresOn: string;
+  quantity: number;
+  receivedAt: Date;
+}
+
 export interface DeliveryProps {
   at: Date;
   /** User who delivered. */
   by: string;
-  lines: DeliveryLine[];
+  lines: DeliveredLine[];
   note: string;
 }
