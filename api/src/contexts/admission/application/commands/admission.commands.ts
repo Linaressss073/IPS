@@ -6,6 +6,7 @@ import {
   TraceEvent,
 } from '../../../../shared/application/index.js';
 import { colombiaDate, UserId } from '../../../../shared/domain/index.js';
+import { PHARMACY_SERVICE } from '../../domain/constants/admission.constants.js';
 import { CallSettings } from '../../domain/entities/call-settings.vo.js';
 import { Turn, TurnId } from '../../domain/entities/turn.entity.js';
 import {
@@ -26,6 +27,7 @@ import { GetTurn } from '../queries/admission.queries.js';
 import {
   CallSettingsView,
   CheckInCommand,
+  IssuePharmacyTurnCommand,
   TurnCommand,
   TurnView,
   UpdateCallSettingsCommand,
@@ -44,7 +46,9 @@ function turnEvent(turn: Turn, type: string, actor: Actor, occurredAt: Date, ext
       label: turn.label,
       status: turn.status,
       calls: turn.calls,
-      appointmentId: turn.appointment.id,
+      ...(turn.origin.kind === 'cita'
+        ? { appointmentId: turn.appointment.id }
+        : { consultationId: turn.origin.consultationId }),
       service: turn.appointment.service,
       location: turn.appointment.location,
       ...extra,
@@ -74,6 +78,40 @@ export class CheckIn {
       { date: colombiaDate(now), code: appointment.service.code },
       (number) => {
         const created = Turn.checkIn({ teamId: command.teamId, appointment, number, now });
+        return { turn: created, events: [turnEvent(created, TURN_CHECKED_IN, actor, now)] };
+      },
+    );
+    return this.getTurn.execute(command.teamId, turn.id.value);
+  }
+}
+
+/**
+ * Public command for the Pharmacy context: a patient with a signed
+ * prescription gets the next "FAR n" turn at a pharmacy window.
+ */
+export class IssuePharmacyTurn {
+  constructor(
+    private readonly turns: TurnRepository,
+    private readonly getTurn: GetTurn,
+    private readonly actors: ActorResolver,
+    private readonly clock: Clock,
+  ) {}
+
+  async execute(command: IssuePharmacyTurnCommand): Promise<TurnView> {
+    const actor = await this.actors.resolve(command.teamId, command.actor);
+    const now = this.clock.now();
+    const turn = await this.turns.checkIn(
+      command.teamId,
+      { date: colombiaDate(now), code: PHARMACY_SERVICE.code },
+      (number) => {
+        const created = Turn.issueForPharmacy({
+          teamId: command.teamId,
+          consultationId: command.consultationId,
+          patientId: command.patientId,
+          window: command.window,
+          number,
+          now,
+        });
         return { turn: created, events: [turnEvent(created, TURN_CHECKED_IN, actor, now)] };
       },
     );

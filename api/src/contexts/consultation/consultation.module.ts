@@ -9,6 +9,7 @@ import { StaffModule } from '../staff/staff.module.js';
 import { ConsultationsController } from './entrypoints/http/controllers/consultations.controller.js';
 import { ensureConsultationIndexes } from './infrastructure/persistence/mongo-consultation.js';
 import { consultationProviders } from './infrastructure/providers/consultation.providers.js';
+import { PrescriptionQueries } from './application/queries/prescription.queries.js';
 
 /**
  * Bounded context "Consultation" (consulta médica): the clinical record of
@@ -20,6 +21,8 @@ import { consultationProviders } from './infrastructure/providers/consultation.p
   imports: [IdentityAccessModule, PatientsModule, SchedulingModule, StaffModule],
   controllers: [ConsultationsController],
   providers: consultationProviders,
+  // Public query for the pharmacy: prescriptions only.
+  exports: [PrescriptionQueries],
 })
 export class ConsultationModule implements OnModuleInit {
   constructor(

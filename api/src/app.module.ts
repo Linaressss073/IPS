@@ -6,6 +6,7 @@ import { validateEnv } from './config/env.js';
 import { IdentityAccessModule } from './contexts/identity-access/identity-access.module.js';
 import { AdmissionModule } from './contexts/admission/admission.module.js';
 import { ConsultationModule } from './contexts/consultation/consultation.module.js';
+import { PharmacyModule } from './contexts/pharmacy/pharmacy.module.js';
 import { PatientsModule } from './contexts/patients/patients.module.js';
 import { SchedulingModule } from './contexts/scheduling/scheduling.module.js';
 import { OrganizationsModule } from './contexts/organizations/organizations.module.js';
@@ -31,6 +32,7 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
     SchedulingModule,
     AdmissionModule,
     ConsultationModule,
+    PharmacyModule,
     StaffModule,
     OrganizationsModule,
     ClerkIntegrationModule,

@@ -6,7 +6,7 @@ La identidad (login, usuarios, organizaciones) la gestiona **Clerk**, igual que 
 
 Es el backend del **Sistema de Información Hospitalaria Web para la Consulta Externa** (agendamiento, admisión,
 consulta médica y farmacia). Hoy incluye la base (identidad, multi-tenancy, trazabilidad, `/health`) y los
-contextos **Pacientes**, **Personal**, **Agendamiento**, **Admisión** y **Consulta médica**.
+contextos **Pacientes**, **Personal**, **Agendamiento**, **Admisión**, **Consulta médica** y **Farmacia**.
 
 ## Lenguaje ubicuo
 
@@ -36,6 +36,7 @@ contextos **Pacientes**, **Personal**, **Agendamiento**, **Admisión** y **Consu
 | `scheduling` | Agendamiento: servicios, ubicaciones, agendas con cupos y citas (colecciones `scheduling_*`). Índices únicos parciales impiden dar un cupo a dos pacientes o dos citas a la vez a un paciente. Cada paso de una cita va al historial del paciente. |
 | `admission` | Admisión y turnos: llegada de la cita de hoy, turno por servicio y día (RTH 4), llamado en la pantalla de sala con reanuncio automático (`TurnAnnouncer`) y cierre como atendido o no se presentó. Configuración del llamado por IPS. |
 | `consultation` | Historia clínica de cada cita, escrita y firmada por su médico (nota, signos vitales, diagnósticos CIE-10, plan y fórmula médica). Firmada es inmodificable: solo notas aclaratorias. Solo médicos la leen (`clinical:read`); el historial compartido del paciente no lleva contenido clínico. |
+| `pharmacy` | Dispensación de fórmulas firmadas, total o parcial (lo que falta queda pendiente), y turnos `FAR n` en la pantalla de sala. Solo ve la fórmula, nunca la nota clínica. |
 | `staff` | Directorio mínimo del personal de cada IPS (nombre, e-mail enmascarado, rol de Clerk y roles funcionales), sincronizado con Clerk por webhooks firmados y una carga masiva idempotente. Da los nombres del historial. |
 | `shared` (shared kernel) | Piezas comunes: `Entity`, `ValueObject`, `DomainError`, `TeamId`, `UserId`, `Clock`, eventos de trazabilidad, conexión y transacciones de MongoDB. |
 

@@ -32,6 +32,7 @@ import type {
   ConsultationRepository,
 } from '../../application/ports/consultation.ports.js';
 import { ConsultationQueries } from '../../application/queries/consultation.queries.js';
+import { PrescriptionQueries } from '../../application/queries/prescription.queries.js';
 import {
   MongoConsultationReadModel,
   MongoConsultationRepository,
@@ -106,6 +107,11 @@ export const consultationProviders: Provider[] = [
     inject: [CONSULTATION_READ_MODEL, CONSULTATION_NAMES],
     useFactory: (readModel: ConsultationReadModel, names: ConsultationNames) =>
       new ConsultationQueries(readModel, names),
+  },
+  {
+    provide: PrescriptionQueries,
+    inject: [CONSULTATION_READ_MODEL],
+    useFactory: (readModel: ConsultationReadModel) => new PrescriptionQueries(readModel),
   },
   {
     provide: StartConsultation,

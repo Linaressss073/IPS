@@ -1,13 +1,15 @@
 import {
   colombiaDate,
+  colombiaMinute,
   Entity,
+  formatTime,
   generateUuid,
   InvalidValueError,
   isUuid,
   TeamId,
   ValueObject,
 } from '../../../../shared/domain/index.js';
-import { CHECK_IN_STATUSES } from '../constants/admission.constants.js';
+import { CHECK_IN_STATUSES, PHARMACY_SERVICE } from '../constants/admission.constants.js';
 import {
   AppointmentNotAdmissibleError,
   InvalidTurnTransitionError,
@@ -40,8 +42,13 @@ export interface AppointmentSnapshot {
   time: string;
 }
 
+/** Why the patient is waiting: an appointment, or a prescription to pick up. */
+export type TurnOrigin = { kind: 'cita' } | { kind: 'farmacia'; consultationId: string };
+
 export interface TurnProps {
   teamId: TeamId;
+  origin: TurnOrigin;
+  /** For pharmacy turns: the pharmacy as service and its window as location. */
   appointment: AppointmentSnapshot;
   /** Per service and day: RTH 1, RTH 2… */
   number: number;
@@ -83,7 +90,44 @@ export class Turn extends Entity<TurnId> {
     if (appointment.date !== colombiaDate(input.now)) throw new NotTodayError(appointment.date);
     return new Turn(TurnId.generate(), {
       teamId: input.teamId,
+      origin: { kind: 'cita' },
       appointment: { ...appointment },
+      number: input.number,
+      status: 'en_espera',
+      calls: 0,
+      lastCalledAt: null,
+      arrivedAt: input.now,
+      closedAt: null,
+      version: 1,
+    });
+  }
+
+  /**
+   * A patient at the pharmacy with a signed prescription: a "FAR n" turn at
+   * a window. One per prescription and day (the key below is unique).
+   */
+  static issueForPharmacy(input: {
+    teamId: TeamId;
+    consultationId: string;
+    patientId: string;
+    window: { id: string; label: string };
+    number: number;
+    now: Date;
+  }): Turn {
+    const date = colombiaDate(input.now);
+    return new Turn(TurnId.generate(), {
+      teamId: input.teamId,
+      origin: { kind: 'farmacia', consultationId: input.consultationId },
+      appointment: {
+        id: `${input.consultationId}@${date}`,
+        status: 'farmacia',
+        patientId: input.patientId,
+        professionalId: '',
+        service: { ...PHARMACY_SERVICE },
+        location: input.window,
+        date,
+        time: formatTime(colombiaMinute(input.now)),
+      },
       number: input.number,
       status: 'en_espera',
       calls: 0,
@@ -143,6 +187,9 @@ export class Turn extends Entity<TurnId> {
   }
   get teamId(): TeamId {
     return this.props.teamId;
+  }
+  get origin(): TurnOrigin {
+    return this.props.origin;
   }
   get appointment(): AppointmentSnapshot {
     return this.props.appointment;

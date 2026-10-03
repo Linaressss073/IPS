@@ -46,6 +46,12 @@ const MESSAGES: Record<string, string> = {
   CONSULTATION_NOT_SIGNED: "Firma la consulta antes de agregar notas aclaratorias.",
   CONSULTATION_INCOMPLETE: "Para firmar falta el motivo de consulta o el diagnóstico principal.",
   CONSULTATION_VERSION_CONFLICT: "La consulta cambió en otra pestaña. Recarga para ver la última versión.",
+  PRESCRIPTION_NOT_FOUND: "No hay una fórmula firmada para esa consulta.",
+  OVER_DELIVERY: "No se puede entregar más de lo pendiente.",
+  NOTHING_PENDING: "Esta fórmula ya se entregó completa.",
+  DISPENSATION_VERSION_CONFLICT: "Otra persona registró una entrega de esta fórmula. Se actualizó la lista; revisa e intenta de nuevo.",
+  WINDOW_NOT_FOUND: "La ventanilla no existe o está inactiva.",
+  ALREADY_DISPENSED: "La fórmula ya está entregada: no necesita turno.",
   ORGANIZATION_NOT_FOUND: "La IPS no existe o fue eliminada.",
   ORGANIZATION_VERSION_CONFLICT:
     "Otra persona modificó los datos de la IPS mientras los editabas. Recarga para ver los cambios.",

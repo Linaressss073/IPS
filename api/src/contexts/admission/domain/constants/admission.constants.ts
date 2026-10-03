@@ -9,6 +9,9 @@ export const TURN_STATUSES = ['en_espera', 'anunciado', 'atendido', 'no_se_prese
 /** Appointment statuses that can check in (scheduling's "agendada"/"confirmada"). */
 export const CHECK_IN_STATUSES = ['agendada', 'confirmada'] as const;
 
+/** The pharmacy's turns: "FAR 1", "FAR 2"… per day. */
+export const PHARMACY_SERVICE = { id: 'farmacia', code: 'FAR', name: 'Farmacia' } as const;
+
 /** What an IPS gets until an administrator changes it. */
 export const DEFAULT_ANNOUNCE_INTERVAL_SECONDS = 120;
 export const DEFAULT_MAX_CALLS = 3;

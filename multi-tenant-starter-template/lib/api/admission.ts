@@ -6,6 +6,8 @@ export type TurnStatus = "en_espera" | "anunciado" | "atendido" | "no_se_present
 export type Turn = {
   id: string;
   label: string;
+  /** Waiting for an appointment, or to pick up a prescription. */
+  origin: { kind: "cita" } | { kind: "farmacia"; consultationId: string };
   code: string;
   number: number;
   status: TurnStatus;

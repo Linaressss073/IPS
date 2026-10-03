@@ -8,6 +8,14 @@ export class ConsultationNotFoundError extends DomainError {
   }
 }
 
+export class PrescriptionNotFoundError extends DomainError {
+  readonly kind = 'not-found';
+
+  constructor(consultationId: string) {
+    super(`No signed prescription for consultation ${consultationId}`, 'PRESCRIPTION_NOT_FOUND');
+  }
+}
+
 export class ConsultationAlreadyStartedError extends DomainError {
   readonly kind = 'conflict';
 

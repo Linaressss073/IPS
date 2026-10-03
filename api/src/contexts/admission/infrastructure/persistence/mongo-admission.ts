@@ -18,7 +18,7 @@ import {
 } from '../../application/ports/admission.ports.js';
 import { ListTurnsQuery, TurnView } from '../../application/types/admission.types.js';
 import { CallSettings, CallSettingsProps } from '../../domain/entities/call-settings.vo.js';
-import { AppointmentSnapshot, Turn, TurnId } from '../../domain/entities/turn.entity.js';
+import { AppointmentSnapshot, Turn, TurnId, TurnOrigin } from '../../domain/entities/turn.entity.js';
 import { TurnStatus } from '../../domain/types/admission.types.js';
 
 export const TURNS_COLLECTION = 'admission_turns';
@@ -32,6 +32,8 @@ export interface TurnDocument {
   date: string;
   number: number;
   label: string;
+  /** Missing in turns stored before pharmacy turns existed: an appointment. */
+  origin?: TurnOrigin;
   appointment: AppointmentSnapshot;
   status: TurnStatus;
   calls: number;
@@ -54,7 +56,7 @@ interface SettingsDocument extends CallSettingsProps {
 
 export async function ensureAdmissionIndexes(db: Db): Promise<void> {
   await db.collection(TURNS_COLLECTION).createIndexes([
-    // One turn per appointment, even with two simultaneous check-ins.
+    // One turn per appointment (and per prescription and day), even with two simultaneous requests.
     { key: { 'appointment.id': 1 }, name: 'appointment_uq', unique: true },
     { key: { teamId: 1, date: 1, arrivedAt: 1 }, name: 'team_date' },
     { key: { teamId: 1, date: 1, lastCalledAt: -1 }, name: 'team_date_called' },
@@ -69,6 +71,7 @@ function toDocument(turn: Turn): TurnDocument {
     date: turn.appointment.date,
     number: turn.number,
     label: turn.label,
+    origin: turn.origin,
     appointment: turn.appointment,
     status: turn.status,
     calls: turn.calls,
@@ -82,6 +85,7 @@ function toDocument(turn: Turn): TurnDocument {
 function toDomain(doc: TurnDocument): Turn {
   return Turn.restore(TurnId.of(doc._id), {
     teamId: TeamId.of(doc.teamId),
+    origin: doc.origin ?? { kind: 'cita' },
     appointment: doc.appointment,
     number: doc.number,
     status: doc.status,
@@ -228,6 +232,7 @@ function toView(doc: TurnDocument): TurnView {
   return {
     id: doc._id,
     label: doc.label,
+    origin: doc.origin ?? { kind: 'cita' },
     code: doc.appointment.service.code,
     number: doc.number,
     status: doc.status,

@@ -17,6 +17,7 @@ import {
   AttendTurn,
   CallTurn,
   CheckIn,
+  IssuePharmacyTurn,
   MarkNoShow,
   UpdateCallSettings,
 } from '../../application/commands/admission.commands.js';
@@ -138,6 +139,12 @@ export const admissionProviders: Provider[] = [
       actors: ActorResolver,
       clock: Clock,
     ) => new CheckIn(turns, appointments, getTurn, actors, clock),
+  },
+  {
+    provide: IssuePharmacyTurn,
+    inject: [TURN_REPOSITORY, GetTurn, ActorResolver, CLOCK],
+    useFactory: (turns: TurnRepository, getTurn: GetTurn, actors: ActorResolver, clock: Clock) =>
+      new IssuePharmacyTurn(turns, getTurn, actors, clock),
   },
   turnChange(CallTurn),
   turnChange(AttendTurn),

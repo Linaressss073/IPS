@@ -69,7 +69,8 @@ export function PageClient() {
   if (access && !allowed) return <NoPermission what="ver los turnos" />;
 
   /** Their own patient: close the turn and open the consultation. */
-  const isMine = (turn: Turn) => can("clinical:write") && turn.professional.userId === access?.userId;
+  const isMine = (turn: Turn) =>
+    turn.origin.kind === "cita" && can("clinical:write") && turn.professional.userId === access?.userId;
   const attendAndConsult = async (turn: Turn) => {
     setBusy(turn.id);
     try {
@@ -142,8 +143,14 @@ export function PageClient() {
                           <p className="font-mono text-lg font-bold text-primary">{turn.label}</p>
                           <p className="truncate font-medium">{turn.patient.fullName ?? "Paciente"}</p>
                           <p className="truncate text-xs text-muted-foreground">
-                            Cita {turn.appointment.time} · {turn.location.label} ·{" "}
-                            {turn.professional.displayName ?? turn.professional.userId}
+                            {turn.origin.kind === "farmacia" ? (
+                              <>Farmacia · llegó {turn.appointment.time} · {turn.location.label}</>
+                            ) : (
+                              <>
+                                Cita {turn.appointment.time} · {turn.location.label} ·{" "}
+                                {turn.professional.displayName ?? turn.professional.userId}
+                              </>
+                            )}
                           </p>
                         </div>
                         <TurnStatusBadge status={turn.status} calls={turn.calls} />

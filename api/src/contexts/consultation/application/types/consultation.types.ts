@@ -18,6 +18,20 @@ export interface UpdateConsultationCommand {
   actor: ActorInput;
 }
 
+/**
+ * What the pharmacy sees of a signed consultation: the prescription and who
+ * signed it, never the clinical note or the diagnoses.
+ */
+export interface PrescriptionView {
+  consultationId: string;
+  patientId: string;
+  physicianId: string;
+  /** Day of the consultation (Colombia). */
+  date: string;
+  signedAt: string;
+  items: PrescriptionItemProps[];
+}
+
 export interface ConsultationView {
   id: string;
   status: string;

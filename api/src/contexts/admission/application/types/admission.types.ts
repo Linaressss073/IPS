@@ -17,6 +17,14 @@ export interface TurnCommand {
   actor: ActorInput;
 }
 
+export interface IssuePharmacyTurnCommand {
+  teamId: TeamId;
+  consultationId: string;
+  patientId: string;
+  window: { id: string; label: string };
+  actor: ActorInput;
+}
+
 export interface UpdateCallSettingsCommand {
   teamId: TeamId;
   announceIntervalSeconds: number;
@@ -39,6 +47,8 @@ export interface ListTurnsQuery {
 export interface TurnView {
   id: string;
   label: string;
+  /** Waiting for an appointment, or to pick up a prescription at the pharmacy. */
+  origin: { kind: 'cita' } | { kind: 'farmacia'; consultationId: string };
   code: string;
   number: number;
   status: string;

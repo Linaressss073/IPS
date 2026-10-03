@@ -76,6 +76,12 @@
 | 409 | `CONSULTATION_SIGNED` | La consulta firmada no se modifica (usar nota aclaratoria) |
 | 409 | `CONSULTATION_NOT_SIGNED` | Las notas aclaratorias van en consultas firmadas |
 | 409 | `CONSULTATION_VERSION_CONFLICT` | La consulta cambió desde que se leyó |
+| 400 | `OVER_DELIVERY` | Se intentó entregar más de lo pendiente |
+| 404 | `PRESCRIPTION_NOT_FOUND` | La consulta no está firmada o no tiene medicamentos |
+| 404 | `WINDOW_NOT_FOUND` | Ventanilla de farmacia desconocida o inactiva |
+| 409 | `NOTHING_PENDING` | La fórmula ya se entregó completa |
+| 409 | `ALREADY_DISPENSED` | No se da turno a una fórmula ya entregada |
+| 409 | `DISPENSATION_VERSION_CONFLICT` | Otra entrega se registró antes |
 | 503 | — | Base de datos caída (`/health`), MongoDB no configurado para organizaciones, o webhooks sin configurar |
 
 ## Cómo reaccionar
