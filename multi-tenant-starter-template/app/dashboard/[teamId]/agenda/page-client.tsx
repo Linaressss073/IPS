@@ -38,6 +38,7 @@ import {
   Slot,
 } from "@/lib/api/scheduling";
 import { useApiAuth } from "@/lib/api/use-api-auth";
+import { PageHeader, PageShell } from "@/components/page-header";
 
 type Panel =
   | { kind: "book"; agenda: Agenda; slot: Slot }
@@ -134,16 +135,21 @@ export function PageClient() {
   };
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Agenda</h2>
-        {canManage && !opening && (
-          <Button onClick={() => setOpening(true)}>
-            <CalendarPlus className="mr-2 h-4 w-4" />
-            Abrir agenda
-          </Button>
-        )}
-      </div>
+    <PageShell>
+      <PageHeader
+        eyebrow="Agendamiento"
+        title="Agenda"
+        description="Cupos de cada profesional por día, en hora de Colombia."
+        actions={
+          canManage &&
+          !opening && (
+            <Button onClick={() => setOpening(true)}>
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              Abrir agenda
+            </Button>
+          )
+        }
+      />
 
       {opening && catalog && (
         <Card>
@@ -297,7 +303,7 @@ export function PageClient() {
           )}
         </SheetContent>
       </Sheet>
-    </div>
+    </PageShell>
   );
 }
 

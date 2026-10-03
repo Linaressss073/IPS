@@ -59,7 +59,7 @@ export function useAccess() {
 /** Message for pages the user's roles do not allow. */
 export function NoPermission(props: { what: string }) {
   return (
-    <div className="flex-1 p-8 pt-6">
+    <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 md:px-8 md:py-8">
       <p className="max-w-xl rounded-md border px-4 py-3 text-sm text-muted-foreground">
         Tus roles en esta IPS no permiten {props.what}. Si lo necesitas, pide a un administrador que te asigne el
         rol correspondiente en Administración → Personal.

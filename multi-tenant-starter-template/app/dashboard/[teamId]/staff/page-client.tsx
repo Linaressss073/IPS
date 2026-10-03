@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { assignRoles, listStaff, ROLE_LABELS, StaffMember } from "@/lib/api/staff";
 import { useApiAuth } from "@/lib/api/use-api-auth";
+import { PageHeader, PageShell } from "@/components/page-header";
 
 /** Administración → Personal: who works at the IPS and their roles (admins only). */
 export function PageClient() {
@@ -31,8 +32,12 @@ export function PageClient() {
   if (access && !can("staff:manage")) return <NoPermission what="gestionar el personal" />;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <h2 className="text-2xl font-bold tracking-tight">Personal</h2>
+    <PageShell>
+      <PageHeader
+        eyebrow="Administración"
+        title="Personal"
+        description="Quién trabaja en la IPS y qué roles tiene."
+      />
       <Card>
         <CardHeader>
           <CardTitle>Roles en la IPS</CardTitle>
@@ -83,7 +88,7 @@ export function PageClient() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
 

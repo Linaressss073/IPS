@@ -28,6 +28,7 @@ import {
   updatePatient,
 } from "@/lib/api/patients";
 import { useApiAuth } from "@/lib/api/use-api-auth";
+import { PageHeader, PageShell } from "@/components/page-header";
 
 /** The timeline is read from Mongo, which lags the write by up to one relay interval. */
 const TIMELINE_REFRESH_DELAY_MS = 1000;
@@ -71,7 +72,7 @@ export function PageClient() {
   if (access && !can("patients:read")) return <NoPermission what="ver pacientes" />;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <PageShell>
       <Button variant="ghost" size="sm" asChild>
         <Link href={listUrl}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -89,7 +90,8 @@ export function PageClient() {
         <>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">{patient.fullName}</h2>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Paciente</p>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{patient.fullName}</h1>
               <p className="text-sm text-muted-foreground">
                 {patient.document.type} {patient.document.number} · {ageFrom(patient.birthDate)} años
               </p>
@@ -170,7 +172,7 @@ export function PageClient() {
           </div>
         </>
       )}
-    </div>
+    </PageShell>
   );
 }
 

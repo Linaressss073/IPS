@@ -7,6 +7,7 @@ import { useTeamMembers } from "@/components/patients/use-team-members";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { registerPatient } from "@/lib/api/patients";
 import { useApiAuth } from "@/lib/api/use-api-auth";
+import { PageHeader, PageShell } from "@/components/page-header";
 
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
@@ -19,8 +20,12 @@ export function PageClient() {
   if (access && !can("patients:write")) return <NoPermission what="registrar pacientes" />;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <h2 className="text-2xl font-bold tracking-tight">Registrar paciente</h2>
+    <PageShell>
+      <PageHeader
+        eyebrow="Pacientes"
+        title="Registrar paciente"
+        description="Sus datos quedan disponibles para agendamiento, admisión, consulta y farmacia."
+      />
       <Card className="max-w-3xl">
         <CardHeader>
           <CardTitle>Datos del paciente</CardTitle>
@@ -41,6 +46,6 @@ export function PageClient() {
           />
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

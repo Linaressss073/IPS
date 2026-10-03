@@ -20,6 +20,7 @@ import {
   updateService,
 } from "@/lib/api/scheduling";
 import { useApiAuth } from "@/lib/api/use-api-auth";
+import { PageHeader, PageShell } from "@/components/page-header";
 
 /** Administración → Servicios y consultorios: what agendas are built from. */
 export function PageClient() {
@@ -49,8 +50,12 @@ export function PageClient() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <h2 className="text-2xl font-bold tracking-tight">Servicios y consultorios</h2>
+    <PageShell>
+      <PageHeader
+        eyebrow="Administración"
+        title="Servicios y consultorios"
+        description="Lo que necesitan las agendas: servicios con su prefijo de turno y los lugares de atención."
+      />
       {error && (
         <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
@@ -120,7 +125,7 @@ export function PageClient() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageShell>
   );
 }
 
