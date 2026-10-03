@@ -15,6 +15,8 @@ export function AppointmentPanel(props: {
   onConfirm: () => Promise<void>;
   onCancel: (reason: string) => Promise<void>;
   onReschedule: () => void;
+  /** Shown to the appointment's physician: opens (or resumes) its consultation. */
+  onConsult?: () => Promise<void>;
 }) {
   const { appointment: a } = props;
   const [reason, setReason] = React.useState("");
@@ -61,6 +63,12 @@ export function AppointmentPanel(props: {
           </React.Fragment>
         ))}
       </dl>
+
+      {props.onConsult && open && (
+        <Button size="sm" disabled={busy} onClick={() => run(props.onConsult!)}>
+          Abrir consulta
+        </Button>
+      )}
 
       {props.canManage && open && !cancelling && (
         <div className="flex flex-wrap gap-2">

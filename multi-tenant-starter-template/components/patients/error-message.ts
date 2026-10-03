@@ -39,6 +39,13 @@ const MESSAGES: Record<string, string> = {
   INVALID_TURN_TRANSITION: "El turno ya no está en un estado que permita esa acción.",
   MAX_CALLS_REACHED: "El turno ya se llamó el máximo de veces.",
   TURN_VERSION_CONFLICT: "El turno cambió (otro llamado o un reanuncio). Se actualizó la lista; inténtalo de nuevo.",
+  CONSULTATION_NOT_FOUND: "La consulta no existe en esta IPS.",
+  NOT_THE_TREATING_PHYSICIAN: "Solo el médico de la cita puede escribir esta consulta.",
+  APPOINTMENT_NOT_ATTENDABLE: "Esta cita no se puede atender (cancelada o de un día futuro).",
+  CONSULTATION_SIGNED: "La consulta ya está firmada: agrega una nota aclaratoria.",
+  CONSULTATION_NOT_SIGNED: "Firma la consulta antes de agregar notas aclaratorias.",
+  CONSULTATION_INCOMPLETE: "Para firmar falta el motivo de consulta o el diagnóstico principal.",
+  CONSULTATION_VERSION_CONFLICT: "La consulta cambió en otra pestaña. Recarga para ver la última versión.",
   ORGANIZATION_NOT_FOUND: "La IPS no existe o fue eliminada.",
   ORGANIZATION_VERSION_CONFLICT:
     "Otra persona modificó los datos de la IPS mientras los editabas. Recarga para ver los cambios.",

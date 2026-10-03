@@ -12,6 +12,7 @@ Esta carpeta documenta todos los endpoints disponibles; el código fuente está 
 | [05-webhooks.md](05-webhooks.md) | Webhooks de Clerk |
 | [06-scheduling.md](06-scheduling.md) | Agendamiento: servicios, consultorios, agendas y citas |
 | [07-admission.md](07-admission.md) | Admisión, turnos, pantalla de sala y reanuncio automático |
+| [08-consultation.md](08-consultation.md) | Consulta médica: historia clínica, firma, notas aclaratorias y fórmula |
 | [errors.md](errors.md) | Formato de errores y catálogo de códigos |
 | [requests.http](requests.http) | Colección de peticiones lista para ejecutar (VS Code REST Client / IntelliJ) |
 
@@ -60,6 +61,9 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | POST | `/teams/:teamId/turns/:id/call` · `/attend` · `/no-show` | `turns:call` | 200 | [Admisión](07-admission.md#llamar-atender-no-se-presentó) |
 | GET | `/teams/:teamId/turns/board` | Miembro | 200 | [Admisión](07-admission.md#pantalla-de-sala) |
 | GET · PUT | `/teams/:teamId/admission/settings` | Miembro · `settings:manage` | 200 | [Admisión](07-admission.md#configuración-del-llamado) |
+| POST | `/teams/:teamId/consultations` | `clinical:write` | 200 | [Consulta](08-consultation.md#iniciar) |
+| GET | `/teams/:teamId/consultations` · `/:id` | `clinical:read` | 200 | [Consulta](08-consultation.md#endpoints) |
+| PATCH · POST | `/teams/:teamId/consultations/:id` · `/sign` · `/addenda` | `clinical:write` | 200 | [Consulta](08-consultation.md#guardar-borrador) |
 | GET | `/organizations/:teamId` | Miembro | 200 | [Organizaciones](04-organizations.md#ver-ips) |
 | PATCH | `/organizations/:teamId` | **Administrador** | 200 | [Organizaciones](04-organizations.md#actualizar-ips) |
 | DELETE | `/organizations/:teamId` | **Administrador** | 204 | [Organizaciones](04-organizations.md#eliminar-ips) |
@@ -94,6 +98,8 @@ La API valida la firma del token contra Clerk y que haya sido emitido para el fr
 | `appointments:manage` | ✓ | ✓ | | | | |
 | `admission:manage` | ✓ | | ✓ | | | |
 | `turns:call` | | | ✓ | ✓ | ✓ | |
+| `clinical:read` | | | | ✓ | | |
+| `clinical:write` | | | | ✓ | | |
 | `settings:manage` | ✓ | | | | | |
 | `staff:manage` | ✓ | | | | | |
 

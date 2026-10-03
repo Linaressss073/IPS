@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { errorMessage } from "@/components/patients/error-message";
 import { NoPermission, useAccess } from "@/components/access/access-context";
 import { CompanionsCard } from "@/components/patients/companions-card";
+import { ClinicalHistoryCard } from "@/components/consultation/clinical-history-card";
 import { PatientAppointmentsCard } from "@/components/scheduling/patient-appointments-card";
 import { PatientForm } from "@/components/patients/patient-form";
 import { memberName, TeamMember, useTeamMembers } from "@/components/patients/use-team-members";
@@ -135,6 +136,10 @@ export function PageClient() {
                   )}
                 </CardContent>
               </Card>
+
+              {can("clinical:read") && (
+                <ClinicalHistoryCard auth={auth} teamId={teamId} patientId={patientId} />
+              )}
 
               {can("appointments:read") && (
                 <PatientAppointmentsCard

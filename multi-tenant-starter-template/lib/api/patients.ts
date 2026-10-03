@@ -124,6 +124,9 @@ export const TIMELINE_EVENTS: Record<string, string> = {
   "turn.called": "Llamado en pantalla",
   "turn.attended": "Atendido",
   "turn.no_show": "No se presentó",
+  "consultation.started": "Consulta iniciada",
+  "consultation.signed": "Consulta firmada",
+  "consultation.addendum_added": "Nota aclaratoria en la consulta",
 };
 
 const base = (teamId: string) => `/teams/${encodeURIComponent(teamId)}/patients`;

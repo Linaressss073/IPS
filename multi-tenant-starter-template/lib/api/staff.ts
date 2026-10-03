@@ -24,6 +24,8 @@ export type Permission =
   | "appointments:manage"
   | "admission:manage"
   | "turns:call"
+  | "clinical:read"
+  | "clinical:write"
   | "settings:manage"
   | "staff:manage";
 
