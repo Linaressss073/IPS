@@ -2,6 +2,7 @@ import { MongoServerError, type Collection, type Db } from 'mongodb';
 import { TeamId } from '../../../../shared/domain/index.js';
 import {
   OrganizationAlreadyStoredError,
+  OrganizationNotFoundError,
   OrganizationVersionConflictError,
 } from '../../application/errors/organization.errors.js';
 import { OrganizationRepository } from '../../application/ports/organization.repository.port.js';
@@ -38,9 +39,14 @@ export class MongoOrganizationRepository implements OrganizationRepository {
     this.collection = mongo.collection<OrganizationDocument>(ORGANIZATIONS_COLLECTION);
   }
 
-  async findById(id: TeamId): Promise<Organization | null> {
+  async exists(id: TeamId): Promise<boolean> {
+    return (await this.collection.countDocuments({ _id: id.value }, { limit: 1 })) > 0;
+  }
+
+  async getById(id: TeamId): Promise<Organization> {
     const doc = await this.collection.findOne({ _id: id.value });
-    return doc ? toDomain(doc) : null;
+    if (!doc) throw new OrganizationNotFoundError(id);
+    return toDomain(doc);
   }
 
   async insert(organization: Organization): Promise<void> {

@@ -120,6 +120,10 @@ export const TIMELINE_EVENTS: Record<string, string> = {
   "appointment.confirmed": "Cita confirmada",
   "appointment.rescheduled": "Cita reprogramada",
   "appointment.cancelled": "Cita cancelada",
+  "turn.checked_in": "Llegó a la IPS",
+  "turn.called": "Llamado en pantalla",
+  "turn.attended": "Atendido",
+  "turn.no_show": "No se presentó",
 };
 
 const base = (teamId: string) => `/teams/${encodeURIComponent(teamId)}/patients`;

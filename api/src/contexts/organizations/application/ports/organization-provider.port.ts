@@ -3,7 +3,8 @@ import { ProviderOrganization } from '../types/organization.types.js';
 
 /** Port: organizations in the identity provider (Clerk), the owner of access. */
 export interface OrganizationProvider {
-  find(id: TeamId): Promise<ProviderOrganization | null>;
+  /** Throws OrganizationNotFoundError if the provider does not have it. */
+  get(id: TeamId): Promise<ProviderOrganization>;
 
   /** Keeps the provider's name equal to ours. */
   rename(id: TeamId, name: string): Promise<void>;

@@ -1,6 +1,7 @@
 import type { ClerkClient } from '@clerk/backend';
 import { isClerkAPIResponseError } from '@clerk/backend/errors';
 import { TeamId } from '../../../../../shared/domain/index.js';
+import { OrganizationNotFoundError } from '../../../application/errors/organization.errors.js';
 import { OrganizationProvider } from '../../../application/ports/organization-provider.port.js';
 import { ProviderOrganization } from '../../../application/types/organization.types.js';
 
@@ -10,14 +11,16 @@ const PAGE_SIZE = 100;
 export class ClerkOrganizationProvider implements OrganizationProvider {
   constructor(private readonly clerk: ClerkClient) {}
 
-  async find(id: TeamId): Promise<ProviderOrganization | null> {
+  async get(id: TeamId): Promise<ProviderOrganization> {
     try {
       const organization = await this.clerk.organizations.getOrganization({
         organizationId: id.value,
       });
       return toProviderOrganization(organization);
     } catch (error) {
-      if (isClerkAPIResponseError(error) && error.status === 404) return null;
+      if (isClerkAPIResponseError(error) && error.status === 404) {
+        throw new OrganizationNotFoundError(id);
+      }
       throw error;
     }
   }

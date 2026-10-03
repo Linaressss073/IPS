@@ -1,6 +1,8 @@
 import type { Collection, Db, Filter } from 'mongodb';
 import { TeamId } from '../../../../shared/domain/index.js';
+import { PatientNotFoundError } from '../../application/errors/patient.errors.js';
 import { PatientReadModel } from '../../application/ports/patient-read-model.port.js';
+import { PatientId } from '../../domain/entities/patient-id.vo.js';
 import {
   Page,
   PatientSummaryView,
@@ -18,12 +20,10 @@ export class MongoPatientReadModel implements PatientReadModel {
     this.patients = db.collection<PatientDocument>(PATIENTS_COLLECTION);
   }
 
-  async findById(
-    teamId: TeamId,
-    patientId: string,
-  ): Promise<PatientView | null> {
+  async getById(teamId: TeamId, patientId: string): Promise<PatientView> {
     const doc = await this.patients.findOne({ _id: patientId, teamId: teamId.value });
-    return doc ? PatientMapper.toView(doc) : null;
+    if (!doc) throw new PatientNotFoundError(PatientId.of(patientId));
+    return PatientMapper.toView(doc);
   }
 
   async summaries(
@@ -42,6 +42,7 @@ export class MongoPatientReadModel implements PatientReadModel {
         {
           id: doc._id,
           fullName: Object.values(doc.name).filter(Boolean).join(' '),
+          shortName: `${doc.name.firstName} ${doc.name.firstLastName}`,
           document: { ...doc.document },
         },
       ]),

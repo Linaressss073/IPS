@@ -30,11 +30,14 @@ export class AssignStaffRoles {
   }): Promise<StaffMemberView> {
     const roles = StaffRoles.of(command.roles);
 
-    const providerRole = await this.members.roleIn(UserId.of(command.userId), command.teamId);
-    if (!providerRole) throw new StaffMemberNotFoundError(command.teamId, command.userId);
+    const userId = UserId.of(command.userId);
+    if (!(await this.members.isMember(userId, command.teamId))) {
+      throw new StaffMemberNotFoundError(command.teamId, command.userId);
+    }
+    const providerRole = await this.members.roleIn(userId, command.teamId);
     await this.staff.ensureMembership(command.teamId, command.userId, `org:${providerRole}`);
 
-    const before = (await this.readModel.rolesOf(command.teamId, command.userId)) ?? [];
+    const before = await this.readModel.rolesOf(command.teamId, command.userId);
     if (!sameRoles(before, roles.value)) {
       await this.staff.setRoles(command.teamId, command.userId, roles.value, [
         newTraceEvent({
@@ -48,9 +51,7 @@ export class AssignStaffRoles {
       ]);
     }
 
-    const member = await this.readModel.member(command.teamId, command.userId);
-    if (!member) throw new StaffMemberNotFoundError(command.teamId, command.userId);
-    return member;
+    return this.readModel.getMember(command.teamId, command.userId);
   }
 }
 

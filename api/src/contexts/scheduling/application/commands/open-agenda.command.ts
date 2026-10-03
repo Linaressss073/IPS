@@ -1,9 +1,8 @@
+import { formatTime } from '../../../../shared/domain/index.js';
 import { ActorResolver, Clock, newTraceEvent } from '../../../../shared/application/index.js';
 import { Agenda } from '../../domain/entities/agenda.entity.js';
-import { formatTime } from '../../domain/utils/colombia-time.js';
 import { AGENDA_OPENED } from '../constants/trace-event-types.js';
 import {
-  AgendaOverlapError,
   InactiveResourceError,
   NotAProfessionalError,
 } from '../errors/scheduling.errors.js';
@@ -46,8 +45,7 @@ export class OpenAgenda {
       locationId: location.id,
       now,
     });
-    const overlap = await this.agendas.findOverlap(agenda);
-    if (overlap) throw new AgendaOverlapError(overlap);
+    await this.agendas.assertNoOverlap(agenda);
 
     await this.agendas.add(agenda, [
       newTraceEvent({

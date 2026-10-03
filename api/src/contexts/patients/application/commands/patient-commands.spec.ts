@@ -8,7 +8,6 @@ import {
   RequesterNotATeamMemberError,
 } from '../errors/patient.errors.js';
 import { ActorResolver } from '../../../../shared/application/index.js';
-import { PatientFinder } from '../services/patient-finder.service.js';
 import { PatientInput } from '../types/patient.types.js';
 import { RecordCompanion } from './record-companion.command.js';
 import { RegisterPatient } from './register-patient.command.js';
@@ -46,7 +45,7 @@ describe('Patient commands', () => {
     repo = new InMemoryPatientRepository();
     const actors = new ActorResolver(members);
     register = new RegisterPatient(repo, actors, clock);
-    update = new UpdatePatient(repo, new PatientFinder(repo), actors, clock);
+    update = new UpdatePatient(repo, actors, clock);
     recordCompanion = new RecordCompanion(repo, actors, clock);
   });
 

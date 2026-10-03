@@ -26,8 +26,10 @@ class FakeProvider implements OrganizationProvider {
   readonly renamed: string[] = [];
   readonly deleted: string[] = [];
 
-  async find(id: TeamId) {
-    return this.organizations.get(id.value) ?? null;
+  async get(id: TeamId) {
+    const organization = this.organizations.get(id.value);
+    if (!organization) throw new OrganizationNotFoundError(id);
+    return organization;
   }
   async rename(_id: TeamId, name: string) {
     this.renamed.push(name);
@@ -72,7 +74,7 @@ describe('Organization commands', () => {
   it('imports the organization from the provider the first time it is read', async () => {
     const view = await new GetOrganization(finder).execute({ teamId: ipsId });
     expect(view).toMatchObject({ id: ipsId.value, name: 'IPS Alfa', version: 1, nit: null });
-    expect(await repo.findById(ipsId)).not.toBeNull();
+    expect(await repo.exists(ipsId)).toBe(true);
   });
 
   it('updates profile fields, keeps the others and clears with null', async () => {
@@ -110,7 +112,7 @@ describe('Organization commands', () => {
       deletedBy: 'user_admin',
     });
     expect(provider.deleted).toEqual([ipsId.value]);
-    const stored = await repo.findById(ipsId);
+    const stored = await repo.getById(ipsId);
     expect(stored).toMatchObject({ isDeleted: true, deletedBy: 'user_admin' });
     await expect(new GetOrganization(finder).execute({ teamId: ipsId })).rejects.toThrow(
       OrganizationNotFoundError,
@@ -128,10 +130,10 @@ describe('Organization commands', () => {
     await change('IPS Alfa', '2026-10-01T00:00:00Z');
     await change('IPS Alfa Norte', '2026-10-02T00:00:00Z');
     await change('Nombre viejo', '2026-09-01T00:00:00Z');
-    expect((await repo.findById(ipsId))?.name.value).toBe('IPS Alfa Norte');
+    expect((await repo.getById(ipsId)).name.value).toBe('IPS Alfa Norte');
 
     await apply.execute({ kind: 'organization.deleted', id: ipsId });
-    expect((await repo.findById(ipsId))?.isDeleted).toBe(true);
+    expect((await repo.getById(ipsId)).isDeleted).toBe(true);
   });
 
   it('reconciles with the provider, marking the ones it no longer has as deleted', async () => {
@@ -143,12 +145,12 @@ describe('Organization commands', () => {
     // Deleted in Clerk while its webhook was missed.
     provider.organizations.delete(other.value);
     expect(await sync.execute()).toEqual({ applied: 1, removed: 1 });
-    expect((await repo.findById(other))?.isDeleted).toBe(true);
-    expect((await repo.findById(ipsId))?.isDeleted).toBe(false);
+    expect((await repo.getById(other)).isDeleted).toBe(true);
+    expect((await repo.getById(ipsId)).isDeleted).toBe(false);
 
     // An empty answer from the provider deletes nothing.
     provider.organizations.clear();
     expect(await sync.execute()).toEqual({ applied: 0, removed: 0 });
-    expect((await repo.findById(ipsId))?.isDeleted).toBe(false);
+    expect((await repo.getById(ipsId)).isDeleted).toBe(false);
   });
 });

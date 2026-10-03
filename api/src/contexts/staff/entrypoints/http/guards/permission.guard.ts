@@ -18,8 +18,8 @@ import { Permission } from '../../../domain/constants/permissions.js';
 const REQUIRED_PERMISSION = 'staff:required-permission';
 
 /**
- * Lets the request through only if the caller's roles in the IPS grant the
- * permission set with @RequirePermission. Runs after TeamMemberGuard.
+ * Lets the request through only if the caller's roles in the IPS grant one
+ * of the permissions set with @RequirePermission. Runs after TeamMemberGuard.
  */
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -29,27 +29,26 @@ export class PermissionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const permission = this.reflector.getAllAndOverride<Permission>(REQUIRED_PERMISSION, [
+    const permissions = this.reflector.getAllAndOverride<Permission[]>(REQUIRED_PERMISSION, [
       context.getHandler(),
       context.getClass(),
     ]);
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const allowed = await this.access.allows(
-      {
-        teamId: request.teamId!,
-        userId: request.auth!.userId.value,
-        isAdmin: request.teamRole === TEAM_ADMIN_ROLE,
-      },
-      permission,
-    );
-    if (!allowed) throw new PermissionDeniedError(permission);
+    const access = await this.access.accessOf({
+      teamId: request.teamId!,
+      userId: request.auth!.userId.value,
+      isAdmin: request.teamRole === TEAM_ADMIN_ROLE,
+    });
+    if (!permissions.some((permission) => access.permissions.includes(permission))) {
+      throw new PermissionDeniedError(permissions.join(' | '));
+    }
     return true;
   }
 }
 
-/** Token + membership of `:teamId` + the given permission. */
-export const RequirePermission = (permission: Permission) =>
+/** Token + membership of `:teamId` + any one of the given permissions. */
+export const RequirePermission = (...permissions: [Permission, ...Permission[]]) =>
   applyDecorators(
-    SetMetadata(REQUIRED_PERMISSION, permission),
+    SetMetadata(REQUIRED_PERMISSION, permissions),
     UseGuards(AccessTokenGuard, TeamMemberGuard, PermissionGuard),
   );

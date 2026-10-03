@@ -3,6 +3,7 @@ import { TeamId } from '../../../../shared/domain/index.js';
 import { PATIENT_COMPANION_RECORDED } from '../../application/constants/trace-event-types.js';
 import {
   DocumentAlreadyRegisteredError,
+  PatientNotFoundError,
   PatientVersionConflictError,
 } from '../../application/errors/patient.errors.js';
 import { PatientRepository } from '../../application/ports/patient.repository.port.js';
@@ -19,9 +20,10 @@ export class InMemoryPatientRepository implements PatientRepository {
   readonly rows = new Map<string, PatientFields>();
   readonly events: TraceEvent[] = [];
 
-  async findById(teamId: TeamId, id: PatientId): Promise<Patient | null> {
+  async getById(teamId: TeamId, id: PatientId): Promise<Patient> {
     const row = this.rows.get(id.value);
-    return row?.teamId === teamId.value ? PatientMapper.toDomain(row) : null;
+    if (row?.teamId !== teamId.value) throw new PatientNotFoundError(id);
+    return PatientMapper.toDomain(row);
   }
 
   async existsByDocument(
@@ -48,8 +50,10 @@ export class InMemoryPatientRepository implements PatientRepository {
     teamId: TeamId,
     patientId: PatientId,
     toEvent: (number: number) => TraceEvent,
-  ): Promise<TraceEvent | null> {
-    if (this.rows.get(patientId.value)?.teamId !== teamId.value) return null;
+  ): Promise<TraceEvent> {
+    if (this.rows.get(patientId.value)?.teamId !== teamId.value) {
+      throw new PatientNotFoundError(patientId);
+    }
     const previous = this.events.filter(
       (e) =>
         e.patientId === patientId.value && e.type === PATIENT_COMPANION_RECORDED,

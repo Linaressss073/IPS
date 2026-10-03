@@ -24,10 +24,7 @@ export class AccessTokenGuard implements CanActivate {
       throw new UnauthorizedException('Missing bearer token');
     }
 
-    const user = await this.verifier.verify(token);
-    if (!user) throw new UnauthorizedException('Invalid or expired token');
-
-    request.auth = user;
+    request.auth = await this.verifier.verify(token);
     return true;
   }
 }

@@ -8,7 +8,6 @@ import {
 import { TeamId } from '../../../../../shared/domain/index.js';
 import { TEAM_MEMBERSHIP_CHECKER } from '../../../application/constants/injection-tokens.js';
 import type { TeamMembershipChecker } from '../../../application/ports/team-membership-checker.port.js';
-import { NotATeamMemberError } from '../../../domain/errors/not-a-team-member.error.js';
 import { AuthenticatedRequest } from './authenticated-request.js';
 
 /**
@@ -31,10 +30,10 @@ export class TeamMemberGuard implements CanActivate {
 
     const teamId = TeamId.of(String(request.params.teamId));
     const selectedInToken = teamId.equals(auth.selectedTeamId ?? undefined);
+    // roleIn throws NotATeamMemberError (403) for anyone outside the team.
     const role = selectedInToken
       ? (auth.selectedTeamRole ?? (await this.membership.roleIn(auth.userId, teamId)))
       : await this.membership.roleIn(auth.userId, teamId);
-    if (!role) throw new NotATeamMemberError(teamId);
 
     request.teamId = teamId;
     request.teamRole = role;

@@ -5,12 +5,12 @@ import SidebarLayout, { SidebarItem } from "@/components/sidebar-layout";
 import { useClerkAppearance } from "@/lib/clerk-appearance";
 import { Permission } from "@/lib/api/staff";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/nextjs";
-import { Building2, CalendarDays, Contact, Home, Stethoscope, Users } from "lucide-react";
+import { Building2, CalendarDays, ClipboardCheck, Contact, Home, ListOrdered, MonitorPlay, Stethoscope, Users } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
-/** Each item is shown only if the user's roles grant `requires`. */
-const navigationItems: (SidebarItem & { requires?: Permission })[] = [
+/** Each item is shown only if the user's roles grant one of `requires`. */
+const navigationItems: (SidebarItem & { requires?: Permission[] })[] = [
   {
     name: "Inicio",
     href: "/",
@@ -26,14 +26,34 @@ const navigationItems: (SidebarItem & { requires?: Permission })[] = [
     href: "/patients",
     icon: Contact,
     type: "item",
-    requires: "patients:read",
+    requires: ["patients:read"],
   },
   {
     name: "Agenda",
     href: "/agenda",
     icon: CalendarDays,
     type: "item",
-    requires: "appointments:read",
+    requires: ["appointments:read"],
+  },
+  {
+    name: "Admisión",
+    href: "/admission",
+    icon: ClipboardCheck,
+    type: "item",
+    requires: ["admission:manage"],
+  },
+  {
+    name: "Turnos",
+    href: "/turns",
+    icon: ListOrdered,
+    type: "item",
+    requires: ["turns:call", "admission:manage"],
+  },
+  {
+    name: "Pantalla de sala",
+    href: "/turns/screen",
+    icon: MonitorPlay,
+    type: "item",
   },
   {
     type: 'label',
@@ -44,14 +64,14 @@ const navigationItems: (SidebarItem & { requires?: Permission })[] = [
     href: "/staff",
     icon: Users,
     type: "item",
-    requires: "staff:manage",
+    requires: ["staff:manage"],
   },
   {
     name: "Servicios y consultorios",
     href: "/scheduling-settings",
     icon: Stethoscope,
     type: "item",
-    requires: "settings:manage",
+    requires: ["settings:manage"],
   },
   {
     name: "Datos de la IPS",
@@ -95,7 +115,7 @@ export default function Layout(props: { children: React.ReactNode }) {
 function TeamShell(props: { teamId: string; teamName: string; children: React.ReactNode }) {
   const { can } = useAccess();
   const appearance = useClerkAppearance();
-  const items = navigationItems.filter((item) => !item.requires || can(item.requires));
+  const items = navigationItems.filter((item) => !item.requires || item.requires.some(can));
 
   return (
     <SidebarLayout

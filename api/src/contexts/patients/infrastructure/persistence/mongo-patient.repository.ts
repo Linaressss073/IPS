@@ -9,6 +9,7 @@ import { appendTraceEvents } from '../../../../shared/infrastructure/persistence
 import { PATIENT_COMPANION_RECORDED } from '../../application/constants/trace-event-types.js';
 import {
   DocumentAlreadyRegisteredError,
+  PatientNotFoundError,
   PatientVersionConflictError,
 } from '../../application/errors/patient.errors.js';
 import { PatientRepository } from '../../application/ports/patient.repository.port.js';
@@ -29,9 +30,10 @@ export class MongoPatientRepository implements PatientRepository {
     this.patients = db.collection<PatientDocument>(PATIENTS_COLLECTION);
   }
 
-  async findById(teamId: TeamId, id: PatientId): Promise<Patient | null> {
+  async getById(teamId: TeamId, id: PatientId): Promise<Patient> {
     const doc = await this.patients.findOne({ _id: id.value, teamId: teamId.value });
-    return doc ? PatientMapper.toDomain(doc) : null;
+    if (!doc) throw new PatientNotFoundError(id);
+    return PatientMapper.toDomain(doc);
   }
 
   async existsByDocument(
@@ -95,14 +97,14 @@ export class MongoPatientRepository implements PatientRepository {
     teamId: TeamId,
     patientId: PatientId,
     toEvent: (number: number) => TraceEvent,
-  ): Promise<TraceEvent | null> {
+  ): Promise<TraceEvent> {
     return inTransaction(this.client, async (session) => {
       const patient = await this.patients.findOneAndUpdate(
         { _id: patientId.value, teamId: teamId.value },
         { $inc: { companionCount: 1 } },
         { session, returnDocument: 'after', projection: { companionCount: 1 } },
       );
-      if (!patient) return null;
+      if (!patient) throw new PatientNotFoundError(patientId);
       const event = toEvent(patient.companionCount);
       await appendTraceEvents(this.db, [event], session);
       return event;

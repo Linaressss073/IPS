@@ -6,8 +6,8 @@ import {
 } from '../errors/patient.errors.js';
 import { PatientInputMapper } from '../mappings/patient-input.mapper.js';
 import { toPatientView } from '../mappings/patient-view.mapper.js';
+import { PatientId } from '../../domain/entities/patient-id.vo.js';
 import { PatientRepository } from '../ports/patient.repository.port.js';
-import { PatientFinder } from '../services/patient-finder.service.js';
 import { PatientView, UpdatePatientCommand } from '../types/patient.types.js';
 
 /**
@@ -17,14 +17,13 @@ import { PatientView, UpdatePatientCommand } from '../types/patient.types.js';
 export class UpdatePatient {
   constructor(
     private readonly patients: PatientRepository,
-    private readonly finder: PatientFinder,
     private readonly actors: ActorResolver,
     private readonly clock: Clock,
   ) {}
 
   async execute(command: UpdatePatientCommand): Promise<PatientView> {
     const actor = await this.actors.resolve(command.teamId, command.actor);
-    const patient = await this.finder.getOrFail(command);
+    const patient = await this.patients.getById(command.teamId, PatientId.of(command.patientId));
     if (patient.version !== command.expectedVersion) {
       throw new PatientVersionConflictError(patient.id);
     }

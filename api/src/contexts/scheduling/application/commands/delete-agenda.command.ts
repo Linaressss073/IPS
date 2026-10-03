@@ -1,5 +1,5 @@
+import { formatTime } from '../../../../shared/domain/index.js';
 import { ActorResolver, Clock, newTraceEvent } from '../../../../shared/application/index.js';
-import { formatTime } from '../../domain/utils/colombia-time.js';
 import { AGENDA_DELETED } from '../constants/trace-event-types.js';
 import { AgendaHasAppointmentsError } from '../errors/scheduling.errors.js';
 import {

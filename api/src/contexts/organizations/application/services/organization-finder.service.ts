@@ -21,14 +21,13 @@ export class OrganizationFinder {
   ) {}
 
   async getOrImport(id: TeamId): Promise<Organization> {
-    const stored = await this.organizations.findById(id);
-    if (stored) {
+    if (await this.organizations.exists(id)) {
+      const stored = await this.organizations.getById(id);
       if (stored.isDeleted) throw new OrganizationNotFoundError(id);
       return stored;
     }
 
-    const fromProvider = await this.provider.find(id);
-    if (!fromProvider) throw new OrganizationNotFoundError(id);
+    const fromProvider = await this.provider.get(id);
     const organization = Organization.importFromProvider({
       id,
       name: OrganizationName.of(fromProvider.name),

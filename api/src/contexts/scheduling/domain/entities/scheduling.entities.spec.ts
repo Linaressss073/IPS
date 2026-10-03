@@ -1,4 +1,4 @@
-import { InvalidValueError, TeamId } from '../../../../shared/domain/index.js';
+import { colombiaDate, colombiaInstant, InvalidValueError, parseTime, TeamId } from '../../../../shared/domain/index.js';
 import {
   InvalidAgendaError,
   InvalidAppointmentTransitionError,
@@ -6,7 +6,6 @@ import {
   RescheduleServiceMismatchError,
   SlotNotInAgendaError,
 } from '../errors/scheduling.errors.js';
-import { colombiaDate, colombiaInstant, parseTime } from '../utils/colombia-time.js';
 import { Agenda } from './agenda.entity.js';
 import { Appointment } from './appointment.entity.js';
 import { CareLocation } from './care-location.entity.js';

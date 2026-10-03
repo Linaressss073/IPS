@@ -1,4 +1,4 @@
-import { Entity, InvalidValueError, TeamId } from '../../../../shared/domain/index.js';
+import { Entity, formatTime, InvalidValueError, parseTime, TeamId } from '../../../../shared/domain/index.js';
 import {
   CANCEL_REASON_MAX_LENGTH,
   CANCEL_REASON_MIN_LENGTH,
@@ -10,7 +10,6 @@ import {
   SlotNotInAgendaError,
 } from '../errors/scheduling.errors.js';
 import { AppointmentStatus } from '../types/scheduling.types.js';
-import { formatTime, parseTime } from '../utils/colombia-time.js';
 import { requiredText } from '../utils/text.js';
 import { Agenda } from './agenda.entity.js';
 import { CareLocation } from './care-location.entity.js';

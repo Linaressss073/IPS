@@ -11,6 +11,7 @@ Esta carpeta documenta todos los endpoints disponibles; el código fuente está 
 | [04-organizations.md](04-organizations.md) | Datos de la IPS (colección `organizations` de MongoDB) |
 | [05-webhooks.md](05-webhooks.md) | Webhooks de Clerk |
 | [06-scheduling.md](06-scheduling.md) | Agendamiento: servicios, consultorios, agendas y citas |
+| [07-admission.md](07-admission.md) | Admisión, turnos, pantalla de sala y reanuncio automático |
 | [errors.md](errors.md) | Formato de errores y catálogo de códigos |
 | [requests.http](requests.http) | Colección de peticiones lista para ejecutar (VS Code REST Client / IntelliJ) |
 
@@ -54,6 +55,11 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | GET | `/teams/:teamId/appointments/:appointmentId` | `appointments:read` | 200 | [Agendamiento](06-scheduling.md#appointmentview) |
 | POST | `/teams/:teamId/appointments` | `appointments:manage` | 201 | [Agendamiento](06-scheduling.md#agendar) |
 | POST | `/teams/:teamId/appointments/:id/confirm` · `/cancel` · `/reschedule` | `appointments:manage` | 200 | [Agendamiento](06-scheduling.md#confirmar-cancelar-reprogramar) |
+| POST | `/teams/:teamId/turns` | `admission:manage` | 201 | [Admisión](07-admission.md#registrar-llegada) |
+| GET | `/teams/:teamId/turns` | `turns:call` o `admission:manage` | 200 | [Admisión](07-admission.md#turnos-del-día) |
+| POST | `/teams/:teamId/turns/:id/call` · `/attend` · `/no-show` | `turns:call` | 200 | [Admisión](07-admission.md#llamar-atender-no-se-presentó) |
+| GET | `/teams/:teamId/turns/board` | Miembro | 200 | [Admisión](07-admission.md#pantalla-de-sala) |
+| GET · PUT | `/teams/:teamId/admission/settings` | Miembro · `settings:manage` | 200 | [Admisión](07-admission.md#configuración-del-llamado) |
 | GET | `/organizations/:teamId` | Miembro | 200 | [Organizaciones](04-organizations.md#ver-ips) |
 | PATCH | `/organizations/:teamId` | **Administrador** | 200 | [Organizaciones](04-organizations.md#actualizar-ips) |
 | DELETE | `/organizations/:teamId` | **Administrador** | 204 | [Organizaciones](04-organizations.md#eliminar-ips) |
@@ -91,7 +97,7 @@ La API valida la firma del token contra Clerk y que haya sido emitido para el fr
 | `settings:manage` | ✓ | | | | | |
 | `staff:manage` | ✓ | | | | | |
 
-`admission:manage` y `turns:call` quedan definidos para los módulos de admisión y turnos.
+Un endpoint puede aceptar **cualquiera** de varios permisos (p. ej. la lista de turnos: `turns:call` o `admission:manage`).
 
 ## Convenciones
 

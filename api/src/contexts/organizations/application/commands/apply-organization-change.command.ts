@@ -16,8 +16,8 @@ export class ApplyOrganizationChange {
     const now = this.clock.now();
 
     if (change.kind === 'organization.deleted') {
-      const stored = await this.organizations.findById(change.id);
-      if (!stored) return;
+      if (!(await this.organizations.exists(change.id))) return;
+      const stored = await this.organizations.getById(change.id);
       const version = stored.version;
       if (stored.deleteFromProvider(now)) {
         await this.organizations.save(stored, version);
@@ -26,8 +26,7 @@ export class ApplyOrganizationChange {
     }
 
     const { id, name, updatedAt } = change.organization;
-    const stored = await this.organizations.findById(id);
-    if (!stored) {
+    if (!(await this.organizations.exists(id))) {
       try {
         await this.organizations.insert(
           Organization.importFromProvider({
@@ -44,6 +43,7 @@ export class ApplyOrganizationChange {
       }
     }
 
+    const stored = await this.organizations.getById(id);
     const version = stored.version;
     if (stored.syncFromProvider(OrganizationName.of(name), updatedAt, now)) {
       await this.organizations.save(stored, version);

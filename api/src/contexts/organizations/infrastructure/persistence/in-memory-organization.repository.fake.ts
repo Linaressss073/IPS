@@ -1,6 +1,7 @@
 import { TeamId } from '../../../../shared/domain/index.js';
 import {
   OrganizationAlreadyStoredError,
+  OrganizationNotFoundError,
   OrganizationVersionConflictError,
 } from '../../application/errors/organization.errors.js';
 import { OrganizationRepository } from '../../application/ports/organization.repository.port.js';
@@ -10,9 +11,14 @@ import { Organization } from '../../domain/entities/organization.entity.js';
 export class InMemoryOrganizationRepository implements OrganizationRepository {
   private readonly items = new Map<string, Organization>();
 
-  async findById(id: TeamId): Promise<Organization | null> {
+  async exists(id: TeamId): Promise<boolean> {
+    return this.items.has(id.value);
+  }
+
+  async getById(id: TeamId): Promise<Organization> {
     const stored = this.items.get(id.value);
-    return stored ? clone(stored) : null;
+    if (!stored) throw new OrganizationNotFoundError(id);
+    return clone(stored);
   }
 
   async insert(organization: Organization): Promise<void> {

@@ -5,10 +5,11 @@ import { StaffMemberView } from '../types/staff.types.js';
 export interface StaffReadModel {
   listForTeam(teamId: TeamId): Promise<StaffMemberView[]>;
 
-  member(teamId: TeamId, userId: string): Promise<StaffMemberView | null>;
+  /** Throws StaffMemberNotFoundError if the user is not in the team's directory. */
+  getMember(teamId: TeamId, userId: string): Promise<StaffMemberView>;
 
-  /** The user's roles in the team; null if we have no membership for them. */
-  rolesOf(teamId: TeamId, userId: string): Promise<string[] | null>;
+  /** The user's functional roles in the team; none if they have no membership. */
+  rolesOf(teamId: TeamId, userId: string): Promise<string[]>;
 
   /**
    * Display names by user id. Anonymized users map to DELETED_USER_NAME;

@@ -31,7 +31,6 @@ import { GetPatientTimeline } from '../../application/queries/get-patient-timeli
 import { GetPatientSummaries } from '../../application/queries/get-patient-summaries.query.js';
 import { GetPatient } from '../../application/queries/get-patient.query.js';
 import { SearchPatients } from '../../application/queries/search-patients.query.js';
-import { PatientFinder } from '../../application/services/patient-finder.service.js';
 import type { PatientTimelineReader } from '../../application/ports/patient-timeline.port.js';
 import { MongoPatientReadModel } from '../persistence/mongo-patient.read-model.js';
 import { MongoPatientRepository } from '../persistence/mongo-patient.repository.js';
@@ -61,11 +60,6 @@ export const patientsProviders: Provider[] = [
     useFactory: (client: MongoClient, db: Db) => new MongoPatientRepository(client, db),
   },
   {
-    provide: PatientFinder,
-    inject: [PATIENT_REPOSITORY],
-    useFactory: (repo: PatientRepository) => new PatientFinder(repo),
-  },
-  {
     provide: ActorResolver,
     inject: [TEAM_MEMBERS],
     useFactory: (members: TeamMembers) => new ActorResolver(members),
@@ -78,13 +72,9 @@ export const patientsProviders: Provider[] = [
   },
   {
     provide: UpdatePatient,
-    inject: [PATIENT_REPOSITORY, PatientFinder, ActorResolver, CLOCK],
-    useFactory: (
-      repo: PatientRepository,
-      finder: PatientFinder,
-      actors: ActorResolver,
-      clock: Clock,
-    ) => new UpdatePatient(repo, finder, actors, clock),
+    inject: [PATIENT_REPOSITORY, ActorResolver, CLOCK],
+    useFactory: (repo: PatientRepository, actors: ActorResolver, clock: Clock) =>
+      new UpdatePatient(repo, actors, clock),
   },
 
   {

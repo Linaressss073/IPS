@@ -1,3 +1,4 @@
+import { colombiaDate } from '../src/shared/domain/index.js';
 import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
 import {
   AGENDAS_COLLECTION,
@@ -5,7 +6,6 @@ import {
   LOCATIONS_COLLECTION,
   SERVICES_COLLECTION,
 } from '../src/contexts/scheduling/infrastructure/persistence/scheduling.documents.js';
-import { colombiaDate } from '../src/contexts/scheduling/domain/utils/colombia-time.js';
 import { STAFF_COLLECTION } from '../src/contexts/staff/infrastructure/persistence/staff.document.js';
 import { TRACE_EVENTS_COLLECTION } from '../src/shared/infrastructure/persistence/mongo.js';
 import { createTestApp, TEAM_A } from './support/test-app.js';

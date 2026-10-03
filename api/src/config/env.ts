@@ -19,6 +19,8 @@ export interface Env {
   CLERK_WEBHOOK_SIGNING_SECRET?: string;
   /** How often to reconcile with Clerk (missed webhooks, deletions); 0 turns it off. */
   CLERK_SYNC_INTERVAL_MS: number;
+  /** How often called turns are re-announced or closed as no-shows; 0 turns it off. */
+  TURN_ANNOUNCER_INTERVAL_MS: number;
 }
 
 const REQUIRED = ['MONGO_URL', 'CLERK_SECRET_KEY'] as const;
@@ -51,6 +53,7 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     CLERK_WEBHOOK_SIGNING_SECRET: raw.CLERK_WEBHOOK_SIGNING_SECRET || undefined,
     // Every 10 minutes by default: well within Clerk's API rate limits.
     CLERK_SYNC_INTERVAL_MS: Number(raw.CLERK_SYNC_INTERVAL_MS ?? 600_000),
+    TURN_ANNOUNCER_INTERVAL_MS: Number(raw.TURN_ANNOUNCER_INTERVAL_MS ?? 10_000),
   };
 }
 

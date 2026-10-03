@@ -5,7 +5,10 @@ import {
   ArrowRight,
   Building2,
   CalendarDays,
+  ClipboardCheck,
   Contact,
+  ListOrdered,
+  MonitorPlay,
   type LucideIcon,
   Stethoscope,
   UserPlus,
@@ -22,7 +25,8 @@ type Shortcut = {
   icon: LucideIcon;
   title: string;
   description: string;
-  requires?: Permission;
+  /** Shown if the user's roles grant one of these. */
+  requires?: Permission[];
   /** Green tile for the main action of the area; blue for the rest. */
   main?: boolean;
 };
@@ -33,7 +37,7 @@ const SHORTCUTS: Shortcut[] = [
     icon: UserPlus,
     title: "Registrar paciente",
     description: "Una sola vez: todas las áreas usarán sus datos.",
-    requires: "patients:write",
+    requires: ["patients:write"],
     main: true,
   },
   {
@@ -41,29 +45,51 @@ const SHORTCUTS: Shortcut[] = [
     icon: Contact,
     title: "Pacientes",
     description: "Busca por documento o nombre y abre su ficha e historial.",
-    requires: "patients:read",
+    requires: ["patients:read"],
   },
   {
     href: "/agenda",
     icon: CalendarDays,
     title: "Agenda",
     description: "Cupos del día por profesional; agenda, confirma y reprograma.",
-    requires: "appointments:read",
+    requires: ["appointments:read"],
     main: true,
+  },
+  {
+    href: "/admission",
+    icon: ClipboardCheck,
+    title: "Admisión",
+    description: "Registra la llegada de las citas de hoy: cada paciente recibe su turno.",
+    requires: ["admission:manage"],
+    main: true,
+  },
+  {
+    href: "/turns",
+    icon: ListOrdered,
+    title: "Turnos",
+    description: "Llama al siguiente paciente y márcalo como atendido.",
+    requires: ["turns:call", "admission:manage"],
+    main: true,
+  },
+  {
+    href: "/turns/screen",
+    icon: MonitorPlay,
+    title: "Pantalla de sala",
+    description: "Abre en el televisor de la sala: muestra y anuncia los llamados.",
   },
   {
     href: "/staff",
     icon: Users,
     title: "Personal",
     description: "Asigna los roles de quienes trabajan en la IPS.",
-    requires: "staff:manage",
+    requires: ["staff:manage"],
   },
   {
     href: "/scheduling-settings",
     icon: Stethoscope,
     title: "Servicios y consultorios",
     description: "Servicios con su prefijo de turno y lugares de atención.",
-    requires: "settings:manage",
+    requires: ["settings:manage"],
   },
   {
     href: "/settings",
@@ -77,7 +103,7 @@ const SHORTCUTS: Shortcut[] = [
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const { access, can } = useAccess();
-  const shortcuts = SHORTCUTS.filter((s) => !s.requires || can(s.requires));
+  const shortcuts = SHORTCUTS.filter((s) => !s.requires || s.requires.some(can));
   const roles = access?.roles.map((role) => ROLE_LABELS[role] ?? role) ?? [];
   if (access?.isAdmin) roles.unshift("Administrador");
 

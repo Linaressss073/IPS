@@ -7,9 +7,11 @@ import {
 } from '../../../../shared/infrastructure/persistence/mongo.js';
 import { appendTraceEvents } from '../../../../shared/infrastructure/persistence/trace-event.writer.js';
 import {
+  AgendaOverlapError,
   AppointmentVersionConflictError,
   LocationTakenError,
   PatientAlreadyBookedError,
+  SchedulingNotFoundError,
   ServiceCodeTakenError,
   SlotTakenError,
 } from '../../application/errors/scheduling.errors.js';
@@ -60,9 +62,10 @@ export class MongoServiceRepository extends MongoRepository implements ServiceRe
     return this.db.collection<ServiceDocument>(SERVICES_COLLECTION);
   }
 
-  async findById(teamId: TeamId, id: SchedulingId): Promise<MedicalService | null> {
+  async getById(teamId: TeamId, id: SchedulingId): Promise<MedicalService> {
     const doc = await this.services.findOne({ _id: id.value, teamId: teamId.value });
-    return doc ? SchedulingMapper.serviceToDomain(doc) : null;
+    if (!doc) throw new SchedulingNotFoundError('SERVICE', id.value);
+    return SchedulingMapper.serviceToDomain(doc);
   }
 
   async add(service: MedicalService, events: readonly TraceEvent[]): Promise<void> {
@@ -89,9 +92,10 @@ export class MongoLocationRepository extends MongoRepository implements Location
     return this.db.collection<LocationDocument>(LOCATIONS_COLLECTION);
   }
 
-  async findById(teamId: TeamId, id: SchedulingId): Promise<CareLocation | null> {
+  async getById(teamId: TeamId, id: SchedulingId): Promise<CareLocation> {
     const doc = await this.locations.findOne({ _id: id.value, teamId: teamId.value });
-    return doc ? SchedulingMapper.locationToDomain(doc) : null;
+    if (!doc) throw new SchedulingNotFoundError('LOCATION', id.value);
+    return SchedulingMapper.locationToDomain(doc);
   }
 
   async add(location: CareLocation, events: readonly TraceEvent[]): Promise<void> {
@@ -118,12 +122,13 @@ export class MongoAgendaRepository extends MongoRepository implements AgendaRepo
     return this.db.collection<AgendaDocument>(AGENDAS_COLLECTION);
   }
 
-  async findById(teamId: TeamId, id: SchedulingId): Promise<Agenda | null> {
+  async getById(teamId: TeamId, id: SchedulingId): Promise<Agenda> {
     const doc = await this.agendas.findOne({ _id: id.value, teamId: teamId.value });
-    return doc ? SchedulingMapper.agendaToDomain(doc) : null;
+    if (!doc) throw new SchedulingNotFoundError('AGENDA', id.value);
+    return SchedulingMapper.agendaToDomain(doc);
   }
 
-  async findOverlap(agenda: Agenda): Promise<'professional' | 'location' | null> {
+  async assertNoOverlap(agenda: Agenda): Promise<void> {
     const clash = await this.agendas.findOne({
       teamId: agenda.teamId.value,
       date: agenda.date,
@@ -131,8 +136,9 @@ export class MongoAgendaRepository extends MongoRepository implements AgendaRepo
       endMinute: { $gt: agenda.startMinute },
       $or: [{ professionalId: agenda.professionalId }, { locationId: agenda.locationId.value }],
     });
-    if (!clash) return null;
-    return clash.professionalId === agenda.professionalId ? 'professional' : 'location';
+    if (clash) {
+      throw new AgendaOverlapError(clash.professionalId === agenda.professionalId ? 'professional' : 'location');
+    }
   }
 
   async add(agenda: Agenda, events: readonly TraceEvent[]): Promise<void> {
@@ -156,9 +162,10 @@ export class MongoAppointmentRepository extends MongoRepository implements Appoi
     return this.db.collection<AppointmentDocument>(APPOINTMENTS_COLLECTION);
   }
 
-  async findById(teamId: TeamId, id: SchedulingId): Promise<Appointment | null> {
+  async getById(teamId: TeamId, id: SchedulingId): Promise<Appointment> {
     const doc = await this.appointments.findOne({ _id: id.value, teamId: teamId.value });
-    return doc ? SchedulingMapper.appointmentToDomain(doc) : null;
+    if (!doc) throw new SchedulingNotFoundError('APPOINTMENT', id.value);
+    return SchedulingMapper.appointmentToDomain(doc);
   }
 
   countActiveIn(teamId: TeamId, agendaId: SchedulingId): Promise<number> {

@@ -1,13 +1,6 @@
-import { Entity, TeamId } from '../../../../shared/domain/index.js';
+import { colombiaDate, colombiaInstant, Entity, formatTime, parseCalendarDate, parseTime, TeamId } from '../../../../shared/domain/index.js';
 import { MAX_SLOT_MINUTES, MIN_SLOT_MINUTES } from '../constants/scheduling.constants.js';
 import { InvalidAgendaError, PastScheduleError } from '../errors/scheduling.errors.js';
-import {
-  colombiaDate,
-  colombiaInstant,
-  formatTime,
-  parseCalendarDate,
-  parseTime,
-} from '../utils/colombia-time.js';
 import { SchedulingId } from './scheduling-id.vo.js';
 
 export interface AgendaProps {

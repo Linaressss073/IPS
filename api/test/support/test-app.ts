@@ -9,6 +9,9 @@ import {
   TEAM_MEMBERSHIP_CHECKER,
 } from '../../src/contexts/identity-access/application/constants/injection-tokens.js';
 import { AuthenticatedUser } from '../../src/contexts/identity-access/domain/entities/authenticated-user.entity.js';
+import { InvalidAccessTokenError } from '../../src/contexts/identity-access/domain/errors/invalid-access-token.error.js';
+import { NotATeamMemberError } from '../../src/contexts/identity-access/domain/errors/not-a-team-member.error.js';
+import { OrganizationNotFoundError } from '../../src/contexts/organizations/application/errors/organization.errors.js';
 import { ORGANIZATION_PROVIDER } from '../../src/contexts/organizations/application/constants/injection-tokens.js';
 import { IDENTITY_SOURCE } from '../../src/contexts/staff/application/constants/injection-tokens.js';
 import type { IdentityChange } from '../../src/contexts/staff/application/types/staff.types.js';
@@ -27,10 +30,14 @@ const membership: Record<string, { team: string; role: string }> = {
   bob: { team: TEAM_B, role: 'admin' },
 };
 
-const roleIn = async (userId: UserId, teamId: { value: string }) =>
-  membership[userId.value]?.team === teamId.value
-    ? membership[userId.value].role
-    : null;
+const isMember = async (userId: UserId, teamId: { value: string }) =>
+  membership[userId.value]?.team === teamId.value;
+
+/** Like Clerk's checker: the role, or NotATeamMemberError (403). */
+const roleIn = async (userId: UserId, teamId: TeamId) => {
+  if (!(await isMember(userId, teamId))) throw new NotATeamMemberError(teamId);
+  return membership[userId.value].role;
+};
 
 /** Fake Clerk organizations; tests can inspect what was renamed or deleted. */
 export class FakeOrganizationProvider {
@@ -57,8 +64,10 @@ export class FakeOrganizationProvider {
     }
   }
 
-  async find(id: TeamId) {
-    return this.organizations.get(id.value) ?? null;
+  async get(id: TeamId) {
+    const organization = this.organizations.get(id.value);
+    if (!organization) throw new OrganizationNotFoundError(id);
+    return organization;
   }
   async rename(_id: TeamId, name: string) {
     this.renamed.push(name);
@@ -91,18 +100,16 @@ export async function createTestApp() {
     .useValue({
       // "dana" is not a member per the checker, but her token selects team A
       // (as a member).
-      verify: async (token: string) =>
-        token === 'dana'
-          ? new AuthenticatedUser(UserId.of(token), TeamId.of(TEAM_A), 'member')
-          : membership[token]
-            ? new AuthenticatedUser(UserId.of(token), null)
-            : null,
+      verify: async (token: string) => {
+        if (token === 'dana') return new AuthenticatedUser(UserId.of(token), TeamId.of(TEAM_A), 'member');
+        if (!membership[token]) throw new InvalidAccessTokenError();
+        return new AuthenticatedUser(UserId.of(token), null);
+      },
     })
     .overrideProvider(TEAM_MEMBERSHIP_CHECKER)
     .useValue({
       roleIn,
-      isMember: async (userId: UserId, teamId: { value: string }) =>
-        (await roleIn(userId, teamId)) !== null,
+      isMember,
     })
     .overrideProvider(ORGANIZATION_PROVIDER)
     .useValue(organizationProvider)
