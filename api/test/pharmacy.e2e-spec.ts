@@ -180,6 +180,35 @@ describe('Pharmacy (e2e)', () => {
     expect((await api('alice').get(`${pharmacy}?status=completa`).expect(200)).body).toHaveLength(1);
   });
 
+  it('delivers two items of the prescription from the same product at once', async () => {
+    const { consultationId } = await signedPrescription();
+    const { acetaminofen: a } = await stock();
+
+    const delivered = (
+      await api('alice')
+        .post(`${pharmacy}/${consultationId}/deliveries`, {
+          version: 0,
+          lines: [
+            { index: 0, quantity: 2, productId: a },
+            { index: 1, quantity: 3, productId: a },
+          ],
+        })
+        .expect(200)
+    ).body;
+    expect(delivered).toMatchObject({ status: 'parcial', items: [{ delivered: 2 }, { delivered: 3 }] });
+    expect(delivered.deliveries[0].lines).toEqual([
+      expect.objectContaining({ index: 0, productId: a, lots: [expect.objectContaining({ lotNumber: 'L-30', quantity: 2 })] }),
+      expect.objectContaining({ index: 1, productId: a, lots: [expect.objectContaining({ lotNumber: 'L-30', quantity: 3 })] }),
+    ]);
+
+    // Both units left the stock, each with its kardex line.
+    expect((await api('alice').get(`${products}/${a}`).expect(200)).body).toMatchObject({ available: 25 });
+    const kardex = (await api('alice').get(`${products}/${a}/movements`).expect(200)).body as { type: string; quantity: number }[];
+    const exits = kardex.filter((m) => m.type === 'salida').map((m) => m.quantity);
+    expect(exits).toHaveLength(2);
+    expect(exits).toEqual(expect.arrayContaining([-2, -3]));
+  });
+
   it('calls the patient with a FAR turn at a pharmacy window, on the shared screen', async () => {
     const { patientId, consultationId } = await signedPrescription();
     const { acetaminofen: a, loratadina: l } = await stock();
