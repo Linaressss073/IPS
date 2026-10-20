@@ -71,26 +71,32 @@ export class Product extends Entity<ProductId> {
   private constructor(
     id: ProductId,
     private props: ProductProps,
+    /** The version stored when loaded (0 if new): every change of one save is a single version. */
+    private readonly storedVersion: number,
   ) {
     super(id);
   }
 
   static create(input: { teamId: TeamId; name: string; presentation: string; minStock: number; now: Date }): Product {
-    return new Product(ProductId.generate(), {
-      teamId: input.teamId,
-      name: text(input.name, 'name'),
-      presentation: text(input.presentation, 'presentation'),
-      minStock: wholeNumber(input.minStock, 'minStock', 0, MAX_RECEIPT_QUANTITY),
-      active: true,
-      lots: [],
-      createdAt: input.now,
-      updatedAt: input.now,
-      version: 1,
-    });
+    return new Product(
+      ProductId.generate(),
+      {
+        teamId: input.teamId,
+        name: text(input.name, 'name'),
+        presentation: text(input.presentation, 'presentation'),
+        minStock: wholeNumber(input.minStock, 'minStock', 0, MAX_RECEIPT_QUANTITY),
+        active: true,
+        lots: [],
+        createdAt: input.now,
+        updatedAt: input.now,
+        version: 1,
+      },
+      0,
+    );
   }
 
   static restore(id: ProductId, props: ProductProps): Product {
-    return new Product(id, { ...props, lots: props.lots.map((lot) => ({ ...lot })) });
+    return new Product(id, { ...props, lots: props.lots.map((lot) => ({ ...lot })) }, props.version);
   }
 
   update(changes: { minStock?: number; active?: boolean }, now: Date): void {
@@ -201,8 +207,13 @@ export class Product extends Entity<ProductId> {
       .sort((a, b) => a.expiresOn.localeCompare(b.expiresOn) || a.receivedAt.getTime() - b.receivedAt.getTime());
   }
 
+  /**
+   * One version above the stored one, however many changes: a delivery may
+   * take twice from the same product (two items of one prescription), and
+   * the repository saves it on the condition `version - 1`.
+   */
   private touch(now: Date): void {
     this.props.updatedAt = now;
-    this.props.version += 1;
+    this.props.version = this.storedVersion + 1;
   }
 }

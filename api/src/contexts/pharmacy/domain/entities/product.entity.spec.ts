@@ -66,6 +66,28 @@ describe('Product', () => {
     expect(p.available(today)).toBe(3);
   });
 
+  it('is one version above the stored one, however many changes are saved together', () => {
+    const stored = product();
+    stored.receive({ lotNumber: 'A', expiresOn: '2026-12-01', quantity: 10, today, now });
+    const loaded = Product.restore(stored.id, {
+      teamId: stored.teamId,
+      name: stored.name,
+      presentation: stored.presentation,
+      minStock: stored.minStock,
+      active: stored.active,
+      lots: [...stored.lots],
+      createdAt: stored.createdAt,
+      updatedAt: stored.updatedAt,
+      version: 4,
+    });
+
+    // Two items of one prescription delivered from the same product.
+    loaded.take(2, today, now);
+    loaded.take(3, today, now);
+    expect(loaded.version).toBe(5);
+    expect(loaded.available(today)).toBe(5);
+  });
+
   it('does not dispense an inactive product', () => {
     const p = product();
     p.receive({ lotNumber: 'A', expiresOn: '2026-12-01', quantity: 4, today, now });
