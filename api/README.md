@@ -252,7 +252,19 @@ pnpm test        # unitarios: dominio y casos de uso (repositorio en memoria)
 pnpm test:e2e    # HTTP + MongoDB real en un contenedor desechable (Testcontainers, requiere Docker); Clerk sustituido por dobles
                  # Usa la base his_test, que se vacía en cada test. Se cambia con MONGO_DB_NAME_TEST y se
                  # niega a correr si el nombre no termina en "_test", para no tocar nunca los datos de desarrollo.
+                 # Con MONGO_URL_TEST usa un Mongo que ya corra (sin contenedor).
 ```
+
+El mismo `ci.yml` de la raíz los corre en cadena (lint → build y unitarias → e2e → Sonar); ver [Calidad y CI](../README.md#calidad-y-ci).
+
+## Logs
+
+[pino](https://getpino.io) vía `nestjs-pino`: JSON en producción, formato legible (`pino-pretty`) en dev y silencio en `ENV=test`.
+Nivel con `LOG_LEVEL` (`info` por defecto). Se redactan `authorization`, `cookie` y la firma de webhooks, y no se registra `/health`.
+El `Logger` de NestJS de cada clase pasa por pino.
+
+
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Linaressss073_IPS)](https://sonarcloud.io/summary/new_code?id=Linaressss073_IPS)
 
 ## Añadir un nuevo contexto
 

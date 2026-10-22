@@ -38,3 +38,23 @@ está en [`technical-api/`](technical-api/README.md).
 [`render.yaml`](render.yaml) es un *Blueprint* de Render: en **New → Blueprint** se elige este repositorio y crea
 `ips-api` y `ips-web` en el proyecto *Practica / Production*. La única base es MongoDB Atlas (`MONGO_URL`). Solo
 pide los secretos (las llaves de Clerk y `MONGO_URL`); la API crea sus índices al arrancar.
+
+## Calidad y CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre en cada push a `main` y en cada pull request, **en cadena**: cada etapa
+solo corre si la anterior pasó.
+
+```
+lint-api ─► build-api ──┐
+        └─► unit-api ───┴─► e2e-api ─► sonar ─┐
+web ────────────────────────────────────────────┴─► ci-ok
+```
+
+- **e2e**: MongoDB desechable con Testcontainers (requiere Docker en local; en GitHub ya viene).
+- **SonarQube Cloud**: calidad y cobertura (secreto `SONAR_TOKEN`; con el análisis automático del proyecto desactivado).
+  Configuración en [`sonar-project.properties`](sonar-project.properties).
+- **Render** despliega solo cuando pasan los checks (`autoDeployTrigger: checksPass` en `render.yaml`): un commit con el CI en
+  rojo no llega a producción.
+- Las acciones de GitHub van fijadas por SHA de commit.
+
+Backlog y sprints: [`.epics/`](.epics/README.md) (tablero en Jira, proyecto IPS).
