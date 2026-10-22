@@ -227,7 +227,7 @@ ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm
 `ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
 `ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
 `his_consulta_externa`; si falta, la de la ruta de la URL, y si tampoco hay, la API no arranca),
-`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS`, `TURN_ANNOUNCER_INTERVAL_MS` (ver `src/config/env.ts`).
+`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS`, `TURN_ANNOUNCER_INTERVAL_MS`, `LOG_LEVEL` (pino: `info` por defecto, `silent` en test; ver `src/config/env.ts`).
 
 ## Desarrollo local
 
@@ -249,7 +249,7 @@ colecciones de esa base: mientras `MONGO_URL` no nombraba ninguna, el driver usa
 
 ```bash
 pnpm test        # unitarios: dominio y casos de uso (repositorio en memoria)
-pnpm test:e2e    # HTTP + MongoDB real; Clerk sustituido por dobles (requiere pnpm db:up)
+pnpm test:e2e    # HTTP + MongoDB real en un contenedor desechable (Testcontainers, requiere Docker); Clerk sustituido por dobles
                  # Usa la base his_test, que se vacía en cada test. Se cambia con MONGO_DB_NAME_TEST y se
                  # niega a correr si el nombre no termina en "_test", para no tocar nunca los datos de desarrollo.
 ```
