@@ -254,8 +254,10 @@ La API publica su documentación OpenAPI 3.0, con todas las rutas y todos los ca
 | Interfaz (probar rutas) | `/api/v1/docs` · local: <http://localhost:3001/api/v1/docs> · producción: <https://ips-api-3404.onrender.com/api/v1/docs> |
 | Documento JSON (importable en Postman, generadores de clientes…) | `/api/v1/docs-json` |
 
-- Las rutas se agrupan por módulo (pacientes, citas, turnos, consultas, farmacia…). Para probarlas, **Authorize** con un token de sesión de Clerk
-  (sin el prefijo `Bearer`); `/health` y el webhook de Clerk no lo piden. Los errores se describen en la respuesta `default` (`ErrorResponse`).
+- Las rutas se agrupan por módulo (pacientes, citas, turnos, consultas, farmacia…). En **Authorize** hay dos campos:
+  **bearer** (token de sesión de Clerk, sin la palabra `Bearer`; se obtiene en la web con `await window.Clerk.session.getToken()`, dura ~1 minuto) y
+  **team** (id de la IPS, `org_…`), que Swagger usa para rellenar `{teamId}` en todas las rutas (`/teams/{teamId}/…` y `/organizations/{teamId}`);
+  la API no lee ese valor. `/health` y el webhook de Clerk no piden auth. Los errores se describen en la respuesta `default` (`ErrorResponse`).
 - **Peticiones:** salen de las clases `*.dto.ts` (plugin de `@nestjs/swagger` en `nest-cli.json`, que además lee los decoradores de `class-validator`
   para marcar campos obligatorios y límites).
 - **Respuestas:** salen del tipo de retorno de cada ruta (`Promise<PatientView>`…) con `pnpm docs:generate`, que ya corre dentro de `pnpm build`.
