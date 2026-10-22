@@ -83,6 +83,9 @@ jobs:
       - name: SonarQube Cloud
         if: env.SONAR_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703 # v5
+        with:
+          # Fails the CI when the quality gate fails (coverage on new code >= 80 %, no new issues).
+          args: -Dsonar.qualitygate.wait=true
         env:
           SONAR_HOST_URL: https://sonarcloud.io
 
