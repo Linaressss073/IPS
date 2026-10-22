@@ -54,13 +54,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-pnpm
         with: { working-directory: api }
-      # MongoDB replica set from docker-compose.yml; the e2e use the his_test database.
-      - run: pnpm db:up
-        working-directory: api
-      - name: MongoDB logs
-        if: failure()
-        run: docker compose logs mongo | tail -40
-        working-directory: api
+      # Testcontainers starts MongoDB (replica set) from global-setup.
       - run: pnpm test:e2e
         working-directory: api
 

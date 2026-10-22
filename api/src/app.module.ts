@@ -1,8 +1,9 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { LoggerModule } from 'nestjs-pino';
 import { loadDeploymentConfig } from './config/deployment-config.js';
-import { validateEnv } from './config/env.js';
+import { type Env, validateEnv } from './config/env.js';
 import { IdentityAccessModule } from './contexts/identity-access/identity-access.module.js';
 import { AdmissionModule } from './contexts/admission/admission.module.js';
 import { ConsultationModule } from './contexts/consultation/consultation.module.js';
@@ -25,6 +26,18 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
       ignoreEnvFile: true,
       validate: (environment) =>
         validateEnv({ ...loadDeploymentConfig(), ...environment }),
+    }),
+    // JSON logs in production, pretty in dev, silent in e2e. Never logs tokens.
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env, true>) => ({
+        pinoHttp: {
+          level: config.get('LOG_LEVEL'),
+          redact: ['req.headers.authorization', 'req.headers.cookie', 'req.headers["svix-signature"]'],
+          autoLogging: { ignore: (req) => req.url?.endsWith('/health') ?? false },
+          transport: (process.env.ENV ?? 'dev') === 'dev' ? { target: 'pino-pretty' } : undefined,
+        },
+      }),
     }),
     MongoModule,
     IdentityAccessModule,

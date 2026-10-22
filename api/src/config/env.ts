@@ -21,6 +21,8 @@ export interface Env {
   CLERK_SYNC_INTERVAL_MS: number;
   /** How often called turns are re-announced or closed as no-shows; 0 turns it off. */
   TURN_ANNOUNCER_INTERVAL_MS: number;
+  /** pino level: trace, debug, info, warn, error, fatal or silent. */
+  LOG_LEVEL: string;
 }
 
 const REQUIRED = ['MONGO_URL', 'CLERK_SECRET_KEY'] as const;
@@ -54,6 +56,7 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     // Every 10 minutes by default: well within Clerk's API rate limits.
     CLERK_SYNC_INTERVAL_MS: Number(raw.CLERK_SYNC_INTERVAL_MS ?? 600_000),
     TURN_ANNOUNCER_INTERVAL_MS: Number(raw.TURN_ANNOUNCER_INTERVAL_MS ?? 10_000),
+    LOG_LEVEL: raw.LOG_LEVEL || (raw.ENV === 'test' ? 'silent' : 'info'),
   };
 }
 
