@@ -26,13 +26,14 @@ Completa.
 
 - Pantalla a pantalla completa con el turno actual (turno, lugar, nombre y primer apellido) y los 6 llamados
   anteriores del día.
-- Actualización automática sin intervención.
+- Actualización automática sin intervención (consulta al servidor cada 3 segundos; sin WebSockets).
+- Campanada en cada llamado o reanuncio y, con el sonido activado en la pantalla, anuncio por voz ("Turno RTH 4, Consultorio 502, Andrés Gómez").
 - Reanuncio automático según la configuración de la IPS y cierre como "no se presentó" tras el último llamado.
 - Turnos de farmacia (FAR n) en la misma pantalla.
 
 ### No incluye
 
-- Voz o sonido sintetizado.
+- Voz con nombre completo o datos del paciente (la voz solo dice turno, lugar y nombre y primer apellido).
 - Publicidad o mensajes institucionales en la pantalla.
 
 ## Criterios de aceptación
@@ -59,6 +60,7 @@ Completa.
 | Decisión | Resolución |
 | --- | --- |
 | Revisión del reanuncio | Cada 10 s (configurable por entorno; 0 la apaga). |
+| Sonido | El navegador exige una acción del usuario para reproducir audio: la pantalla trae un botón "Sonido". |
 
 ## Decisiones de la épica que aplican
 
