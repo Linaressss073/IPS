@@ -21,7 +21,8 @@ export default async function setup(): Promise<(() => Promise<void>) | undefined
   }
 
   const mongo = await new MongoDBContainer('mongo:8').start();
-  process.env.MONGO_URL = mongo.getConnectionString();
+  // directConnection: the replica set advertises the container's internal hostname.
+  process.env.MONGO_URL = `${mongo.getConnectionString()}/?directConnection=true`;
   return async () => {
     await mongo.stop();
   };
