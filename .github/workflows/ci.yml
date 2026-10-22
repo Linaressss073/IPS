@@ -1,5 +1,7 @@
-# Verifies every push and pull request. Render deploys main only after these
-# checks pass (autoDeployTrigger: checksPass in render.yaml).
+# Each stage runs only if the previous one passed:
+#   lint-api -> build-api + unit-api -> e2e-api -> sonar
+#   web (independent)
+#   ci-ok (needs all) -> the check Render waits for (autoDeployTrigger: checksPass).
 name: CI
 
 on:
@@ -7,34 +9,70 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  api:
+  lint-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm
+        with: { working-directory: api }
+      - run: pnpm lint
+        working-directory: api
+
+  build-api:
+    needs: lint-api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm
+        with: { working-directory: api }
+      - run: pnpm build
+        working-directory: api
+
+  unit-api:
+    needs: lint-api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm
+        with: { working-directory: api }
+      - run: pnpm test:cov --coverage.reporter=lcov
+        working-directory: api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: api/coverage/lcov.info
+
+  e2e-api:
+    needs: [build-api, unit-api]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm
+        with: { working-directory: api }
+      # MongoDB replica set from docker-compose.yml; the e2e use the his_test database.
+      - run: pnpm db:up
+        working-directory: api
+      - run: pnpm test:e2e
+        working-directory: api
+
+  sonar:
+    needs: e2e-api
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    defaults:
-      run:
-        working-directory: api
     steps:
       - uses: actions/checkout@v4
         with:
-          # Sonar needs the full history to attribute new code.
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+          fetch-depth: 0 # Sonar attributes new code from the full history.
+      - uses: actions/download-artifact@v4
         with:
-          version: 12.6.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: api/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm build
-      - run: pnpm test:cov --coverage.reporter=lcov
-      # MongoDB replica set from docker-compose.yml; the e2e use the his_test database.
-      - run: pnpm db:up
-      - run: pnpm test:e2e
+          name: coverage
+          path: api/coverage
       - name: SonarQube Cloud
         if: env.SONAR_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@v5
@@ -43,19 +81,19 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: multi-tenant-starter-template
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 12.6.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: multi-tenant-starter-template/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-pnpm
+        with: { working-directory: multi-tenant-starter-template }
       # next build compiles and type-checks.
       - run: pnpm build
+        working-directory: multi-tenant-starter-template
+
+  ci-ok:
+    needs: [lint-api, build-api, unit-api, e2e-api, sonar, web]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every stage passed or was skipped on purpose
+        run: |
+          echo '${{ toJSON(needs) }}' | grep -E '"result": "(failure|cancelled)"' && exit 1 || echo ok

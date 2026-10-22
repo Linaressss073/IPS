@@ -1,0 +1,20 @@
+name: Setup pnpm
+description: Node 24 + pnpm (same version as Render) and frozen install in a folder.
+inputs:
+  working-directory:
+    description: Folder with package.json and pnpm-lock.yaml
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 12.6.0
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.working-directory }}/pnpm-lock.yaml
+    - run: pnpm install --frozen-lockfile
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
