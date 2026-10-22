@@ -57,6 +57,10 @@ jobs:
       # MongoDB replica set from docker-compose.yml; the e2e use the his_test database.
       - run: pnpm db:up
         working-directory: api
+      - name: MongoDB logs
+        if: failure()
+        run: docker compose logs mongo | tail -40
+        working-directory: api
       - run: pnpm test:e2e
         working-directory: api
 
