@@ -2,11 +2,13 @@ import { createTestApp } from './support/test-app.js';
 
 interface Operation {
   tags?: string[];
+  parameters?: { name: string; in: string; required?: boolean; example?: string }[];
   security?: unknown[];
   responses: Record<string, { content?: Record<string, { schema: { properties?: Record<string, unknown> } }> }>;
 }
 interface Document {
   openapi: string;
+  security?: unknown[];
   paths: Record<string, Record<string, Operation>>;
   components: { schemas: Record<string, { properties?: Record<string, unknown> }>; securitySchemes: Record<string, unknown> };
 }
@@ -49,6 +51,8 @@ describe('OpenAPI docs (e2e)', () => {
 
   it('asks for the bearer token everywhere except health and the Clerk webhook', () => {
     expect(doc.components.securitySchemes).toHaveProperty('bearer');
+    expect(doc.components.securitySchemes).toHaveProperty('team');
+    expect(doc.security).toEqual([{ bearer: [], team: [] }]);
     expect(doc.paths['/api/v1/health'].get.security).toEqual([]);
     expect(doc.paths['/api/v1/webhooks/clerk'].post.security).toEqual([]);
     expect(doc.paths['/api/v1/teams/{teamId}/patients'].get.security).toBeUndefined();
@@ -58,5 +62,15 @@ describe('OpenAPI docs (e2e)', () => {
     const op = doc.paths['/api/v1/teams/{teamId}/patients'].get;
     expect(op.responses).toHaveProperty('default');
     expect(doc.components.schemas.ErrorResponse.properties).toHaveProperty('code');
+  });
+
+  it('declares the IPS (teamId) as a path parameter of every route that has it', () => {
+    const withTeam = Object.entries(doc.paths).filter(([path]) => path.includes('{teamId}'));
+    expect(withTeam.length).toBeGreaterThan(30);
+    for (const [, item] of withTeam) {
+      for (const op of Object.values(item)) {
+        expect(op.parameters?.find((p) => p.name === 'teamId')).toMatchObject({ in: 'path', required: true });
+      }
+    }
   });
 });

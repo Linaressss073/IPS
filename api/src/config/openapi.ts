@@ -9,6 +9,27 @@ import { API_PREFIX } from './http.js';
 
 type Schema = NonNullable<NonNullable<OpenAPIObject['components']>['schemas']>[string];
 
+/**
+ * Swagger UI only: once the "team" value is set in Authorize, every request replaces the id in
+ * /teams/{id}/... and /organizations/{id} with it, so the IPS is typed once. The API ignores the X-Team-Id header.
+ */
+const TEAM_FILL_SCRIPT = `
+(function () {
+  var timer = setInterval(function () {
+    var ui = window.ui;
+    if (!ui || !ui.getConfigs) return;
+    clearInterval(timer);
+    var configs = ui.getConfigs();
+    var previous = configs.requestInterceptor;
+    configs.requestInterceptor = function (request) {
+      var team = ui.authSelectors.authorized().getIn(['team', 'value']);
+      if (team) request.url = request.url.replace(new RegExp('(/(?:teams|organizations)/)[^/?#]+'), '$1' + encodeURIComponent(team));
+      return previous ? previous(request) : request;
+    };
+  }, 100);
+})();
+`;
+
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'] as const;
 /** Routes that take no session token. */
 const PUBLIC_ROUTES = ['/health', '/webhooks/clerk'];
@@ -46,8 +67,15 @@ export function setupOpenApi(app: INestApplication): void {
         'exigen `Authorization: Bearer <token de sesión de Clerk>` y viven bajo `/teams/{teamId}` (la IPS).',
     )
     .setVersion('1.0')
-    .addBearerAuth()
-    .addSecurityRequirements('bearer')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'Token de sesión de Clerk, sin la palabra Bearer.' },
+      'bearer',
+    )
+    .addApiKey(
+      { type: 'apiKey', in: 'header', name: 'X-Team-Id', description: 'Id de la IPS (org_…). Rellena {teamId} en todas las rutas; la API no lo lee.' },
+      'team',
+    )
+    .addSecurityRequirements({ bearer: [], team: [] })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   enrich(document);
@@ -55,6 +83,7 @@ export function setupOpenApi(app: INestApplication): void {
     useGlobalPrefix: true,
     jsonDocumentUrl: 'docs-json',
     customSiteTitle: 'IPS · API',
+    customJsStr: TEAM_FILL_SCRIPT,
     swaggerOptions: { persistAuthorization: true, tagsSorter: 'alpha' },
   });
 }
@@ -79,6 +108,17 @@ function enrich(document: OpenAPIObject): void {
       const operation = item[method];
       if (!operation) continue;
       operation.tags = [tagOf(path)];
+      // The controllers read the IPS with @CurrentTeam(), which Nest swagger does not see: declare it here.
+      if (path.includes('{teamId}') && !operation.parameters?.some((p) => 'name' in p && p.in === 'path' && p.name === 'teamId')) {
+        (operation.parameters ??= []).unshift({
+          name: 'teamId',
+          in: 'path',
+          required: true,
+          description: 'Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.',
+          schema: { type: 'string' },
+          example: 'org_2abc…',
+        });
+      }
       if (PUBLIC_ROUTES.some((route) => path.endsWith(route))) operation.security = [];
       const id = operation.operationId ?? '';
       const schema = RESPONSE_OVERRIDES[id] ?? (RESPONSE_SCHEMAS[id] as Schema | undefined);
