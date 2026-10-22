@@ -1,0 +1,39 @@
+{
+  "epic_number": 8,
+  "epic_title": "Comunicación con el paciente",
+  "epic_dir": ".epics/Epic-8",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T12:00:00Z",
+  "current_story": 1,
+  "current_phase": "grooming",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Autorización de comunicaciones del paciente",
+      "status": "pending",
+      "story_file": "STORY-1-autorizacion-de-comunicaciones.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    },
+    {
+      "number": 2,
+      "title": "Correo al agendar, reprogramar o cancelar",
+      "status": "pending",
+      "story_file": "STORY-2-correo-de-cambios-de-cita.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    },
+    {
+      "number": 3,
+      "title": "Recordatorio el día anterior",
+      "status": "pending",
+      "story_file": "STORY-3-recordatorio-dia-anterior.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    }
+  ],
+  "notes": "Propuesta: historias en borrador con preguntas abiertas. Revisar con /epic-runner groom 1 antes de planear."
+}

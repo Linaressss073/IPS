@@ -1,0 +1,48 @@
+{
+  "epic_number": 4,
+  "epic_title": "Admisión y turnos con pantalla de sala",
+  "epic_dir": ".epics/Epic-4",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T00:00:00Z",
+  "current_story": 4,
+  "current_phase": "completed",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Registrar la llegada y dar turno",
+      "status": "completed",
+      "story_file": "STORY-1-registrar-llegada-y-dar-turno.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    },
+    {
+      "number": 2,
+      "title": "Llamar, atender o cerrar como \"no se presentó\"",
+      "status": "completed",
+      "story_file": "STORY-2-llamar-atender-no-se-presento.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    },
+    {
+      "number": 3,
+      "title": "Pantalla de sala con reanuncio automático",
+      "status": "completed",
+      "story_file": "STORY-3-pantalla-de-sala-con-reanuncio.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    },
+    {
+      "number": 4,
+      "title": "Configuración del llamado",
+      "status": "completed",
+      "story_file": "STORY-4-configuracion-del-llamado.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    }
+  ],
+  "notes": "Épica construida antes de adoptar epic-runner; historias documentadas a partir del código, la API y los commits. Sin planes de implementación (se trabajó directo en main)."
+}

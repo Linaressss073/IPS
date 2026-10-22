@@ -1,0 +1,39 @@
+{
+  "epic_number": 9,
+  "epic_title": "Indicadores de la consulta externa",
+  "epic_dir": ".epics/Epic-9",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T12:00:00Z",
+  "current_story": 1,
+  "current_phase": "grooming",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Oportunidad en la asignación de citas",
+      "status": "pending",
+      "story_file": "STORY-1-oportunidad-de-citas.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    },
+    {
+      "number": 2,
+      "title": "Inasistencia y tiempos de espera en sala",
+      "status": "pending",
+      "story_file": "STORY-2-inasistencia-y-tiempos-de-espera.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    },
+    {
+      "number": 3,
+      "title": "Cumplimiento de la dispensación e inventario",
+      "status": "pending",
+      "story_file": "STORY-3-cumplimiento-de-dispensacion.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    }
+  ],
+  "notes": "Propuesta: historias en borrador con preguntas abiertas. Revisar con /epic-runner groom 1 antes de planear."
+}

@@ -1,0 +1,39 @@
+{
+  "epic_number": 7,
+  "epic_title": "Calidad continua y operación",
+  "epic_dir": ".epics/Epic-7",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T12:00:00Z",
+  "current_story": 1,
+  "current_phase": "grooming",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Render solo despliega lo que pasa la verificación",
+      "status": "pending",
+      "story_file": "STORY-1-render-solo-despliega-lo-verificado.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    },
+    {
+      "number": 2,
+      "title": "Pruebas del aislamiento entre IPS y de los permisos",
+      "status": "pending",
+      "story_file": "STORY-2-pruebas-de-aislamiento-y-permisos.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    },
+    {
+      "number": 3,
+      "title": "Aviso cuando el servidor está despertando",
+      "status": "pending",
+      "story_file": "STORY-3-aviso-servidor-despertando.md",
+      "plan_file": null,
+      "branch": null,
+      "completed_at": null
+    }
+  ],
+  "notes": "Propuesta: historias en borrador con preguntas abiertas. Revisar con /epic-runner groom 1 antes de planear."
+}
