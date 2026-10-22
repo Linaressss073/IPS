@@ -1,32 +1,6 @@
-# Next.js Multi-tenant Starter Template
+# IPS · Frontend
 
-A minimalistic multi-tenant Next.js starter template with minimal setup and a modular design. Bring your own backend and database.
-
-[Demo](https://stack-template.vercel.app/)
-
-## Landing Page
-
-<div align="center">
-<img src="./assets/landing-page.png" alt="Teams" width="600"/>
-</div>
-
-## Dashboard
-
-<div align="center">
-<img src="./assets/dashboard-overview.png" alt="Teams" width="600"/>
-</div>
-
-## Multi-tenancy (Teams)
-
-<div align="center">
-<img src="./assets/team-switcher.png" alt="Teams" width="400"/>
-</div>
-
-## Account Settings
-
-<div align="center">
-<img src="./assets/account-settings.png" alt="Teams" width="500"/>
-</div>
+Next.js + Clerk: tablero de la consulta externa de cada IPS (la API está en [`../api`](../api/README.md)).
 
 ## Getting Started
 

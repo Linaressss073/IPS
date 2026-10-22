@@ -11,12 +11,7 @@ repetir información y poder seguir la traza de la atención de cada paciente.
 | [`api/`](api/README.md) | Backend NestJS + MongoDB, organizado con DDD y CQRS. |
 | [`multi-tenant-starter-template/`](multi-tenant-starter-template/README.md) | Frontend Next.js 15 (Turbopack) + Clerk (login, usuarios e IPS como organizaciones). |
 
-Módulos actuales: **Pacientes** (registro único por IPS, búsqueda, acompañantes numerados e historial con
-`requestedBy` / `executedBy`), **Personal** (directorio mínimo y ofuscado del personal de cada IPS, sincronizado
-con Clerk), **Organizaciones** (ficha de cada IPS en MongoDB: NIT, código REPS, contacto), **Agendamiento**
-(servicios, consultorios, agendas y citas), **Admisión y turnos** (llegada, turnos por servicio y pantalla de sala),
-**Consulta médica** (historia clínica firmada con notas aclaratorias) y **Farmacia** (dispensación total o parcial,
-inventario por lotes con salida FEFO y kárdex).
+Módulos: ver [contextos delimitados](api/README.md#contextos-delimitados).
 
 ## Desarrollo local
 

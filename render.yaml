@@ -29,6 +29,8 @@ projects:
             # Indexes are created by the API when it connects; no migrations.
             startCommand: node dist/main
             healthCheckPath: /api/v1/health
+            # Deploys main only after the GitHub checks (.github/workflows/ci.yml) pass.
+            autoDeployTrigger: checksPass
             envVars:
               - key: NODE_VERSION
                 value: "24"
@@ -58,6 +60,7 @@ projects:
             rootDir: multi-tenant-starter-template
             buildCommand: npx --yes pnpm@12.6.0 install --frozen-lockfile && npx --yes pnpm@12.6.0 build
             startCommand: npx next start
+            autoDeployTrigger: checksPass
             envVars:
               - key: NODE_VERSION
                 value: "24"

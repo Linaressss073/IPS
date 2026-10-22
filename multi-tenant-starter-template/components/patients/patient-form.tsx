@@ -200,7 +200,7 @@ export function PatientForm(props: {
               checked={hasCompanion}
               onChange={(e) => setHasCompanion(e.target.checked)}
             />
-            Llega con acompañante
+            <span>Llega con acompañante</span>
           </label>
           {hasCompanion && (
             <CompanionFields state={companion} onChange={setCompanion} idPrefix="companion" />

@@ -23,7 +23,7 @@ export function parseCalendarDate(value: string, field = 'date'): string {
 /** "07:30" -> 450 (minutes from midnight, 00:00 to 24:00). */
 export function parseTime(value: string, field = 'time'): number {
   const match = TIME_PATTERN.exec(value?.trim() ?? '');
-  const minutes = match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
+  const minutes = match ? Number(match[1]) * 60 + Number(match[2]) : Number.NaN;
   if (!match || minutes > MINUTES_PER_DAY) {
     throw new InvalidValueError(`${field} must be a time as HH:MM (24 h)`);
   }

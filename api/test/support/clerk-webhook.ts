@@ -1,7 +1,7 @@
 import { createHmac, randomUUID } from 'node:crypto';
 
 /** Fixed test secret (Standard Webhooks format: "whsec_" + base64 key). */
-export const TEST_WEBHOOK_SECRET = 'whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw';
+export const TEST_WEBHOOK_SECRET = `whsec_${Buffer.from('e2e-clerk-webhook-test-key').toString('base64')}`;
 
 /**
  * Signs a webhook payload like Clerk (Svix / Standard Webhooks) does:

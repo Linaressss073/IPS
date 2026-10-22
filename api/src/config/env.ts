@@ -71,6 +71,12 @@ function databaseInUrl(url: string): string {
 function toOrigins(value: string): string[] {
   return value
     .split(',')
-    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .map((origin) => stripTrailingSlashes(origin.trim()))
     .filter(Boolean);
+}
+
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end--;
+  return value.slice(0, end);
 }

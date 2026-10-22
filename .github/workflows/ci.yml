@@ -1,0 +1,61 @@
+# Verifies every push and pull request. Render deploys main only after these
+# checks pass (autoDeployTrigger: checksPass in render.yaml).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Sonar needs the full history to attribute new code.
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.6.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: api/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm test:cov --coverage.reporter=lcov
+      # MongoDB replica set from docker-compose.yml; the e2e use the his_test database.
+      - run: pnpm db:up
+      - run: pnpm test:e2e
+      - name: SonarQube Cloud
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_HOST_URL: https://sonarcloud.io
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: multi-tenant-starter-template
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.6.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: multi-tenant-starter-template/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      # next build compiles and type-checks.
+      - run: pnpm build
