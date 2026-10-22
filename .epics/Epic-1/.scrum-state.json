@@ -1,0 +1,48 @@
+{
+  "epic_number": 1,
+  "epic_title": "Plataforma multi-IPS, acceso y personal",
+  "epic_dir": ".epics/Epic-1",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T00:00:00Z",
+  "current_story": 4,
+  "current_phase": "completed",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Inicio de sesión y espacio de trabajo por IPS",
+      "status": "completed",
+      "story_file": "STORY-1-inicio-de-sesion-y-espacio-por-ips.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "number": 2,
+      "title": "Ficha de la IPS",
+      "status": "completed",
+      "story_file": "STORY-2-ficha-de-la-ips.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "number": 3,
+      "title": "Directorio del personal sincronizado y protegido",
+      "status": "completed",
+      "story_file": "STORY-3-directorio-del-personal.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "number": 4,
+      "title": "Roles funcionales y permisos",
+      "status": "completed",
+      "story_file": "STORY-4-roles-funcionales-y-permisos.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-02T00:00:00Z"
+    }
+  ],
+  "notes": "Épica construida antes de adoptar epic-runner; historias documentadas a partir del código, la API y los commits. Sin planes de implementación (se trabajó directo en main)."
+}

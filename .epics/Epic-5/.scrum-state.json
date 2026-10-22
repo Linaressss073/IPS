@@ -1,0 +1,48 @@
+{
+  "epic_number": 5,
+  "epic_title": "Consulta médica e historia clínica",
+  "epic_dir": ".epics/Epic-5",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T00:00:00Z",
+  "current_story": 4,
+  "current_phase": "completed",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Iniciar la consulta y guardar el borrador",
+      "status": "completed",
+      "story_file": "STORY-1-iniciar-consulta-y-borrador.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    },
+    {
+      "number": 2,
+      "title": "Diagnósticos CIE-10 y fórmula médica",
+      "status": "completed",
+      "story_file": "STORY-2-diagnosticos-y-formula.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    },
+    {
+      "number": 3,
+      "title": "Firmar la historia clínica",
+      "status": "completed",
+      "story_file": "STORY-3-firmar-historia-clinica.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    },
+    {
+      "number": 4,
+      "title": "Notas aclaratorias y consulta por otros médicos",
+      "status": "completed",
+      "story_file": "STORY-4-notas-aclaratorias-y-continuidad.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-03T00:00:00Z"
+    }
+  ],
+  "notes": "Épica construida antes de adoptar epic-runner; historias documentadas a partir del código, la API y los commits. Sin planes de implementación (se trabajó directo en main)."
+}

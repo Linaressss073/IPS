@@ -1,0 +1,57 @@
+{
+  "epic_number": 2,
+  "epic_title": "Registro único de pacientes y trazabilidad",
+  "epic_dir": ".epics/Epic-2",
+  "created_at": "2026-10-21T00:00:00Z",
+  "updated_at": "2026-10-21T00:00:00Z",
+  "current_story": 5,
+  "current_phase": "completed",
+  "stories": [
+    {
+      "number": 1,
+      "title": "Registrar paciente",
+      "status": "completed",
+      "story_file": "STORY-1-registrar-paciente.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "number": 2,
+      "title": "Buscar y consultar pacientes",
+      "status": "completed",
+      "story_file": "STORY-2-buscar-y-consultar-pacientes.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "number": 3,
+      "title": "Actualizar datos con control de cambios",
+      "status": "completed",
+      "story_file": "STORY-3-actualizar-datos-con-control-de-cambios.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "number": 4,
+      "title": "Acompañantes numerados",
+      "status": "completed",
+      "story_file": "STORY-4-acompanantes-numerados.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "number": 5,
+      "title": "Historial del paciente",
+      "status": "completed",
+      "story_file": "STORY-5-historial-del-paciente.md",
+      "plan_file": null,
+      "branch": "main",
+      "completed_at": "2026-10-01T00:00:00Z"
+    }
+  ],
+  "notes": "Épica construida antes de adoptar epic-runner; historias documentadas a partir del código, la API y los commits. Sin planes de implementación (se trabajó directo en main)."
+}
