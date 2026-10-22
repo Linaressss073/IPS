@@ -245,6 +245,24 @@ Hasta octubre de 2026 pacientes, personal y trazabilidad vivían en PostgreSQL, 
 partir de esas copias (solo inserta lo que falta; idempotente). Con `RECOVER_FROM_DB=test` antes copia todas las
 colecciones de esa base: mientras `MONGO_URL` no nombraba ninguna, el driver usaba `test`.
 
+## Documentación interactiva (Swagger / OpenAPI)
+
+La API publica su documentación OpenAPI 3.0, con todas las rutas y todos los campos:
+
+| Qué | Dónde |
+|---|---|
+| Interfaz (probar rutas) | `/api/v1/docs` · local: <http://localhost:3001/api/v1/docs> · producción: <https://ips-api-3404.onrender.com/api/v1/docs> |
+| Documento JSON (importable en Postman, generadores de clientes…) | `/api/v1/docs-json` |
+
+- Las rutas se agrupan por módulo (pacientes, citas, turnos, consultas, farmacia…). Para probarlas, **Authorize** con un token de sesión de Clerk
+  (sin el prefijo `Bearer`); `/health` y el webhook de Clerk no lo piden. Los errores se describen en la respuesta `default` (`ErrorResponse`).
+- **Peticiones:** salen de las clases `*.dto.ts` (plugin de `@nestjs/swagger` en `nest-cli.json`, que además lee los decoradores de `class-validator`
+  para marcar campos obligatorios y límites).
+- **Respuestas:** salen del tipo de retorno de cada ruta (`Promise<PatientView>`…) con `pnpm docs:generate`, que ya corre dentro de `pnpm build`.
+  El resultado, `src/docs/openapi-responses.generated.ts`, **se versiona**: el CI falla si `pnpm build` lo cambia sin haberlo subido.
+- Al agregar un endpoint: declarar su tipo de retorno y poner el cuerpo de la petición en un DTO. Si el tipo declarado es más estrecho de lo que
+  envía la ruta, se corrige en `RESPONSE_OVERRIDES` (`src/config/openapi.ts`).
+
 ## Tests
 
 ```bash

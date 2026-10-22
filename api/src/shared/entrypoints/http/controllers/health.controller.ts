@@ -13,7 +13,7 @@ export class HealthController {
 
   /** 503 when the database is unreachable, so load balancers take the instance out. */
   @Get()
-  async check() {
+  async check(): Promise<{ status: 'ok'; database: 'up' }> {
     try {
       await this.db.command({ ping: 1 }, { timeoutMS: 3000 });
     } catch {
