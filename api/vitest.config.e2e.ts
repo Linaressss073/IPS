@@ -1,10 +1,9 @@
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { TEST_WEBHOOK_SECRET } from './test/support/clerk-webhook.js';
 import { TEST_MONGO_DB_NAME, TEST_MONGO_URL } from './test/support/test-env.js';
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: { tsconfigPaths: true },
   test: {
     globals: true,
     root: './',

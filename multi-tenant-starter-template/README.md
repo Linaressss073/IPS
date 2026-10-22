@@ -39,7 +39,7 @@ A minimalistic multi-tenant Next.js starter template with minimal setup and a mo
 2. Install dependencies
 
     ```bash
-    npm install
+    pnpm install
     ```
 
 3. Create an application in [Clerk](https://dashboard.clerk.com), enable **Organizations** (each IPS is one) and
