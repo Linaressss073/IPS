@@ -47,6 +47,8 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
                   // Resolved here: pino cannot find it from inside nestjs-pino under pnpm's strict layout.
                   target: createRequire(import.meta.url).resolve('pino-pretty'),
                   options: {
+                    // Render's log viewer renders ANSI colors; set NO_COLOR=1 to turn them off.
+                    colorize: process.env.NO_COLOR === undefined,
                     translateTime: 'SYS:HH:MM:ss.l',
                     ignore: 'hostname,context,req,res',
                     messageFormat: '{if context}[{context}] {end}{msg}',

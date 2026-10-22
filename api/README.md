@@ -259,7 +259,7 @@ El mismo `ci.yml` de la raíz los corre en cadena (lint → build y unitarias �
 
 ## Logs
 
-[pino](https://getpino.io) vía `nestjs-pino`: una línea legible por log (`pino-pretty`: `[17:35:28.992] INFO (42): [Contexto] mensaje`) en todos los entornos y silencio en `ENV=test`.
+[pino](https://getpino.io) vía `nestjs-pino`: una línea legible por log (`pino-pretty`: `[17:35:28.992] INFO (42): [Contexto] mensaje`, con colores; `NO_COLOR=1` los apaga) en todos los entornos y silencio en `ENV=test`.
 Nivel con `LOG_LEVEL` (`info` por defecto). Se redactan `authorization`, `cookie` y la firma de webhooks, y no se registra `/health`.
 El `Logger` de NestJS de cada clase pasa por pino.
 
