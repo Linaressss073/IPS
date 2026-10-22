@@ -29,7 +29,7 @@ import {
   updatePatient,
 } from "@/lib/api/patients";
 import { useApiAuth } from "@/lib/api/use-api-auth";
-import { PageHeader, PageShell } from "@/components/page-header";
+import { PageShell } from "@/components/page-header";
 
 /** The timeline is read from Mongo, which lags the write by up to one relay interval. */
 const TIMELINE_REFRESH_DELAY_MS = 1000;
@@ -181,7 +181,7 @@ export function PageClient() {
   );
 }
 
-function PatientDetails({ patient }: { patient: Patient }) {
+function PatientDetails({ patient }: Readonly<{ patient: Patient }>) {
   const rows: [string, React.ReactNode][] = [
     ["Documento", `${DOCUMENT_TYPES[patient.document.type] ?? patient.document.type} · ${patient.document.number}`],
     ["Fecha de nacimiento", patient.birthDate],
@@ -215,7 +215,7 @@ const FIELD_LABELS: Record<string, string> = {
   affiliation: "afiliación",
 };
 
-function Timeline(props: { entries: TimelineEntry[] | null; members: TeamMember[] }) {
+function Timeline(props: Readonly<{ entries: TimelineEntry[] | null; members: TeamMember[] }>) {
   if (props.entries === null) return <Skeleton className="h-24 w-full" />;
   if (props.entries.length === 0) {
     return (
@@ -287,7 +287,7 @@ function appointmentSummary(data: Record<string, unknown>) {
       value.service && `${value.service.code} ${value.service.name}`,
       value.location?.label,
       value.date &&
-        `${new Date(`${value.date}T12:00:00Z`).toLocaleDateString("es-CO", { dateStyle: "medium", timeZone: "UTC" })}, ${value.time}`,
+        `${new Date(value.date + "T12:00:00Z").toLocaleDateString("es-CO", { dateStyle: "medium", timeZone: "UTC" })}, ${value.time}`,
     ]
       .filter(Boolean)
       .join(" · ");

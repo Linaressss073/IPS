@@ -23,7 +23,7 @@ export interface CareLocationProps {
 export class CareLocation extends Entity<SchedulingId> {
   private constructor(
     id: SchedulingId,
-    private props: CareLocationProps,
+    private readonly props: CareLocationProps,
   ) {
     super(id);
   }

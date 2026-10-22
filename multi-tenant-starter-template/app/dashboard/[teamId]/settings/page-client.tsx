@@ -126,11 +126,11 @@ export function PageClient() {
   );
 }
 
-function OrganizationForm(props: {
+function OrganizationForm(props: Readonly<{
   organization: Organization;
   onSubmit: (changes: OrganizationChanges) => Promise<void>;
   onCancel: () => void;
-}) {
+}>) {
   const [values, setValues] = React.useState(() =>
     Object.fromEntries(FIELDS.map((f) => [f.key, props.organization[f.key] ?? ""])) as Record<
       keyof OrganizationChanges,
@@ -192,7 +192,7 @@ function OrganizationForm(props: {
 }
 
 /** Deleting asks to type the IPS's name, since it removes everyone's access. */
-function DangerZone(props: { organization: Organization; onDelete: () => Promise<void> }) {
+function DangerZone(props: Readonly<{ organization: Organization; onDelete: () => Promise<void> }>) {
   const [confirmation, setConfirmation] = React.useState("");
   const [deleting, setDeleting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

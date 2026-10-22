@@ -25,7 +25,7 @@ import { TurnScreenPreview } from "./turn-screen-preview";
 
 type Icon = LucideIcon;
 
-function SectionHeading(props: { eyebrow: string; title: string; children?: ReactNode }) {
+function SectionHeading(props: Readonly<{ eyebrow: string; title: string; children?: ReactNode }>) {
   return (
     <div className="mx-auto max-w-2xl text-center">
       <p className="text-sm font-semibold uppercase tracking-wider text-primary">{props.eyebrow}</p>

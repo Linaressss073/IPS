@@ -112,11 +112,13 @@ export function PageClient() {
       </div>
       {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
 
-      {state.loading ? (
+      {state.loading && (
         <Skeleton className="h-40 w-full" />
-      ) : visible.length === 0 ? (
+      )}
+      {!(state.loading) && visible.length === 0 && (
         <p className="text-sm text-muted-foreground">No hay fórmulas firmadas para ese día{search && " con ese paciente"}.</p>
-      ) : (
+      )}
+      {!(state.loading) && visible.length !== 0 && (
         <div className="grid gap-4 xl:grid-cols-2">
           {visible.map((prescription) => (
             <PrescriptionCard
@@ -140,13 +142,13 @@ export function PageClient() {
   );
 }
 
-function PrescriptionCard(props: {
+function PrescriptionCard(props: Readonly<{
   prescription: PharmacyPrescription;
   windows: Location[];
   catalog: Product[];
   onDeliver: (lines: { index: number; quantity: number; productId: string }[], note: string) => Promise<void>;
   onTurn: (windowId: string) => Promise<string>;
-}) {
+}>) {
   const { prescription: p } = props;
   const [delivering, setDelivering] = React.useState(false);
   const [quantities, setQuantities] = React.useState<Record<number, string>>({});
@@ -246,8 +248,8 @@ function PrescriptionCard(props: {
           <details className="text-sm">
             <summary className="cursor-pointer text-muted-foreground">Entregas ({p.deliveries.length})</summary>
             <ul className="mt-2 space-y-1">
-              {p.deliveries.map((d, index) => (
-                <li key={index} className="text-xs text-muted-foreground">
+              {p.deliveries.map((d) => (
+                <li key={`${d.at}|${d.by}`} className="text-xs text-muted-foreground">
                   {new Date(d.at).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })} ·{" "}
                   {d.byName || d.by}:{" "}
                   {d.lines

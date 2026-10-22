@@ -71,13 +71,13 @@ export function PageClient() {
   );
 }
 
-function ConsultationBody(props: {
+function ConsultationBody(props: Readonly<{
   consultation: Consultation;
   isMine: boolean;
   onSave: React.ComponentProps<typeof ConsultationEditor>["onSave"];
   onSign: React.ComponentProps<typeof ConsultationEditor>["onSign"];
   onAddendum: (text: string) => Promise<void>;
-}) {
+}>) {
   const { consultation: c, isMine } = props;
   return (
     <>
@@ -94,18 +94,20 @@ function ConsultationBody(props: {
           </>
         }
       />
-      {c.status === "en_curso" && isMine ? (
+      {c.status === "en_curso" && isMine && (
         <ConsultationEditor
           key={c.id}
           consultation={c}
           onSave={props.onSave}
           onSign={props.onSign}
         />
-      ) : c.status === "en_curso" ? (
+      )}
+      {!(c.status === "en_curso" && isMine) && c.status === "en_curso" && (
         <p className="rounded-md border px-4 py-3 text-sm text-muted-foreground">
           La consulta está en curso con {c.physician.displayName || "su profesional"}; podrás leerla cuando la firme.
         </p>
-      ) : (
+      )}
+      {!(c.status === "en_curso" && isMine) && c.status !== "en_curso" && (
         <ConsultationRecord
           consultation={c}
           canAmend={isMine}

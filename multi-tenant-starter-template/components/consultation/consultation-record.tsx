@@ -9,7 +9,7 @@ import { Consultation, ROUTES, VITAL_SIGNS } from "@/lib/api/consultation";
 const formatDateTime = (iso: string) =>
   new Date(iso).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
 
-function Section(props: { title: string; children: React.ReactNode }) {
+function Section(props: Readonly<{ title: string; children: React.ReactNode }>) {
   return (
     <section className="space-y-1">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{props.title}</h3>
@@ -19,11 +19,11 @@ function Section(props: { title: string; children: React.ReactNode }) {
 }
 
 /** A signed consultation, read-only; its physician may append addenda. */
-export function ConsultationRecord(props: {
+export function ConsultationRecord(props: Readonly<{
   consultation: Consultation;
   canAmend: boolean;
   onAddendum: (text: string) => Promise<void>;
-}) {
+}>) {
   const { consultation: c } = props;
   const [text, setText] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -66,8 +66,8 @@ export function ConsultationRecord(props: {
           {c.prescription.length > 0 && (
             <Section title="Fórmula médica">
               <ol className="list-decimal space-y-1 pl-5">
-                {c.prescription.map((item, index) => (
-                  <li key={index}>
+                {c.prescription.map((item) => (
+                  <li key={`${item.medication}|${item.presentation}|${item.dose}|${item.frequency}`}>
                     <strong>{item.medication}</strong> ({item.presentation}) · {item.dose} {ROUTES[item.route]?.toLowerCase()}{" "}
                     {item.frequency.toLowerCase()} por {item.durationDays} días · cantidad {item.quantity}
                     {item.instructions && ` · ${item.instructions}`}
@@ -86,8 +86,8 @@ export function ConsultationRecord(props: {
         </CardHeader>
         <CardContent className="space-y-4">
           {c.addenda.length === 0 && <p className="text-sm text-muted-foreground">Sin notas.</p>}
-          {c.addenda.map((a, index) => (
-            <div key={index} className="rounded-md border-l-4 border-trust/50 bg-muted/40 px-3 py-2 text-sm">
+          {c.addenda.map((a) => (
+            <div key={a.writtenAt} className="rounded-md border-l-4 border-trust/50 bg-muted/40 px-3 py-2 text-sm">
               <p className="whitespace-pre-wrap">{a.text}</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {formatDateTime(a.writtenAt)} · {a.writtenByName || a.writtenBy}

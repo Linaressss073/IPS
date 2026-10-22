@@ -95,7 +95,7 @@ const navigationItems: (SidebarItem & { requires?: Permission[] })[] = [
   },
 ];
 
-export default function Layout(props: { children: React.ReactNode }) {
+export default function Layout(props: Readonly<{ children: React.ReactNode }>) {
   const { teamId } = useParams<{ teamId: string }>();
   const router = useRouter();
   const { organization, isLoaded } = useOrganization();
@@ -126,7 +126,7 @@ export default function Layout(props: { children: React.ReactNode }) {
   );
 }
 
-function TeamShell(props: { teamId: string; teamName: string; children: React.ReactNode }) {
+function TeamShell(props: Readonly<{ teamId: string; teamName: string; children: React.ReactNode }>) {
   const { can } = useAccess();
   const appearance = useClerkAppearance();
   const items = navigationItems.filter((item) => !item.requires || item.requires.some((permission) => can(permission)));

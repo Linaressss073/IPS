@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Appointment, APPOINTMENT_STATUSES, formatDay } from "@/lib/api/scheduling";
 
 /** Details of an appointment and what can be done with it. */
-export function AppointmentPanel(props: {
+export function AppointmentPanel(props: Readonly<{
   appointment: Appointment;
   teamId: string;
   canManage: boolean;
@@ -17,7 +17,7 @@ export function AppointmentPanel(props: {
   onReschedule: () => void;
   /** Shown to the appointment's physician: opens (or resumes) its consultation. */
   onConsult?: () => Promise<void>;
-}) {
+}>) {
   const { appointment: a } = props;
   const [reason, setReason] = React.useState("");
   const [cancelling, setCancelling] = React.useState(false);

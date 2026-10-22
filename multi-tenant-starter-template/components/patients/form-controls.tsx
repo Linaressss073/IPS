@@ -2,7 +2,7 @@ import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-export function Section(props: { title: string; children: React.ReactNode }) {
+export function Section(props: Readonly<{ title: string; children: React.ReactNode }>) {
   return (
     <fieldset className="space-y-3">
       <legend className="text-sm font-semibold">{props.title}</legend>
@@ -11,7 +11,7 @@ export function Section(props: { title: string; children: React.ReactNode }) {
   );
 }
 
-export function Field(props: { label: string; id: string; wide?: boolean; children: React.ReactNode }) {
+export function Field(props: Readonly<{ label: string; id: string; wide?: boolean; children: React.ReactNode }>) {
   return (
     <div className={cn("space-y-1", props.wide && "md:col-span-2")}>
       <Label htmlFor={props.id}>{props.label}</Label>

@@ -10,7 +10,7 @@ import { CallSettings, getCallSettings, updateCallSettings } from "@/lib/api/adm
 import { TokenSource } from "@/lib/api/client";
 
 /** How the IPS calls turns: interval between re-announcements and number of calls. */
-export function CallSettingsCard(props: { auth: TokenSource; teamId: string }) {
+export function CallSettingsCard(props: Readonly<{ auth: TokenSource; teamId: string }>) {
   const { auth, teamId } = props;
   const [settings, setSettings] = React.useState<CallSettings>({ announceIntervalSeconds: 120, maxCalls: 3 });
   const [saved, setSaved] = React.useState("");

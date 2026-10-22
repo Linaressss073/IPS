@@ -12,7 +12,7 @@ export class BirthDate extends ValueObject<string> {
     const match = ISO_DATE.exec(value);
     const date = match ? new Date(`${value}T00:00:00Z`) : null;
     // Rejects impossible dates such as 2026-02-30 (Date would roll them over).
-    if (!date || date.toISOString().slice(0, 10) !== value) {
+    if (date?.toISOString().slice(0, 10) !== value) {
       throw new InvalidValueError(
         `Invalid birth date "${raw}"; expected YYYY-MM-DD`,
       );

@@ -15,7 +15,7 @@ const HIGHLIGHTS = [
  * Sign-in, sign-up and the IPS chooser: the brand panel of the landing on
  * the left (wide screens) and the Clerk form on the right.
  */
-export function AuthShell(props: { title: string; subtitle: string; children: React.ReactNode }) {
+export function AuthShell(props: Readonly<{ title: string; subtitle: string; children: React.ReactNode }>) {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Deep green in dark mode: the bright accent green would glare on a dark screen. */}

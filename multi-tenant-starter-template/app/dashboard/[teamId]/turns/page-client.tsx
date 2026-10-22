@@ -117,13 +117,15 @@ export function PageClient() {
       />
       {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
 
-      {!loaded ? (
+      {!loaded && (
         <Skeleton className="h-40 w-full" />
-      ) : turns.length === 0 ? (
+      )}
+      {loaded && turns.length === 0 && (
         <p className="text-sm text-muted-foreground">
           Aún no hay turnos hoy. Se crean cuando Admisión registra la llegada del paciente.
         </p>
-      ) : (
+      )}
+      {loaded && turns.length !== 0 && (
         <div className="grid gap-4 lg:grid-cols-3">
           {GROUPS.map((group) => {
             const items = turns.filter((turn) => group.statuses.includes(turn.status));

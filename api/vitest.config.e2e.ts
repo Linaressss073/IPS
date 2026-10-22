@@ -7,6 +7,8 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],
+    // Measures every source file, loaded or not, so the report is honest.
+    coverage: { include: ['src/**/*.ts'], exclude: ['**/*.spec.ts', '**/*.fake.ts'] },
     // Refuses databases whose name does not end in "_test".
     globalSetup: ['./test/support/global-setup.ts'],
     // Specs share one database and wipe it: run files one at a time.

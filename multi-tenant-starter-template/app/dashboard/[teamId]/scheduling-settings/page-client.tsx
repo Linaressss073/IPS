@@ -133,11 +133,11 @@ export function PageClient() {
   );
 }
 
-function AddForm(props: {
+function AddForm(props: Readonly<{
   fields: { key: string; label: string; placeholder: string; maxLength?: number }[];
   submitLabel: string;
   onSubmit: (values: Record<string, string>) => Promise<void>;
-}) {
+}>) {
   const empty = Object.fromEntries(props.fields.map((f) => [f.key, ""]));
   const [values, setValues] = React.useState<Record<string, string>>(empty);
   const [saving, setSaving] = React.useState(false);
@@ -182,12 +182,12 @@ function AddForm(props: {
   );
 }
 
-function ItemList<T extends { id: string; active: boolean }>(props: {
+function ItemList<T extends { id: string; active: boolean }>(props: Readonly<{
   items: T[] | null;
   empty: string;
   render: (item: T) => React.ReactNode;
   onToggle: (item: T) => Promise<void>;
-}) {
+}>) {
   const [error, setError] = React.useState<string | null>(null);
   if (props.items === null) return <Skeleton className="h-16 w-full" />;
   if (props.items.length === 0) return <p className="text-sm text-muted-foreground">{props.empty}</p>;

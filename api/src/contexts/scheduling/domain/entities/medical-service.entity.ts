@@ -21,7 +21,7 @@ export interface MedicalServiceProps {
 export class MedicalService extends Entity<SchedulingId> {
   private constructor(
     id: SchedulingId,
-    private props: MedicalServiceProps,
+    private readonly props: MedicalServiceProps,
   ) {
     super(id);
   }

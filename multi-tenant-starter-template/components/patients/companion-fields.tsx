@@ -53,11 +53,11 @@ export function toCompanionInput(state: CompanionState): CompanionInput {
 }
 
 /** All optional, but fill in at least a name or a phone. */
-export function CompanionFields(props: {
+export function CompanionFields(props: Readonly<{
   state: CompanionState;
   onChange: (state: CompanionState) => void;
   idPrefix: string;
-}) {
+}>) {
   const { state } = props;
   const id = (field: string) => `${props.idPrefix}-${field}`;
   const set = (field: keyof CompanionState) => (

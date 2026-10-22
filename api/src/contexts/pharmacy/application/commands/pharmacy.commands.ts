@@ -66,7 +66,7 @@ export class Dispense {
     const products = new Map<string, Product>();
     for (const line of command.lines) {
       const id = ProductId.of(line.productId);
-      if (!products.has(id.value)) products.set(id.value, await this.products.getById(command.teamId, id));
+      if (!products.has(id.value)) products.set(id.value, await this.products.getById(command.teamId, id)); // NOSONAR sequential: one read per distinct product, cached in the map
     }
     const productOf = new Map(command.lines.map((line) => [line.index, ProductId.of(line.productId).value]));
     if (productOf.size !== command.lines.length) throw new InvalidValueError('Each prescription item goes once');

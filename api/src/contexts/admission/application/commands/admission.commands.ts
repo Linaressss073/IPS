@@ -193,11 +193,11 @@ export class AdvanceAnnouncements {
     let noShows = 0;
     for (const turn of candidates) {
       const teamKey = turn.teamId.value;
-      if (!settingsByTeam.has(teamKey)) settingsByTeam.set(teamKey, await this.settings.get(turn.teamId));
+      if (!settingsByTeam.has(teamKey)) settingsByTeam.set(teamKey, await this.settings.get(turn.teamId)); // NOSONAR sequential: per-turn saves, each guarded by its own version
       const result = turn.autoAdvance(settingsByTeam.get(teamKey)!, now);
       if (result === 'none') continue;
       try {
-        await this.turns.save(turn, [
+        await this.turns.save(turn, [ // NOSONAR sequential: per-turn saves, each guarded by its own version
           turnEvent(turn, result === 'no_show' ? TURN_NO_SHOW : TURN_CALLED, AdvanceAnnouncements.SYSTEM, now, {
             automatic: true,
           }),

@@ -71,7 +71,7 @@ export type AutoAdvance = 'reannounced' | 'no_show' | 'none';
 export class Turn extends Entity<TurnId> {
   private constructor(
     id: TurnId,
-    private props: TurnProps,
+    private readonly props: TurnProps,
   ) {
     super(id);
   }

@@ -61,4 +61,4 @@ export function searchCie10(query: string, limit = 8) {
   }).slice(0, limit);
 }
 
-export const CIE10_PATTERN = /^[A-Z][0-9]{2}(\.[0-9A-Z]{1,2})?$/;
+export const CIE10_PATTERN = /^[A-Z]\d{2}(\.[0-9A-Z]{1,2})?$/;

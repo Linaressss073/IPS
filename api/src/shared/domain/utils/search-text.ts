@@ -10,5 +10,5 @@ export function normalizeForSearch(text: string): string {
 
 /** Escapes regular-expression characters so user input is matched literally. */
 export function escapeRegex(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }

@@ -50,14 +50,16 @@ export function PageClient() {
           {error && (
             <p className="mb-4 rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
           )}
-          {staff === null ? (
+          {staff === null && (
             !error && <Skeleton className="h-24 w-full" />
-          ) : staff.length === 0 ? (
+          )}
+          {staff !== null && staff.length === 0 && (
             <p className="text-sm text-muted-foreground">
               Aún no hay personal sincronizado. Aparece cuando Clerk envía los cambios (webhooks) o al correr{" "}
               <code>pnpm clerk:sync</code>.
             </p>
-          ) : (
+          )}
+          {staff !== null && staff.length !== 0 && (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -92,11 +94,11 @@ export function PageClient() {
   );
 }
 
-function StaffRow(props: {
+function StaffRow(props: Readonly<{
   member: StaffMember;
   isMe: boolean;
   onSave: (roles: string[]) => Promise<void>;
-}) {
+}>) {
   const { member } = props;
   const [roles, setRoles] = React.useState<string[]>(member.roles);
   const [saving, setSaving] = React.useState(false);

@@ -100,17 +100,19 @@ export function PageClient() {
               {error}
             </p>
           )}
-          {result === null ? (
+          {result === null && (
             <div className="space-y-2">
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-8 w-full" />
             </div>
-          ) : result.items.length === 0 ? (
+          )}
+          {result !== null && result.items.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
               {query ? "Ningún paciente coincide con la búsqueda." : "Aún no hay pacientes registrados."}
             </p>
-          ) : (
+          )}
+          {result !== null && result.items.length !== 0 && (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">

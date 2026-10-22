@@ -11,12 +11,12 @@ import { TokenSource } from "@/lib/api/client";
 import { Appointment, APPOINTMENT_STATUSES, formatDay, searchAppointments } from "@/lib/api/scheduling";
 
 /** The patient's appointments, upcoming first; a shortcut to book a new one. */
-export function PatientAppointmentsCard(props: {
+export function PatientAppointmentsCard(props: Readonly<{
   auth: TokenSource;
   teamId: string;
   patientId: string;
   canBook: boolean;
-}) {
+}>) {
   const { auth, teamId, patientId } = props;
   const [appointments, setAppointments] = React.useState<Appointment[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -53,11 +53,13 @@ export function PatientAppointmentsCard(props: {
       </CardHeader>
       <CardContent>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        {appointments === null ? (
+        {appointments === null && (
           !error && <Skeleton className="h-16 w-full" />
-        ) : appointments.length === 0 ? (
+        )}
+        {appointments !== null && appointments.length === 0 && (
           <p className="text-sm text-muted-foreground">Sin citas.</p>
-        ) : (
+        )}
+        {appointments !== null && appointments.length !== 0 && (
           <ul className="divide-y text-sm">
             {[...upcoming, ...others].map((a) => (
               <li key={a.id} className="flex items-start justify-between gap-2 py-2">
