@@ -8,14 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Location, OpenAgendaInput, Professional, Service } from "@/lib/api/scheduling";
 
 /** Opens a block of a professional's time, split into equal slots. */
-export function OpenAgendaForm(props: {
+export function OpenAgendaForm(props: Readonly<{
   date: string;
   services: Service[];
   locations: Location[];
   professionals: Professional[];
   onSubmit: (input: OpenAgendaInput) => Promise<void>;
   onCancel: () => void;
-}) {
+}>) {
   const [input, setInput] = React.useState<OpenAgendaInput>({
     professionalId: "",
     serviceId: "",

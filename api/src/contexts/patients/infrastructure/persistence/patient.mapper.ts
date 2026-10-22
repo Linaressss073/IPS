@@ -1,4 +1,4 @@
-import { TeamId } from '../../../../shared/domain/index.js';
+import { normalizeForSearch, TeamId } from '../../../../shared/domain/index.js';
 import { PatientView } from '../../application/types/patient.types.js';
 import { Affiliation } from '../../domain/entities/affiliation.vo.js';
 import { BiologicalSex } from '../../domain/entities/biological-sex.vo.js';
@@ -9,7 +9,6 @@ import { PatientId } from '../../domain/entities/patient-id.vo.js';
 import { Patient } from '../../domain/entities/patient.entity.js';
 import { PersonName } from '../../domain/entities/person-name.vo.js';
 import { PatientDocument } from './patient.document.js';
-import { normalizeForSearch } from '../../../../shared/domain/index.js';
 
 /** The patient's fields as stored; the companion counter is kept apart. */
 export type PatientFields = Omit<PatientDocument, 'companionCount'>;

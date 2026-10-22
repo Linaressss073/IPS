@@ -73,7 +73,7 @@ export interface ConsultationChanges {
 export class Consultation extends Entity<ConsultationId> {
   private constructor(
     id: ConsultationId,
-    private props: ConsultationProps,
+    private readonly props: ConsultationProps,
   ) {
     super(id);
   }

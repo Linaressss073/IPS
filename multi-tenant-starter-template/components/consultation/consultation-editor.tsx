@@ -46,11 +46,11 @@ function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
 }
 
 /** The draft of a consultation: save as often as needed, then sign. */
-export function ConsultationEditor(props: {
+export function ConsultationEditor(props: Readonly<{
   consultation: Consultation;
   onSave: (draft: Draft) => Promise<void>;
   onSign: (draft: Draft) => Promise<void>;
-}) {
+}>) {
   const { consultation } = props;
   const [note, setNote] = React.useState<Note>(consultation.note);
   // Vital signs as editable text per sign; empty means "not measured".
@@ -193,7 +193,7 @@ export function ConsultationEditor(props: {
   );
 }
 
-function DiagnosesCard(props: { diagnoses: Diagnosis[]; onChange: (d: Diagnosis[]) => void }) {
+function DiagnosesCard(props: Readonly<{ diagnoses: Diagnosis[]; onChange: (d: Diagnosis[]) => void }>) {
   const { diagnoses, onChange } = props;
   const [query, setQuery] = React.useState("");
   const [custom, setCustom] = React.useState({ code: "", description: "" });
@@ -284,8 +284,14 @@ function DiagnosesCard(props: { diagnoses: Diagnosis[]; onChange: (d: Diagnosis[
   );
 }
 
-function PrescriptionCard(props: { items: PrescriptionItem[]; onChange: (items: PrescriptionItem[]) => void }) {
+function PrescriptionCard(props: Readonly<{ items: PrescriptionItem[]; onChange: (items: PrescriptionItem[]) => void }>) {
   const { items, onChange } = props;
+  // Rows have no id of their own: keep one per row so React keeps focus while typing.
+  const ids = React.useRef<string[]>([]);
+  ids.current = [
+    ...ids.current.slice(0, items.length),
+    ...Array.from({ length: Math.max(0, items.length - ids.current.length) }, () => crypto.randomUUID()),
+  ];
   const update = (index: number, changes: Partial<PrescriptionItem>) =>
     onChange(items.map((item, i) => (i === index ? { ...item, ...changes } : item)));
 
@@ -303,10 +309,13 @@ function PrescriptionCard(props: { items: PrescriptionItem[]; onChange: (items: 
       <CardContent className="space-y-4">
         {items.length === 0 && <p className="text-sm text-muted-foreground">Sin medicamentos.</p>}
         {items.map((item, index) => (
-          <div key={index} className="space-y-3 rounded-lg border p-3">
+          <div key={ids.current[index]} className="space-y-3 rounded-lg border p-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">Medicamento {index + 1}</p>
-              <Button variant="ghost" size="icon" aria-label="Quitar medicamento" onClick={() => onChange(items.filter((_, i) => i !== index))}>
+              <Button variant="ghost" size="icon" aria-label="Quitar medicamento" onClick={() => {
+                ids.current = ids.current.filter((_, i) => i !== index);
+                onChange(items.filter((_, i) => i !== index));
+              }}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>

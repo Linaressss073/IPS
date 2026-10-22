@@ -48,8 +48,10 @@ function addDays(date: string, days: number): string {
 
 export function toProductView(product: Product, today: string): ProductView {
   const warnUntil = addDays(today, EXPIRY_WARNING_DAYS);
-  const lotStatus = (expiresOn: string): LotStatus =>
-    expiresOn < today ? 'vencido' : expiresOn <= warnUntil ? 'por_vencer' : 'vigente';
+  const lotStatus = (expiresOn: string): LotStatus => {
+    if (expiresOn < today) return 'vencido';
+    return expiresOn <= warnUntil ? 'por_vencer' : 'vigente';
+  };
   const lots = product.lots
     .filter((lot) => lot.quantity > 0)
     .map((lot) => ({ lotNumber: lot.lotNumber, expiresOn: lot.expiresOn, quantity: lot.quantity, status: lotStatus(lot.expiresOn) }))

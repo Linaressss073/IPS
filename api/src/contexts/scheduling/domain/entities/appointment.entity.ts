@@ -51,7 +51,7 @@ export interface AppointmentProps {
 export class Appointment extends Entity<SchedulingId> {
   private constructor(
     id: SchedulingId,
-    private props: AppointmentProps,
+    private readonly props: AppointmentProps,
   ) {
     super(id);
   }

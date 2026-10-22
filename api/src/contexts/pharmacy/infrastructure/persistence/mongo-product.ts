@@ -86,7 +86,7 @@ export async function writeStock(
   const collection = db.collection<ProductDocument>(PRODUCTS_COLLECTION);
   for (const product of products) {
     const { _id, teamId, ...fields } = toDocument(product);
-    const result = await collection.updateOne(
+    const result = await collection.updateOne( // NOSONAR sequential: writes inside one transaction session
       { _id, teamId, version: product.version - 1 },
       { $set: fields },
       { session },

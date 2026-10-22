@@ -44,7 +44,7 @@ jobs:
         working-directory: api
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: coverage
+          name: coverage-unit
           path: api/coverage/lcov.info
 
   e2e-api:
@@ -55,8 +55,12 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
         with: { working-directory: api }
       # Testcontainers starts MongoDB (replica set) from global-setup.
-      - run: pnpm test:e2e
+      - run: pnpm test:e2e --coverage --coverage.reporter=lcov --coverage.reportsDirectory=coverage-e2e
         working-directory: api
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-e2e
+          path: api/coverage-e2e/lcov.info
 
   sonar:
     needs: e2e-api
@@ -67,10 +71,15 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0 # Sonar attributes new code from the full history.
+      # Unit + e2e coverage; Sonar merges both reports.
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: coverage
+          name: coverage-unit
           path: api/coverage
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: coverage-e2e
+          path: api/coverage-e2e
       - name: SonarQube Cloud
         if: env.SONAR_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703 # v5

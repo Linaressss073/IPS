@@ -70,14 +70,14 @@ function toInput(state: FormState): PatientInput {
  * Register or edit a patient. Business rules are validated by the API.
  * `withCompanion` offers recording the first companion (#1) on registration.
  */
-export function PatientForm(props: {
+export function PatientForm(props: Readonly<{
   patient?: Patient;
   withCompanion?: boolean;
   members: TeamMember[];
   submitLabel: string;
   onSubmit: (input: PatientInput) => Promise<void>;
   onCancel?: () => void;
-}) {
+}>) {
   const [state, setState] = React.useState(() => toState(props.patient));
   const [hasCompanion, setHasCompanion] = React.useState(false);
   const [companion, setCompanion] = React.useState<CompanionState>(emptyCompanion);

@@ -9,7 +9,7 @@ const STYLES: Record<TurnStatus, string> = {
   no_se_presento: "bg-destructive/10 text-destructive",
 };
 
-export function TurnStatusBadge(props: { status: TurnStatus; calls?: number }) {
+export function TurnStatusBadge(props: Readonly<{ status: TurnStatus; calls?: number }>) {
   return (
     <span className={cn("whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium", STYLES[props.status])}>
       {TURN_STATUSES[props.status]}

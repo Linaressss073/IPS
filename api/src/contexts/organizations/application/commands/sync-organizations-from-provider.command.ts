@@ -29,7 +29,7 @@ export class SyncOrganizationsFromProvider {
     let removed = 0;
     for (const stored of await this.organizations.listActive()) {
       if (!seen.has(stored.id.value) && stored.providerUpdatedAt < startedAt) {
-        await this.apply.execute({ kind: 'organization.deleted', id: stored.id });
+        await this.apply.execute({ kind: 'organization.deleted', id: stored.id }); // NOSONAR sequential: bounded by provider rate limits
         removed += 1;
       }
     }

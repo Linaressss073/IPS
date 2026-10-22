@@ -21,7 +21,7 @@ import {
 export class Organization extends Entity<TeamId> {
   private constructor(
     id: TeamId,
-    private props: OrganizationProps,
+    private readonly props: OrganizationProps,
   ) {
     super(id);
   }

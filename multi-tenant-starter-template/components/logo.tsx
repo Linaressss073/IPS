@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  * Brand: a green pulse (life, care) and the product name. `inverse` is for
  * green backgrounds (white mark and text).
  */
-export function Logo(props: { className?: string; link?: string; inverse?: boolean }) {
+export function Logo(props: Readonly<{ className?: string; link?: string; inverse?: boolean }>) {
   return (
     <Link
       href={props.link ?? "/"}

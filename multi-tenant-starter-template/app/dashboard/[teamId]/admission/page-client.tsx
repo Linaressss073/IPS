@@ -91,11 +91,13 @@ export function PageClient() {
       />
       {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
 
-      {!loaded ? (
+      {!loaded && (
         <Skeleton className="h-40 w-full" />
-      ) : visible.length === 0 ? (
+      )}
+      {loaded && visible.length === 0 && (
         <p className="text-sm text-muted-foreground">No hay citas para hoy{filter && " con ese dato"}.</p>
-      ) : (
+      )}
+      {loaded && visible.length !== 0 && (
         <Card>
           <CardContent className="p-0">
             <ul className="divide-y">

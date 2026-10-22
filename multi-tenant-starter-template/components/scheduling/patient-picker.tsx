@@ -9,11 +9,11 @@ import { Patient, searchPatients } from "@/lib/api/patients";
 const SEARCH_DELAY_MS = 300;
 
 /** Finds a registered patient by document or name. */
-export function PatientPicker(props: {
+export function PatientPicker(props: Readonly<{
   auth: TokenSource;
   teamId: string;
   onPick: (patient: Patient) => void;
-}) {
+}>) {
   const { auth, teamId } = props;
   const [q, setQ] = React.useState("");
   const [results, setResults] = React.useState<Patient[] | null>(null);
@@ -45,7 +45,7 @@ export function PatientPicker(props: {
         onChange={(e) => setQ(e.target.value)}
       />
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {results && results.length === 0 && (
+      {results?.length === 0 && (
         <p className="text-sm text-muted-foreground">
           No hay pacientes con ese dato. Regístralo primero en Pacientes.
         </p>

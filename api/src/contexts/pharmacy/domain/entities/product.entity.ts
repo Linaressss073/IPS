@@ -70,7 +70,7 @@ function wholeNumber(value: number, field: string, min: number, max: number): nu
 export class Product extends Entity<ProductId> {
   private constructor(
     id: ProductId,
-    private props: ProductProps,
+    private readonly props: ProductProps,
     /** The version stored when loaded (0 if new): every change of one save is a single version. */
     private readonly storedVersion: number,
   ) {

@@ -1,5 +1,5 @@
 import type { Collection, Db, Filter } from 'mongodb';
-import { TeamId } from '../../../../shared/domain/index.js';
+import { escapeRegex, normalizeForSearch, TeamId } from '../../../../shared/domain/index.js';
 import { PatientNotFoundError } from '../../application/errors/patient.errors.js';
 import { PatientReadModel } from '../../application/ports/patient-read-model.port.js';
 import { PatientId } from '../../domain/entities/patient-id.vo.js';
@@ -10,7 +10,6 @@ import {
 } from '../../application/types/patient.types.js';
 import { PatientDocument, PATIENTS_COLLECTION } from './patient.document.js';
 import { PatientMapper } from './patient.mapper.js';
-import { escapeRegex, normalizeForSearch } from '../../../../shared/domain/index.js';
 
 /** Read side over the patients collection: documents go straight to views. */
 export class MongoPatientReadModel implements PatientReadModel {

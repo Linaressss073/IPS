@@ -10,7 +10,7 @@ import { Consultation, listPatientConsultations } from "@/lib/api/consultation";
 import { formatDay } from "@/lib/api/scheduling";
 
 /** The patient's consultations (physicians only), newest first. */
-export function ClinicalHistoryCard(props: { auth: TokenSource; teamId: string; patientId: string }) {
+export function ClinicalHistoryCard(props: Readonly<{ auth: TokenSource; teamId: string; patientId: string }>) {
   const { auth, teamId, patientId } = props;
   const [state, setState] = React.useState<{ loading: true } | { loading: false; items: Consultation[] }>({
     loading: true,
@@ -31,11 +31,13 @@ export function ClinicalHistoryCard(props: { auth: TokenSource; teamId: string; 
       </CardHeader>
       <CardContent>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        {state.loading ? (
+        {state.loading && (
           !error && <Skeleton className="h-16 w-full" />
-        ) : state.items.length === 0 ? (
+        )}
+        {!(state.loading) && state.items.length === 0 && (
           <p className="text-sm text-muted-foreground">Sin consultas.</p>
-        ) : (
+        )}
+        {!(state.loading) && state.items.length !== 0 && (
           <ul className="divide-y text-sm">
             {state.items.map((c) => {
               const principal = c.diagnoses.find((d) => d.principal);

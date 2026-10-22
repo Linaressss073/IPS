@@ -35,7 +35,7 @@ export interface DispensationProps {
 export class Dispensation extends Entity<DispensationId> {
   private constructor(
     id: DispensationId,
-    private props: DispensationProps,
+    private readonly props: DispensationProps,
   ) {
     super(id);
   }

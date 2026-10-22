@@ -12,7 +12,7 @@ const SLOT_STYLES: Record<string, string> = {
 };
 
 /** One agenda with its slots: free ones can be booked, taken ones opened. */
-export function AgendaCard(props: {
+export function AgendaCard(props: Readonly<{
   agenda: Agenda;
   /** Whether free slots can be clicked (booking or moving an appointment). */
   canPickFree: boolean;
@@ -21,7 +21,7 @@ export function AgendaCard(props: {
   onDelete?: (agenda: Agenda) => void;
   /** Slots before this instant cannot be booked. */
   now: Date;
-}) {
+}>) {
   const { agenda } = props;
   const booked = agenda.slots.filter((s) => s.appointment).length;
   return (

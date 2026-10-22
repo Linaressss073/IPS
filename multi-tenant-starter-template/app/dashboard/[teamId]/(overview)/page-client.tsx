@@ -121,13 +121,7 @@ export function PageClient() {
       <PageHeader
         eyebrow="Panel de la IPS"
         title="Inicio"
-        description={
-          access === null
-            ? "Cargando tus accesos…"
-            : roles.length > 0
-              ? `Tus roles: ${roles.join(", ")}.`
-              : "Aún no tienes roles en esta IPS."
-        }
+        description={rolesDescription(access === null, roles)}
       />
 
       {access === null ? (
@@ -172,4 +166,10 @@ export function PageClient() {
       )}
     </PageShell>
   );
+}
+
+function rolesDescription(loading: boolean, roles: string[]): string {
+  if (loading) return "Cargando tus accesos…";
+  if (roles.length > 0) return `Tus roles: ${roles.join(", ")}.`;
+  return "Aún no tienes roles en esta IPS.";
 }

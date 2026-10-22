@@ -21,7 +21,7 @@ const AccessContext = React.createContext<AccessState>({
  * Loads once per IPS what the signed-in user may do, so pages only offer
  * those actions. The API enforces the same permissions on every request.
  */
-export function AccessProvider(props: { teamId: string; children: React.ReactNode }) {
+export function AccessProvider(props: Readonly<{ teamId: string; children: React.ReactNode }>) {
   const auth = useApiAuth();
   const [access, setAccess] = React.useState<MyAccess | null>(null);
   const [version, setVersion] = React.useState(0);
@@ -57,7 +57,7 @@ export function useAccess() {
 }
 
 /** Message for pages the user's roles do not allow. */
-export function NoPermission(props: { what: string }) {
+export function NoPermission(props: Readonly<{ what: string }>) {
   return (
     <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 md:px-8 md:py-8">
       <p className="max-w-xl rounded-md border px-4 py-3 text-sm text-muted-foreground">

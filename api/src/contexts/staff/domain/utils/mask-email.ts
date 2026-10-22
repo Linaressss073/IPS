@@ -21,7 +21,7 @@ export function maskEmail(email: string | null | undefined): string | null {
   if (labels.length < 2) return null;
 
   const domain = labels[0];
-  const tld = labels[labels.length - 1];
+  const tld = labels.at(-1) ?? '';
   return (
     `${visiblePart(local, EMAIL_LOCAL_VISIBLE_CHARS)}****` +
     `@${visiblePart(domain, EMAIL_DOMAIN_VISIBLE_CHARS)}***` +

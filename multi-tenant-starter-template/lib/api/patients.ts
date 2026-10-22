@@ -142,7 +142,7 @@ export function searchPatients(
   if (options.page) params.set("page", String(options.page));
   if (options.pageSize) params.set("pageSize", String(options.pageSize));
   const query = params.toString();
-  return apiFetch<Page<Patient>>(auth, `${base(teamId)}${query ? `?${query}` : ""}`);
+  return apiFetch<Page<Patient>>(auth, `${base(teamId)}${query ? "?" + query : ""}`);
 }
 
 export function getPatient(auth: TokenSource, teamId: string, patientId: string) {

@@ -232,11 +232,13 @@ export function PageClient() {
         <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
 
-      {agendas === null ? (
+      {agendas === null && (
         <Skeleton className="h-40 w-full" />
-      ) : agendas.length === 0 ? (
+      )}
+      {agendas !== null && agendas.length === 0 && (
         <p className="text-sm text-muted-foreground">No hay agendas abiertas para este día.</p>
-      ) : (
+      )}
+      {agendas !== null && agendas.length !== 0 && (
         <div className="grid gap-4 xl:grid-cols-2">
           {agendas.map((agenda) => (
             <AgendaCard
@@ -317,14 +319,14 @@ export function PageClient() {
   );
 }
 
-function BookPanel(props: {
+function BookPanel(props: Readonly<{
   agenda: Agenda;
   slot: Slot;
   patient: Patient | null;
   teamId: string;
   onPick: (patient: Patient) => void;
   onBook: (patient: Patient) => Promise<void>;
-}) {
+}>) {
   const auth = useApiAuth();
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

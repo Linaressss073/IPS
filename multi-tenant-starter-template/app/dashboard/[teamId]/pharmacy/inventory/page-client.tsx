@@ -125,13 +125,15 @@ export function PageClient() {
       </div>
       {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
 
-      {state.loading ? (
+      {state.loading && (
         <Skeleton className="h-40 w-full" />
-      ) : visible.length === 0 ? (
+      )}
+      {!(state.loading) && visible.length === 0 && (
         <p className="text-sm text-muted-foreground">
           {products.length === 0 ? "Aún no hay productos: crea el primero y recibe un lote." : "Ningún producto con ese filtro."}
         </p>
-      ) : (
+      )}
+      {!(state.loading) && visible.length !== 0 && (
         <div className="grid gap-4 xl:grid-cols-2">
           {visible.map((product) => (
             <ProductCard key={product.id} product={product} teamId={teamId} onChange={replace} />
@@ -142,10 +144,10 @@ export function PageClient() {
   );
 }
 
-function NewProductForm(props: {
+function NewProductForm(props: Readonly<{
   onCreate: (input: { name: string; presentation: string; minStock: number }) => Promise<void>;
   onCancel: () => void;
-}) {
+}>) {
   const [name, setName] = React.useState("");
   const [presentation, setPresentation] = React.useState("Tableta");
   const [minStock, setMinStock] = React.useState("10");
@@ -199,7 +201,7 @@ function NewProductForm(props: {
 
 type Panel = "none" | "receive" | "adjust" | "kardex";
 
-function ProductCard(props: { product: Product; teamId: string; onChange: (product: Product) => void }) {
+function ProductCard(props: Readonly<{ product: Product; teamId: string; onChange: (product: Product) => void }>) {
   const { product: p, teamId } = props;
   const auth = useApiAuth();
   const [panel, setPanel] = React.useState<Panel>("none");
@@ -301,10 +303,10 @@ function ProductCard(props: { product: Product; teamId: string; onChange: (produ
   );
 }
 
-function ReceiveForm(props: {
+function ReceiveForm(props: Readonly<{
   busy: boolean;
   onSubmit: (input: { lotNumber: string; expiresOn: string; quantity: number; supplier: string }) => void;
-}) {
+}>) {
   const [lotNumber, setLotNumber] = React.useState("");
   const [expiresOn, setExpiresOn] = React.useState("");
   const [quantity, setQuantity] = React.useState("");
@@ -335,11 +337,11 @@ function ReceiveForm(props: {
   );
 }
 
-function AdjustForm(props: {
+function AdjustForm(props: Readonly<{
   product: Product;
   busy: boolean;
   onSubmit: (input: { lotNumber: string; quantity: number; reason: string }) => void;
-}) {
+}>) {
   const [lotNumber, setLotNumber] = React.useState(
     props.product.lots.find((lot) => lot.status === "vencido")?.lotNumber ?? props.product.lots[0].lotNumber,
   );
@@ -395,7 +397,7 @@ function describe(reference: Movement["reference"]): string {
   }
 }
 
-function Kardex(props: { teamId: string; productId: string }) {
+function Kardex(props: Readonly<{ teamId: string; productId: string }>) {
   const auth = useApiAuth();
   const [state, setState] = React.useState<{ loading: true } | { loading: false; movements: Movement[] }>({
     loading: true,

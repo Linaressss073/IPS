@@ -56,7 +56,7 @@ export class MongoConnection implements OnApplicationBootstrap, OnModuleDestroy 
     }
     for (const task of this.tasks) {
       try {
-        await task.run();
+        await task.run(); // NOSONAR sequential: ordered startup tasks
       } catch (error) {
         this.logger.warn(`${task.name} failed: ${(error as Error).message}`);
       }

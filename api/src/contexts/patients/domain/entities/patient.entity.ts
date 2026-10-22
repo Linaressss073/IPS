@@ -35,7 +35,7 @@ const FIELDS: readonly (keyof PatientData)[] = [
 export class Patient extends Entity<PatientId> {
   private constructor(
     id: PatientId,
-    private props: PatientProps,
+    private readonly props: PatientProps,
   ) {
     super(id);
   }

@@ -11,7 +11,7 @@ export const VITAL_SIGNS = {
 } as const;
 
 /** CIE-10: a letter, two digits and an optional subcategory (J06.9, E11.9, R51). */
-export const ICD10_PATTERN = /^[A-Z][0-9]{2}(\.[0-9A-Z]{1,2})?$/;
+export const ICD10_PATTERN = /^[A-Z]\d{2}(\.[0-9A-Z]{1,2})?$/;
 
 export const ROUTES = [
   'oral',

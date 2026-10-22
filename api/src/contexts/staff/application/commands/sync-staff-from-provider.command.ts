@@ -37,19 +37,25 @@ export class SyncStaffFromProvider {
     }
     if (users.size === 0) return { applied, removedUsers: 0, removedMemberships: 0 };
 
+    const removed = await this.removeStale(users, memberships, startedAt);
+    return { applied, ...removed };
+  }
+
+  /** Deletes what the provider no longer has and that was not touched by this snapshot. */
+  private async removeStale(users: Set<string>, memberships: Set<string>, startedAt: Date) {
     let removedUsers = 0;
     let removedMemberships = 0;
     for (const stored of await this.staff.listActive()) {
       if (!users.has(stored.userId)) {
         if (stored.sourceUpdatedAt < startedAt) {
-          await this.apply.execute({ kind: 'user.deleted', userId: stored.userId });
+          await this.apply.execute({ kind: 'user.deleted', userId: stored.userId }); // NOSONAR sequential: bounded by provider rate limits
           removedUsers += 1;
         }
         continue;
       }
       for (const team of stored.teams) {
         if (!memberships.has(key(team.teamId, stored.userId)) && team.sourceUpdatedAt < startedAt) {
-          await this.apply.execute({
+          await this.apply.execute({ // NOSONAR sequential: bounded by provider rate limits
             kind: 'membership.deleted',
             teamId: TeamId.of(team.teamId),
             userId: stored.userId,
@@ -58,7 +64,7 @@ export class SyncStaffFromProvider {
         }
       }
     }
-    return { applied, removedUsers, removedMemberships };
+    return { removedUsers, removedMemberships };
   }
 }
 

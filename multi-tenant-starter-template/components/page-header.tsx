@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /** Content area of a dashboard page: same gutters on every screen size. */
-export function PageShell(props: { children: React.ReactNode; className?: string }) {
+export function PageShell(props: Readonly<{ children: React.ReactNode; className?: string }>) {
   return (
     <div className={cn("mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-6 md:px-8 md:py-8", props.className)}>
       {props.children}
@@ -14,12 +14,12 @@ export function PageShell(props: { children: React.ReactNode; className?: string
  * Title of a dashboard page in the landing's style: a green eyebrow (the
  * area), the title and an optional description, with actions on the right.
  */
-export function PageHeader(props: {
+export function PageHeader(props: Readonly<{
   eyebrow: string;
   title: React.ReactNode;
   description?: React.ReactNode;
   actions?: React.ReactNode;
-}) {
+}>) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0 space-y-1">

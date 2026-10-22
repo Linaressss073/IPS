@@ -60,8 +60,8 @@ try {
     const collections = await from.listCollections({}, { nameOnly: true }).toArray();
     for (const { name } of collections) {
       if (name.startsWith('system.')) continue;
-      const documents = await from.collection(name).find().toArray();
-      const inserted = await insertMissing(
+      const documents = await from.collection(name).find().toArray(); // NOSONAR sequential: one-off recovery script
+      const inserted = await insertMissing( // NOSONAR sequential: one-off recovery script
         db.collection(name),
         documents as unknown as { _id: string }[],
       );

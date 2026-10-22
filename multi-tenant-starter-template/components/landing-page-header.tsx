@@ -11,7 +11,7 @@ import { Button, buttonVariants } from "./ui/button";
 
 type NavItem = { title: string; href: string };
 
-function AuthButtons(props: { stacked?: boolean }) {
+function AuthButtons(props: Readonly<{ stacked?: boolean }>) {
   const { isLoaded, isSignedIn } = useAuth();
   const size = props.stacked ? "default" : "sm";
 
@@ -34,7 +34,7 @@ function AuthButtons(props: { stacked?: boolean }) {
   );
 }
 
-export function LandingPageHeader(props: { items: NavItem[] }) {
+export function LandingPageHeader(props: Readonly<{ items: NavItem[] }>) {
   const [open, setOpen] = React.useState(false);
 
   // Close the mobile menu on Escape.

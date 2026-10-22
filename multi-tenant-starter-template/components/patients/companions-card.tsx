@@ -13,7 +13,7 @@ import { Field, Select } from "./form-controls";
 import { memberName, TeamMember } from "./use-team-members";
 
 /** The patient's companions, most recent (#highest) first, and a form to add one. */
-export function CompanionsCard(props: {
+export function CompanionsCard(props: Readonly<{
   auth: TokenSource;
   teamId: string;
   patientId: string;
@@ -22,7 +22,7 @@ export function CompanionsCard(props: {
   onRecorded?: () => void;
   /** Whether the user's roles allow recording companions. */
   canRecord: boolean;
-}) {
+}>) {
   const { teamId, patientId } = props;
   const authRef = React.useRef(props.auth);
   authRef.current = props.auth;
@@ -123,11 +123,13 @@ export function CompanionsCard(props: {
           </form>
         )}
 
-        {history === null ? (
+        {history === null && (
           <Skeleton className="h-16 w-full" />
-        ) : history.length === 0 ? (
+        )}
+        {history !== null && history.length === 0 && (
           <p className="text-sm text-muted-foreground">Sin acompañantes registrados.</p>
-        ) : (
+        )}
+        {history !== null && history.length !== 0 && (
           <ol className="space-y-3">
             {history.map((companion) => (
               <li key={companion.number} className="flex gap-3 text-sm">

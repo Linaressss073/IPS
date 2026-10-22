@@ -58,7 +58,7 @@ function selectedHref(segment: string, items: SidebarItem[]): string {
     .concat("")[0];
 }
 
-function NavItem(props: { item: Item; selected: boolean; onClick?: () => void; basePath: string }) {
+function NavItem(props: Readonly<{ item: Item; selected: boolean; onClick?: () => void; basePath: string }>) {
   const { selected } = props;
 
   return (
@@ -80,12 +80,12 @@ function NavItem(props: { item: Item; selected: boolean; onClick?: () => void; b
   );
 }
 
-function SidebarContent(props: {
+function SidebarContent(props: Readonly<{
   onNavigate?: () => void;
   items: SidebarItem[];
   sidebarTop?: React.ReactNode;
   basePath: string;
-}) {
+}>) {
   const selected = selectedHref(useSegment(props.basePath), props.items);
   return (
     <div className="flex h-full flex-col items-stretch">
@@ -94,13 +94,13 @@ function SidebarContent(props: {
       </div>
       {props.sidebarTop && <div className="border-b px-3 py-3">{props.sidebarTop}</div>}
       <nav className="flex flex-grow flex-col gap-1 overflow-y-auto px-3 py-4" aria-label="Menú">
-        {props.items.map((item, index) => {
+        {keyed(props.items).map(([key, item]) => {
           if (item.type === "separator") {
-            return <Separator key={index} className="my-2" />;
+            return <Separator key={key} className="my-2" />;
           }
           if (item.type === "item") {
             return (
-              <div key={index} className="flex">
+              <div key={key} className="flex">
                 <NavItem
                   item={item}
                   selected={item.href === selected}
@@ -112,7 +112,7 @@ function SidebarContent(props: {
           }
           return (
             <p
-              key={index}
+              key={key}
               className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground first:pt-0"
             >
               {item.name}
@@ -126,19 +126,19 @@ function SidebarContent(props: {
 
 export type HeaderBreadcrumbItem = { title: string; href: string };
 
-function HeaderBreadcrumb(props: {
+function HeaderBreadcrumb(props: Readonly<{
   items: SidebarItem[];
   baseBreadcrumb?: HeaderBreadcrumbItem[];
   basePath: string;
-}) {
+}>) {
   const selected = selectedHref(useSegment(props.basePath), props.items);
   const item = props.items.find((entry): entry is Item => entry.type === "item" && entry.href === selected);
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {props.baseBreadcrumb?.map((crumb, index) => (
-          <React.Fragment key={index}>
+        {props.baseBreadcrumb?.map((crumb) => (
+          <React.Fragment key={crumb.href}>
             <BreadcrumbItem className="max-w-[10rem] truncate">
               <BreadcrumbLink href={crumb.href}>{crumb.title}</BreadcrumbLink>
             </BreadcrumbItem>
@@ -153,13 +153,13 @@ function HeaderBreadcrumb(props: {
   );
 }
 
-export default function SidebarLayout(props: {
+export default function SidebarLayout(props: Readonly<{
   children?: React.ReactNode;
   baseBreadcrumb?: HeaderBreadcrumbItem[];
   items: SidebarItem[];
   sidebarTop?: React.ReactNode;
   basePath: string;
-}) {
+}>) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const appearance = useClerkAppearance();
 
@@ -204,4 +204,13 @@ export default function SidebarLayout(props: {
       </div>
     </div>
   );
+}
+
+/** Stable keys for a menu with no ids: items by href, labels by name, separators by what precedes them. */
+function keyed(items: SidebarItem[]): [string, SidebarItem][] {
+  let previous = "start";
+  return items.map((item) => {
+    previous = item.type === "item" ? item.href : item.type === "separator" ? `separator-after-${previous}` : `label-${item.name}`;
+    return [previous, item];
+  });
 }

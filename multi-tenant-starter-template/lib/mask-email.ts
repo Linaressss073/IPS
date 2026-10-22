@@ -10,6 +10,6 @@ export function maskEmail(value: string): string {
   if (at < 1 || labels.length < 2) return value;
 
   const visible = (part: string, count: number) => part.slice(0, Math.min(count, part.length - 1));
-  const tld = labels[labels.length - 1];
+  const tld = labels.at(-1) ?? "";
   return `${visible(email.slice(0, at), 3)}****@${visible(labels[0], 3)}***.${tld[0]}**`;
 }
