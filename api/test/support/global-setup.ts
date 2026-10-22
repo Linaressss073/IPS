@@ -20,10 +20,21 @@ export default async function setup(): Promise<(() => Promise<void>) | undefined
     return undefined;
   }
 
-  const mongo = await new MongoDBContainer('mongo:8').start();
+  const mongo = await startMongo();
   // directConnection: the replica set advertises the container's internal hostname.
   process.env.MONGO_URL = `${mongo.getConnectionString()}/?directConnection=true`;
   return async () => {
     await mongo.stop();
   };
+}
+
+/** The container healthcheck is occasionally slow on shared CI runners: retry before failing. */
+async function startMongo() {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await new MongoDBContainer('mongo:8').start();
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
 }
