@@ -8,8 +8,8 @@ una propuesta, pendiente de aprobar las épicas 7 a 9.
 |---|---|---|---|
 | Sprint 1 | 1 – 7 oct 2026 | ✅ Cerrado | Recorrido completo de la consulta externa: plataforma, pacientes, agendamiento, admisión, consulta y farmacia |
 | Sprint 2 | 8 – 14 oct 2026 | ✅ Cerrado (sin commits) | — |
-| Sprint 3 | 15 – 21 oct 2026 | 🟡 Activo (cierra hoy) | Corrección de farmacia, limpieza del repositorio y backlog del proyecto |
-| Sprint 4 | 22 – 28 oct 2026 | 📝 Propuesto | Épica 7: calidad continua y operación |
+| Sprint 3 | 15 – 21 oct 2026 | ✅ Cerrado | Corrección de farmacia, limpieza del repositorio y backlog del proyecto |
+| Sprint 4 | 22 – 28 oct 2026 | 🟡 Activo | Épica 7: calidad continua y operación |
 | Sprint 5 | 29 oct – 4 nov 2026 | 📝 Propuesto | Épica 8: comunicación con el paciente |
 | Sprint 6 | 5 – 11 nov 2026 | 📝 Propuesto | Épica 9: indicadores de la consulta externa |
 
@@ -39,7 +39,7 @@ se registra aquí.
 |---|---|---|---|
 | 20 oct | `b2acae2` Farmacia: entregar dos ítems del mismo producto en una dispensación (409 `STOCK_CHANGED`) | Error | IPS-125 (relacionado con IPS-32) |
 | 21 oct | `16fe209` Limpieza: README al día, sin `@types/pg` ni `package-lock` del frontend | Tarea | IPS-126 |
-| 21 oct | Backlog: épicas e historias (`.epics/`), skills de pair y `epic-runner`, tablero de Jira | Tarea (en curso) | IPS-127 |
+| 21 oct | Backlog: épicas e historias (`.epics/`), skills de pair y `epic-runner`, tablero de Jira | Tarea | IPS-127 |
 
 ## Sprints 4 a 6 · propuestos
 
@@ -53,3 +53,9 @@ se registra aquí.
 
 Tablero: <https://kontiasolutions.atlassian.net/jira/software/projects/IPS/boards/34>. Las 26 historias del Sprint 1
 tienen 77 subtareas terminadas, cada una enlazada a los commits de GitHub que la implementaron.
+
+## Sprint 4 · en curso (22 oct)
+
+IPS-36 terminada (CI en cadena, Testcontainers, Sonar con quality gate, pino) con 7 subtareas enlazadas a sus commits;
+además IPS-138 (error de Mongo en kernels ≥ 6.19), IPS-139 (falso positivo del secreto de prueba) y la limpieza de
+dependencias. Siguen en Por hacer IPS-37 (pruebas de aislamiento y permisos) e IPS-38 (aviso del servidor dormido).
