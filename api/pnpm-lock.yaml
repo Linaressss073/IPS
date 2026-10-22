@@ -41,6 +41,9 @@ importers:
       pino-http:
         specifier: ^11.0.0
         version: 11.0.0
+      pino-pretty:
+        specifier: ^13.2.0
+        version: 13.2.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -75,9 +78,6 @@ importers:
       oxlint-tsgolint:
         specifier: ^7.0.2001
         version: 7.0.2003
-      pino-pretty:
-        specifier: ^13.2.0
-        version: 13.2.0
       prettier:
         specifier: ^3.4.2
         version: 3.9.9

@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
@@ -27,7 +28,7 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
       validate: (environment) =>
         validateEnv({ ...loadDeploymentConfig(), ...environment }),
     }),
-    // JSON logs in production, pretty in dev, silent in e2e. Never logs tokens.
+    // One readable line per log (pino-pretty) everywhere but the e2e, where logs are silent. Never logs tokens.
     LoggerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({
@@ -35,7 +36,23 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
           level: config.get('LOG_LEVEL'),
           redact: ['req.headers.authorization', 'req.headers.cookie', 'req.headers["svix-signature"]'],
           autoLogging: { ignore: (req) => req.url?.endsWith('/health') ?? false },
-          transport: (process.env.ENV ?? 'dev') === 'dev' ? { target: 'pino-pretty' } : undefined,
+          // Requests log as "GET /api/v1/... 200" with no headers.
+          serializers: { req: (req) => ({ method: req.method, url: req.url }), res: (res) => ({ status: res.statusCode }) },
+          customSuccessMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
+          customErrorMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
+          transport:
+            process.env.ENV === 'test'
+              ? undefined
+              : {
+                  // Resolved here: pino cannot find it from inside nestjs-pino under pnpm's strict layout.
+                  target: createRequire(import.meta.url).resolve('pino-pretty'),
+                  options: {
+                    translateTime: 'SYS:HH:MM:ss.l',
+                    ignore: 'hostname,context,req,res',
+                    messageFormat: '{if context}[{context}] {end}{msg}',
+                    singleLine: true,
+                  },
+                },
         },
       }),
     }),

@@ -35,6 +35,7 @@ async function startMongo(): Promise<StartedTestContainer> {
   const mongo = await new GenericContainer('mongo:8')
     .withExposedPorts(MONGO_PORT)
     .withCommand(['--replSet', 'rs0', '--bind_ip_all'])
+    .withLogConsumer((logs) => logs.on('data', (line: Buffer) => process.stdout.write(`[mongo] ${line}`)))
     .withWaitStrategy(Wait.forLogMessage(/Waiting for connections/))
     .start();
   const shell = (script: string) => mongo.exec(['mongosh', '--quiet', '--eval', script]);
