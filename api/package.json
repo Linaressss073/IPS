@@ -7,7 +7,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "build": "nest build",
+    "docs:generate": "node scripts/generate-openapi.mjs",
+    "build": "pnpm docs:generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -28,6 +29,7 @@
     "@nestjs/config": "^12.0.1",
     "@nestjs/core": "^12.0.1",
     "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "mongodb": "^7.7.0",
@@ -51,6 +53,7 @@
     "prettier": "^3.4.2",
     "supertest": "^7.0.0",
     "testcontainers": "^12.2.1",
+    "ts-json-schema-generator": "^2.9.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   }

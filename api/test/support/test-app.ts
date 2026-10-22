@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from '../../src/app.module.js';
 import { API_PREFIX } from '../../src/config/http.js';
+import { setupOpenApi } from '../../src/config/openapi.js';
 import {
   ACCESS_TOKEN_VERIFIER,
   TEAM_MEMBERSHIP_CHECKER,
@@ -121,6 +122,7 @@ export async function createTestApp() {
     rawBody: true,
   });
   app.setGlobalPrefix(API_PREFIX);
+  setupOpenApi(app);
   await app.init();
   const mongo = moduleRef.get<Db>(MONGO_DB);
 

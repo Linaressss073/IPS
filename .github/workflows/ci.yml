@@ -32,6 +32,9 @@ jobs:
         with: { working-directory: api }
       - run: pnpm build
         working-directory: api
+      # The OpenAPI response schemas are generated from the controllers and committed.
+      - name: OpenAPI schemas are up to date
+        run: git diff --exit-code -- api/src/docs || (echo "Run pnpm docs:generate in api/ and commit" && exit 1)
 
   unit-api:
     needs: lint-api

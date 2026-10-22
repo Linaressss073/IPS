@@ -1,4 +1,5 @@
 allowBuilds:
+  '@scarf/scarf': false
   cpu-features: false
   esbuild: false
   protobufjs: false

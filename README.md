@@ -39,6 +39,8 @@ está en [`technical-api/`](technical-api/README.md).
 `ips-api` y `ips-web` en el proyecto *Practica / Production*. La única base es MongoDB Atlas (`MONGO_URL`). Solo
 pide los secretos (las llaves de Clerk y `MONGO_URL`); la API crea sus índices al arrancar.
 
+Documentación interactiva de la API (Swagger): [`/api/v1/docs`](https://ips-api-3404.onrender.com/api/v1/docs); detalles en [`api/README.md`](api/README.md#documentación-interactiva-swagger--openapi).
+
 ### Que la API no se duerma (plan gratuito)
 
 Render duerme los servicios gratuitos tras 15 minutos sin tráfico (la primera petición tarda 30-60 s). Un monitor de
