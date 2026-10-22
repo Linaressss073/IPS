@@ -1,5 +1,7 @@
-import { MongoDBContainer } from '@testcontainers/mongodb';
+import { GenericContainer, type StartedTestContainer, Wait } from 'testcontainers';
 import { TEST_MONGO_DB_NAME } from './test-env.js';
+
+const MONGO_PORT = 27017;
 
 /**
  * Runs once before the e2e specs. Refuses any database that is not a test
@@ -22,19 +24,27 @@ export default async function setup(): Promise<(() => Promise<void>) | undefined
 
   const mongo = await startMongo();
   // directConnection: the replica set advertises the container's internal hostname.
-  process.env.MONGO_URL = `${mongo.getConnectionString()}/?directConnection=true`;
+  process.env.MONGO_URL = `mongodb://${mongo.getHost()}:${mongo.getMappedPort(MONGO_PORT)}/?directConnection=true`;
   return async () => {
     await mongo.stop();
   };
 }
 
-/** The container healthcheck is occasionally slow on shared CI runners: retry before failing. */
-async function startMongo() {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await new MongoDBContainer('mongo:8').start();
-    } catch (error) {
-      if (attempt === 3) throw error;
-    }
+/** One-node replica set, ready when it has elected itself primary (no Docker healthcheck: flaky on CI). */
+async function startMongo(): Promise<StartedTestContainer> {
+  const mongo = await new GenericContainer('mongo:8')
+    .withExposedPorts(MONGO_PORT)
+    .withCommand(['--replSet', 'rs0', '--bind_ip_all'])
+    .withWaitStrategy(Wait.forLogMessage(/Waiting for connections/))
+    .start();
+  const shell = (script: string) => mongo.exec(['mongosh', '--quiet', '--eval', script]);
+
+  await shell('rs.initiate()');
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const { output } = await shell('db.hello().isWritablePrimary');
+    if (output.trim() === 'true') return mongo;
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
+  await mongo.stop();
+  throw new Error('MongoDB replica set did not elect a primary in 30 s');
 }
