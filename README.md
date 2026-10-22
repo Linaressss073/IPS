@@ -39,6 +39,18 @@ está en [`technical-api/`](technical-api/README.md).
 `ips-api` y `ips-web` en el proyecto *Practica / Production*. La única base es MongoDB Atlas (`MONGO_URL`). Solo
 pide los secretos (las llaves de Clerk y `MONGO_URL`); la API crea sus índices al arrancar.
 
+### Que la API no se duerma (plan gratuito)
+
+Render duerme los servicios gratuitos tras 15 minutos sin tráfico (la primera petición tarda 30-60 s). Un monitor de
+[UptimeRobot](https://uptimerobot.com) (plan gratuito) mantiene despierta la API:
+
+- **URL:** `https://ips-api-3404.onrender.com/api/v1/health` (responde 200 y comprueba MongoDB; la raíz responde 404). No se registra en los logs.
+- **Intervalo:** 5 minutos (el mínimo del plan gratuito), siempre por debajo de los 15 en que Render duerme el servicio.
+- **Horario:** Render da ~750 horas gratuitas al mes compartidas entre todos los servicios gratuitos; la API encendida las 24 h consume casi todas
+  y suspendería `ips-web`. Programar en el monitor una ventana de mantenimiento (pausa) de 19:00 a 07:00 hora de Colombia y los domingos
+  (~312 h/mes). Revisar el consumo en Render → Billing.
+- El monitor también avisa por correo si la API se cae. La solución definitiva es un plan de pago (Starter).
+
 ## Calidad y CI
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) corre en cada push a `main` y en cada pull request, **en cadena**: cada etapa
