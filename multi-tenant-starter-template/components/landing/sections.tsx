@@ -49,7 +49,7 @@ export function Hero() {
         <div className="space-y-6">
           <span className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="h-2 w-2 rounded-full bg-primary" aria-hidden />
-            Sistema de información hospitalaria · Consulta externa
+            <span>Sistema de información hospitalaria · Consulta externa</span>
           </span>
           <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
             Cada paciente, <span className="text-primary">un solo registro</span> y un recorrido sin filas.

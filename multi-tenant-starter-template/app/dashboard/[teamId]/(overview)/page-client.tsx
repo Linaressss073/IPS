@@ -112,7 +112,7 @@ const SHORTCUTS: Shortcut[] = [
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const { access, can } = useAccess();
-  const shortcuts = SHORTCUTS.filter((s) => !s.requires || s.requires.some(can));
+  const shortcuts = SHORTCUTS.filter((s) => !s.requires || s.requires.some((permission) => can(permission)));
   const roles = access?.roles.map((role) => ROLE_LABELS[role] ?? role) ?? [];
   if (access?.isAdmin) roles.unshift("Administrador");
 

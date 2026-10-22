@@ -129,7 +129,7 @@ export default function Layout(props: { children: React.ReactNode }) {
 function TeamShell(props: { teamId: string; teamName: string; children: React.ReactNode }) {
   const { can } = useAccess();
   const appearance = useClerkAppearance();
-  const items = navigationItems.filter((item) => !item.requires || item.requires.some(can));
+  const items = navigationItems.filter((item) => !item.requires || item.requires.some((permission) => can(permission)));
 
   return (
     <SidebarLayout

@@ -54,8 +54,8 @@ export function PageClient() {
             !error && <Skeleton className="h-24 w-full" />
           ) : staff.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aún no hay personal sincronizado. Aparece cuando Clerk envía los cambios (webhooks) o al correr
-              <code className="mx-1">pnpm clerk:sync</code>.
+              Aún no hay personal sincronizado. Aparece cuando Clerk envía los cambios (webhooks) o al correr{" "}
+              <code>pnpm clerk:sync</code>.
             </p>
           ) : (
             <div className="overflow-x-auto">

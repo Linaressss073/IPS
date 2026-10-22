@@ -153,17 +153,17 @@ export class CallTurn extends ChangeTurn {
 
 /** The professional received the patient: the turn is closed. */
 export class AttendTurn extends ChangeTurn {
-  protected async change(turn: Turn, now: Date) {
+  protected change(turn: Turn, now: Date): Promise<string> {
     turn.attend(now);
-    return TURN_ATTENDED;
+    return Promise.resolve(TURN_ATTENDED);
   }
 }
 
 /** Closed by hand as "no se presentó" (before the automatic last call). */
 export class MarkNoShow extends ChangeTurn {
-  protected async change(turn: Turn, now: Date) {
+  protected change(turn: Turn, now: Date): Promise<string> {
     turn.markNoShow(now);
-    return TURN_NO_SHOW;
+    return Promise.resolve(TURN_NO_SHOW);
   }
 }
 
