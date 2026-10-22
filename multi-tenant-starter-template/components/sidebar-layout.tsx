@@ -210,7 +210,9 @@ export default function SidebarLayout(props: Readonly<{
 function keyed(items: SidebarItem[]): [string, SidebarItem][] {
   let previous = "start";
   return items.map((item) => {
-    previous = item.type === "item" ? item.href : item.type === "separator" ? `separator-after-${previous}` : `label-${item.name}`;
+    if (item.type === "item") previous = item.href;
+    else if (item.type === "separator") previous = `separator-after-${previous}`;
+    else previous = `label-${item.name}`;
     return [previous, item];
   });
 }
