@@ -183,7 +183,7 @@ export function Modules() {
                 </span>
                 <span
                   className={cn(
-                    "rounded-full px-2 py-0.5 text-[11px] font-medium",
+                    "rounded-full px-2 py-0.5 text-xs font-medium",
                     module.ready
                       ? "bg-primary/10 text-primary"
                       : "bg-muted text-muted-foreground",
@@ -232,7 +232,7 @@ export function Journey() {
               )}
               <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-primary/30 bg-background text-primary">
                 <step.icon className="h-5 w-5" aria-hidden />
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {index + 1}
                 </span>
               </span>

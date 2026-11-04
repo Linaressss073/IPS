@@ -25,7 +25,7 @@ export function TurnScreenPreview() {
 
       <div className="grid gap-0 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <ul className="order-2 divide-y border-t sm:order-1 sm:border-r sm:border-t-0">
-          <li className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <li className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Últimos llamados
           </li>
           {RECENT.map((call) => {
@@ -39,8 +39,8 @@ export function TurnScreenPreview() {
                 <span
                   className={
                     missed
-                      ? "shrink-0 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive"
-                      : "shrink-0 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground"
+                      ? "shrink-0 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive"
+                      : "shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground"
                   }
                 >
                   {call.status}

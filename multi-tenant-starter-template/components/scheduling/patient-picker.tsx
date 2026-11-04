@@ -38,13 +38,13 @@ export function PatientPicker(props: Readonly<{
 
   return (
     <div className="space-y-2">
-      <Input
+      <Input aria-label="Documento o nombre del paciente"
         autoFocus
         placeholder="Documento o nombre del paciente"
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {results?.length === 0 && (
         <p className="text-sm text-muted-foreground">
           No hay pacientes con ese dato. Regístralo primero en Pacientes.

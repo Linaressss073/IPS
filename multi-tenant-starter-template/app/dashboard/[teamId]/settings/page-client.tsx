@@ -72,7 +72,7 @@ export function PageClient() {
       />
 
       {error && (
-        <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
+        <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
 
       {organization === null ? (
@@ -177,7 +177,7 @@ function OrganizationForm(props: Readonly<{
         ))}
       </Section>
       {error && (
-        <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
+        <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
       <div className="flex gap-2">
         <Button type="submit" disabled={saving}>
@@ -215,7 +215,7 @@ function DangerZone(props: Readonly<{ organization: Organization; onDelete: () =
             onChange={(e) => setConfirmation(e.target.value)}
           />
         </Field>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <Button
           variant="destructive"
           disabled={!confirmed || deleting}

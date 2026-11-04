@@ -94,7 +94,7 @@ export function AppointmentPanel(props: Readonly<{
             void run(() => props.onCancel(reason));
           }}
         >
-          <Input
+          <Input aria-label="Motivo"
             autoFocus
             placeholder="Motivo (p. ej. el paciente no puede asistir)"
             value={reason}
@@ -113,7 +113,7 @@ export function AppointmentPanel(props: Readonly<{
           </div>
         </form>
       )}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

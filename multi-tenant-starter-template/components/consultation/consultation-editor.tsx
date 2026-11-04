@@ -161,7 +161,7 @@ export function ConsultationEditor(props: Readonly<{
 
       <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t bg-background/90 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between md:-mx-8 md:px-8">
         <div className="text-sm">
-          {error && <p className="text-destructive">{error}</p>}
+          {error && <p role="alert" className="text-destructive">{error}</p>}
           {saved && !error && <p className="text-muted-foreground">{saved}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -248,7 +248,7 @@ function DiagnosesCard(props: Readonly<{ diagnoses: Diagnosis[]; onChange: (d: D
           </ul>
         )}
         <div className="space-y-2">
-          <Input placeholder="Buscar por código o nombre (p. ej. J06 o faringitis)" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input aria-label="Buscar por código o nombre" placeholder="Buscar por código o nombre (p. ej. J06 o faringitis)" value={query} onChange={(e) => setQuery(e.target.value)} />
           {matches.length > 0 && (
             <ul className="divide-y rounded-md border">
               {matches.map((m) => (
@@ -264,8 +264,8 @@ function DiagnosesCard(props: Readonly<{ diagnoses: Diagnosis[]; onChange: (d: D
         <details className="text-sm">
           <summary className="cursor-pointer text-muted-foreground">Otro código CIE-10</summary>
           <div className="mt-2 grid gap-2 sm:grid-cols-[8rem_1fr_auto]">
-            <Input placeholder="Código" value={custom.code} onChange={(e) => setCustom((c) => ({ ...c, code: e.target.value.toUpperCase() }))} />
-            <Input placeholder="Descripción" value={custom.description} onChange={(e) => setCustom((c) => ({ ...c, description: e.target.value }))} />
+            <Input aria-label="Código" placeholder="Código" value={custom.code} onChange={(e) => setCustom((c) => ({ ...c, code: e.target.value.toUpperCase() }))} />
+            <Input aria-label="Descripción" placeholder="Descripción" value={custom.description} onChange={(e) => setCustom((c) => ({ ...c, description: e.target.value }))} />
             <Button
               type="button"
               variant="outline"

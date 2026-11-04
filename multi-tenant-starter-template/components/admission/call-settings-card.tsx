@@ -71,7 +71,7 @@ export function CallSettingsCard(props: Readonly<{ auth: TokenSource; teamId: st
               />
             </Field>
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           {saved && <p className="text-sm text-primary">{saved}</p>}
           <Button type="submit" size="sm">
             Guardar

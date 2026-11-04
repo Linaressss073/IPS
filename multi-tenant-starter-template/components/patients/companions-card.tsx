@@ -101,7 +101,7 @@ export function CompanionsCard(props: Readonly<{
               </Select>
             </Field>
             {error && (
-              <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
+              <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
             )}
             <div className="flex gap-2">
               <Button type="submit" size="sm" disabled={saving}>

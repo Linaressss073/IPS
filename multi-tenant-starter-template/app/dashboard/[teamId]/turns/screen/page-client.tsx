@@ -159,7 +159,7 @@ export function PageClient() {
             </p>
           )}
           {offline && (
-            <p className="rounded-md bg-destructive/10 px-3 py-1 text-sm text-destructive">
+            <p role="alert" className="rounded-md bg-destructive/10 px-3 py-1 text-sm text-destructive">
               Sin conexión con el servidor; reintentando…
             </p>
           )}
