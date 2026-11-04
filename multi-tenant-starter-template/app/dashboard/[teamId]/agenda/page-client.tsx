@@ -202,14 +202,14 @@ export function PageClient() {
         <Button variant="outline" size="sm" aria-label="Día anterior" onClick={() => shiftDate(-1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <Input type="date" className="w-40" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
+        <Input aria-label="Fecha de la agenda" type="date" className="w-40" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
         <Button variant="outline" size="sm" aria-label="Día siguiente" onClick={() => shiftDate(1)}>
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="sm" onClick={() => setDate(colombiaToday())}>
           Hoy
         </Button>
-        <Select className="w-52" value={professionalId} onChange={(e) => setProfessionalId(e.target.value)}>
+        <Select aria-label="Profesional" className="w-52" value={professionalId} onChange={(e) => setProfessionalId(e.target.value)}>
           <option value="">Todos los profesionales</option>
           {catalog?.professionals.map((p) => (
             <option key={p.userId} value={p.userId}>
@@ -217,7 +217,7 @@ export function PageClient() {
             </option>
           ))}
         </Select>
-        <Select className="w-52" value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
+        <Select aria-label="Servicio" className="w-52" value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
           <option value="">Todos los servicios</option>
           {catalog?.services.map((s) => (
             <option key={s.id} value={s.id}>
@@ -229,7 +229,7 @@ export function PageClient() {
       <p className="text-sm capitalize text-muted-foreground">{formatDay(date)}</p>
 
       {error && (
-        <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
+        <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
 
       {agendas === null && (
@@ -348,7 +348,7 @@ function BookPanel(props: Readonly<{
           <p className="text-sm">
             Paciente: <strong>{patient.fullName}</strong> · {patient.document.type} {patient.document.number}
           </p>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <Button
             disabled={saving}
             onClick={async () => {

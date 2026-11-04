@@ -52,7 +52,7 @@ export function PatientAppointmentsCard(props: Readonly<{
         )}
       </CardHeader>
       <CardContent>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         {appointments === null && (
           !error && <Skeleton className="h-16 w-full" />
         )}

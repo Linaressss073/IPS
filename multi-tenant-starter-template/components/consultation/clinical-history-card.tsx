@@ -30,7 +30,7 @@ export function ClinicalHistoryCard(props: Readonly<{ auth: TokenSource; teamId:
         <CardDescription>Solo la ven los médicos de la IPS.</CardDescription>
       </CardHeader>
       <CardContent>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         {state.loading && (
           !error && <Skeleton className="h-16 w-full" />
         )}

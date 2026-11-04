@@ -58,7 +58,7 @@ export function PageClient() {
         description="Lo que necesitan las agendas y la sala: servicios con su prefijo de turno, lugares de atención y el llamado de turnos."
       />
       {error && (
-        <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
+        <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
@@ -174,7 +174,7 @@ function AddForm(props: Readonly<{
           </Field>
         ))}
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <Button type="submit" size="sm" disabled={saving}>
         {saving ? "Guardando…" : props.submitLabel}
       </Button>
@@ -193,7 +193,7 @@ function ItemList<T extends { id: string; active: boolean }>(props: Readonly<{
   if (props.items.length === 0) return <p className="text-sm text-muted-foreground">{props.empty}</p>;
   return (
     <div>
-      {error && <p className="mb-2 text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="mb-2 text-sm text-destructive">{error}</p>}
       <ul className="divide-y rounded-md border">
         {props.items.map((item) => (
           <li key={item.id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">

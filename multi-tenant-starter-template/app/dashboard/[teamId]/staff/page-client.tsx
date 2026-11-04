@@ -48,7 +48,7 @@ export function PageClient() {
         </CardHeader>
         <CardContent>
           {error && (
-            <p className="mb-4 rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
+            <p role="alert" className="mb-4 rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>
           )}
           {staff === null && (
             !error && <Skeleton className="h-24 w-full" />
@@ -62,11 +62,12 @@ export function PageClient() {
           {staff !== null && staff.length !== 0 && (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
+                <caption className="sr-only">Personal de la IPS y sus roles</caption>
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
-                    <th className="py-2 pr-4 font-medium">Persona</th>
-                    <th className="py-2 pr-4 font-medium">Roles</th>
-                    <th className="py-2" />
+                    <th scope="col" className="py-2 pr-4 font-medium">Persona</th>
+                    <th scope="col" className="py-2 pr-4 font-medium">Roles</th>
+                    <th scope="col" className="py-2" />
                   </tr>
                 </thead>
                 <tbody>
@@ -132,7 +133,7 @@ function StaffRow(props: Readonly<{
             </label>
           ))}
         </div>
-        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+        {error && <p role="alert" className="mt-2 text-xs text-destructive">{error}</p>}
       </td>
       <td className="whitespace-nowrap py-3 text-right">
         <Button

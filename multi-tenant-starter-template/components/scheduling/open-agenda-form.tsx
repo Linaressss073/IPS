@@ -130,11 +130,11 @@ export function OpenAgendaForm(props: Readonly<{
         </p>
       )}
       {plan.kind === "end-before-start" && (
-        <p className="text-sm text-destructive">La hora de fin debe ser posterior a la de inicio.</p>
+        <p role="alert" className="text-sm text-destructive">La hora de fin debe ser posterior a la de inicio.</p>
       )}
       {plan.kind === "not-whole" && (
         <div className="space-y-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
-          <p className="text-destructive">
+          <p role="alert" className="text-destructive">
             De {input.startTime} a {input.endTime} son {plan.length} min: no se dividen en cupos completos de{" "}
             {input.slotMinutes} min. Ajusta la hora de fin:
           </p>
@@ -147,7 +147,7 @@ export function OpenAgendaForm(props: Readonly<{
           </div>
         </div>
       )}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-2">
         <Button type="submit" disabled={saving || plan.kind !== "ok"}>
           {saving ? "Abriendo…" : "Abrir agenda"}

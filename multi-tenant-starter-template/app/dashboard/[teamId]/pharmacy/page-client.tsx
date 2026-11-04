@@ -99,8 +99,8 @@ export function PageClient() {
         }
       />
       <div className="flex flex-wrap gap-2">
-        <Input type="date" className="w-40" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
-        <Select className="w-48" value={status} onChange={(e) => setStatus(e.target.value)}>
+        <Input aria-label="Fecha de las fórmulas" type="date" className="w-40" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
+        <Select aria-label="Estado de la fórmula" className="w-48" value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="">Todos los estados</option>
           {Object.entries(DISPENSATION_STATUSES).map(([value, label]) => (
             <option key={value} value={value}>
@@ -108,9 +108,9 @@ export function PageClient() {
             </option>
           ))}
         </Select>
-        <Input className="max-w-xs" placeholder="Paciente o documento" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input aria-label="Paciente o documento" className="max-w-xs" placeholder="Paciente o documento" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
-      {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
 
       {state.loading && (
         <Skeleton className="h-40 w-full" />
@@ -275,7 +275,7 @@ function PrescriptionCard(props: Readonly<{
                     Elige de qué producto del inventario sale cada medicamento (o pon 0 si no lo entregas).
                   </p>
                 )}
-                <Input placeholder="Nota (p. ej. faltan existencias)" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
+                <Input aria-label="Nota" placeholder="Nota (p. ej. faltan existencias)" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
                 <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
@@ -323,7 +323,7 @@ function PrescriptionCard(props: Readonly<{
             {turn && <p className="text-sm text-primary">Turno {turn}. Llámalo desde Turnos.</p>}
           </div>
         )}
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       </CardContent>
     </Card>
   );

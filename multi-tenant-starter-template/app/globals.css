@@ -26,7 +26,7 @@
     --destructive: 0 74% 47%;
     --destructive-foreground: 0 0% 100%;
     --border: 210 26% 88%;
-    --input: 210 26% 88%;
+    --input: 213 14% 52%;
     --ring: 158 72% 29%;
     --trust: 207 82% 40%;
     --trust-foreground: 0 0% 100%;
@@ -53,10 +53,10 @@
     --muted-foreground: 213 22% 68%;
     --accent: 158 48% 13%;
     --accent-foreground: 152 62% 72%;
-    --destructive: 0 70% 52%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 62%;
+    --destructive-foreground: 212 47% 7%;
     --border: 212 32% 18%;
-    --input: 212 32% 18%;
+    --input: 212 24% 46%;
     --ring: 152 62% 46%;
     --trust: 205 88% 62%;
     --trust-foreground: 212 47% 7%;
@@ -114,5 +114,21 @@
   100% {
     left: 100%;
     transform: translateX(0%);
+  }
+}
+
+/* Respeta "reducir movimiento" del sistema; los indicadores de carga siguen girando porque informan. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
   }
 }

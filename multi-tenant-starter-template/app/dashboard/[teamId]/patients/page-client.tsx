@@ -96,7 +96,7 @@ export function PageClient() {
         </CardHeader>
         <CardContent>
           {error && (
-            <p className="mb-4 rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">
+            <p role="alert" className="mb-4 rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">
               {error}
             </p>
           )}
@@ -116,13 +116,14 @@ export function PageClient() {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
+                  <caption className="sr-only">Pacientes encontrados</caption>
                   <thead>
                     <tr className="border-b text-left text-muted-foreground">
-                      <th className="py-2 pr-4 font-medium">Documento</th>
-                      <th className="py-2 pr-4 font-medium">Nombre</th>
-                      <th className="py-2 pr-4 text-right font-medium">Edad</th>
-                      <th className="py-2 pr-4 font-medium">Teléfono</th>
-                      <th className="py-2 font-medium">Afiliación</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Documento</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Nombre</th>
+                      <th scope="col" className="py-2 pr-4 text-right font-medium">Edad</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Teléfono</th>
+                      <th scope="col" className="py-2 font-medium">Afiliación</th>
                     </tr>
                   </thead>
                   <tbody>

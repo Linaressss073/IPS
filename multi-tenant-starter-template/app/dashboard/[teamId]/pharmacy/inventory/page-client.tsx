@@ -121,9 +121,9 @@ export function PageClient() {
             {value === "todos" ? `Todos (${products.length})` : `${STOCK_ALERTS[value]} (${count(value)})`}
           </Button>
         ))}
-        <Input className="max-w-xs" placeholder="Buscar medicamento" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input aria-label="Buscar medicamento" className="max-w-xs" placeholder="Buscar medicamento" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
-      {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
 
       {state.loading && (
         <Skeleton className="h-40 w-full" />
@@ -171,7 +171,7 @@ function NewProductForm(props: Readonly<{
         <p className="text-xs text-muted-foreground">
           Usa el mismo nombre que escribe el médico en la fórmula: así se preselecciona al entregar.
         </p>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -297,7 +297,7 @@ function ProductCard(props: Readonly<{ product: Product; teamId: string; onChang
           <AdjustForm product={p} busy={busy} onSubmit={(input) => run(() => adjustLot(auth, teamId, p.id, input))} />
         )}
         {panel === "kardex" && <Kardex teamId={teamId} productId={p.id} />}
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       </CardContent>
     </Card>
   );
@@ -315,7 +315,7 @@ function ReceiveForm(props: Readonly<{
   return (
     <div className="space-y-2 rounded-md border p-3">
       <div className="grid gap-2 sm:grid-cols-2">
-        <Input placeholder="Lote (p. ej. A23-0912)" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} />
+        <Input aria-label="Lote" placeholder="Lote (p. ej. A23-0912)" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} />
         <Input
           type="date"
           aria-label="Vencimiento"
@@ -323,8 +323,8 @@ function ReceiveForm(props: Readonly<{
           value={expiresOn}
           onChange={(e) => setExpiresOn(e.target.value)}
         />
-        <Input type="number" min={1} placeholder="Unidades" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-        <Input placeholder="Proveedor (opcional)" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+        <Input aria-label="Unidades" type="number" min={1} placeholder="Unidades" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+        <Input aria-label="Proveedor" placeholder="Proveedor (opcional)" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
       </div>
       <Button
         size="sm"
@@ -363,9 +363,9 @@ function AdjustForm(props: Readonly<{
           <option value="baja">Dar de baja</option>
           <option value="alta">Sumar (conteo)</option>
         </Select>
-        <Input type="number" min={1} placeholder="Unidades" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+        <Input aria-label="Unidades" type="number" min={1} placeholder="Unidades" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
       </div>
-      <Input
+      <Input aria-label="Motivo"
         placeholder="Motivo (vencido, dañado, conteo físico…)"
         maxLength={200}
         value={reason}
@@ -410,18 +410,19 @@ function Kardex(props: Readonly<{ teamId: string; productId: string }>) {
       .catch((e) => setError(errorMessage(e)));
   }, [auth, props.teamId, props.productId]);
 
-  if (error) return <p className="text-sm text-destructive">{error}</p>;
+  if (error) return <p role="alert" className="text-sm text-destructive">{error}</p>;
   if (state.loading) return <Skeleton className="h-20 w-full" />;
   if (state.movements.length === 0) return <p className="text-sm text-muted-foreground">Sin movimientos.</p>;
   return (
     <div className="max-h-72 overflow-y-auto rounded-md border">
       <table className="w-full text-xs">
+        <caption className="sr-only">Movimientos del kárdex del producto</caption>
         <thead className="sticky top-0 bg-muted text-left">
           <tr>
-            <th className="px-2 py-1.5 font-medium">Fecha</th>
-            <th className="px-2 py-1.5 font-medium">Movimiento</th>
-            <th className="px-2 py-1.5 font-medium">Lote</th>
-            <th className="px-2 py-1.5 text-right font-medium">Unid.</th>
+            <th scope="col" className="px-2 py-1.5 font-medium">Fecha</th>
+            <th scope="col" className="px-2 py-1.5 font-medium">Movimiento</th>
+            <th scope="col" className="px-2 py-1.5 font-medium">Lote</th>
+            <th scope="col" className="px-2 py-1.5 text-right font-medium">Unid.</th>
           </tr>
         </thead>
         <tbody className="divide-y">

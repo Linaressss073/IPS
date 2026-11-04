@@ -52,7 +52,7 @@ export function PageClient() {
           </Link>
         </Button>
       )}
-      {error && <p className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive">{error}</p>}
       {state.loading ? (
         !error && <Skeleton className="h-64 w-full" />
       ) : (

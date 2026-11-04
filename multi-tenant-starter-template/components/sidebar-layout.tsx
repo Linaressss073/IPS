@@ -113,7 +113,7 @@ function SidebarContent(props: Readonly<{
           return (
             <p
               key={key}
-              className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground first:pt-0"
+              className="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground first:pt-0"
             >
               {item.name}
             </p>
@@ -165,6 +165,12 @@ export default function SidebarLayout(props: Readonly<{
 
   return (
     <div className="flex w-full">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-ring"
+      >
+        Saltar al contenido
+      </a>
       <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col border-r bg-muted/30 md:flex">
         <SidebarContent items={props.items} sidebarTop={props.sidebarTop} basePath={props.basePath} />
       </aside>
@@ -200,7 +206,9 @@ export default function SidebarLayout(props: Readonly<{
             <UserButton appearance={appearance} />
           </div>
         </header>
-        <main className="flex flex-grow flex-col">{props.children}</main>
+        <main id="contenido" tabIndex={-1} className="flex flex-grow flex-col focus:outline-none">
+          {props.children}
+        </main>
       </div>
     </div>
   );
