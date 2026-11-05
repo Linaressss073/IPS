@@ -709,9 +709,11 @@ export interface components {
             };
             slots: components["schemas"]["SlotView"][];
         };
+        /** @enum {string} */
+        AppointmentStatus: "agendada" | "confirmada" | "cancelada";
         AppointmentView: {
             id: string;
-            status: string;
+            status: components["schemas"]["AppointmentStatus"];
             patient: {
                 id: string;
                 fullName: string | null;
@@ -746,7 +748,7 @@ export interface components {
             label: string;
             location: string;
             patientName: string | null;
-            status: string;
+            status: components["schemas"]["TurnStatus"];
             calls: number;
             calledAt: string;
         };
@@ -784,9 +786,11 @@ export interface components {
             requestedByName: string | null;
             executedByName: string | null;
         };
+        /** @enum {string} */
+        ConsultationStatus: "en_curso" | "firmada";
         ConsultationView: {
             id: string;
-            status: string;
+            status: components["schemas"]["ConsultationStatus"];
             signature: {
                 /** @enum {boolean} */
                 signed: false;
@@ -889,8 +893,8 @@ export interface components {
         MyAccessView: {
             userId: string;
             isAdmin: boolean;
-            roles: string[];
-            permissions: string[];
+            roles: components["schemas"]["StaffRole"][];
+            permissions: components["schemas"]["Permission"][];
         };
         /** @description What the physician writes (free text; empty until filled in). */
         NoteProps: {
@@ -899,6 +903,8 @@ export interface components {
             physicalExam: string;
             plan: string;
         };
+        /** @enum {string} */
+        OrganizationStatus: "active" | "deleted";
         OrganizationView: {
             /** @description "900123456-8": base and DIAN check digit. */
             nit: string | null;
@@ -912,7 +918,7 @@ export interface components {
             email: string | null;
             id: string;
             name: string;
-            status: string;
+            status: components["schemas"]["OrganizationStatus"];
             version: number;
             createdAt: string;
             updatedAt: string;
@@ -937,7 +943,7 @@ export interface components {
             };
             fullName: string;
             birthDate: string;
-            sex: string;
+            sex: components["schemas"]["Sex"];
             contact: {
                 email: string;
                 phone: string | null;
@@ -951,6 +957,8 @@ export interface components {
             registeredAt: string;
             updatedAt: string;
         };
+        /** @enum {string} */
+        Permission: "patients:read" | "patients:write" | "appointments:read" | "appointments:manage" | "admission:manage" | "turns:call" | "clinical:read" | "clinical:write" | "pharmacy:dispense" | "settings:manage" | "staff:manage" | "room:view";
         /** @description A signed prescription (as the pharmacy may see it) and what was delivered of it. */
         PharmacyPrescriptionView: {
             consultationId: string;
@@ -1044,13 +1052,15 @@ export interface components {
             name: string;
             active: boolean;
         };
+        /** @enum {string} */
+        Sex: "H" | "M" | "I";
         SlotView: {
             time: string;
             startsAt: string;
             /** @description The active appointment holding the slot, if any. */
             appointment: {
                 id: string;
-                status: string;
+                status: components["schemas"]["AppointmentStatus"];
                 patient: {
                     id: string;
                     fullName: string | null;
@@ -1064,8 +1074,10 @@ export interface components {
             emailMasked: string | null;
             providerRole: string;
             /** @description Functional roles assigned by the IPS administrators. */
-            roles: string[];
+            roles: components["schemas"]["StaffRole"][];
         };
+        /** @enum {string} */
+        StaffRole: "agendamiento" | "admision" | "medico" | "farmacia" | "soporte" | "tv";
         /** @enum {string} */
         StockAlert: "stock_bajo" | "por_vencer" | "vencido";
         TimelineEntryView: {
@@ -1081,6 +1093,8 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** @enum {string} */
+        TurnStatus: "en_espera" | "anunciado" | "atendido" | "no_se_presento";
         TurnView: {
             id: string;
             label: string;
@@ -1095,7 +1109,7 @@ export interface components {
             };
             code: string;
             number: number;
-            status: string;
+            status: components["schemas"]["TurnStatus"];
             calls: number;
             lastCalledAt: string | null;
             arrivedAt: string;

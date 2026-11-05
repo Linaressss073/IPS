@@ -78,6 +78,14 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
     ],
     "additionalProperties": false
   },
+  "AppointmentStatus": {
+    "type": "string",
+    "enum": [
+      "agendada",
+      "confirmada",
+      "cancelada"
+    ]
+  },
   "AppointmentView": {
     "type": "object",
     "properties": {
@@ -85,7 +93,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         "type": "string"
       },
       "status": {
-        "type": "string"
+        "$ref": "#/components/schemas/AppointmentStatus"
       },
       "patient": {
         "type": "object",
@@ -226,7 +234,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         "nullable": true
       },
       "status": {
-        "type": "string"
+        "$ref": "#/components/schemas/TurnStatus"
       },
       "calls": {
         "type": "number"
@@ -394,6 +402,13 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
     "additionalProperties": false,
     "description": "One companion of the patient's history; `number` grows with each one."
   },
+  "ConsultationStatus": {
+    "type": "string",
+    "enum": [
+      "en_curso",
+      "firmada"
+    ]
+  },
   "ConsultationView": {
     "type": "object",
     "properties": {
@@ -401,7 +416,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         "type": "string"
       },
       "status": {
-        "type": "string"
+        "$ref": "#/components/schemas/ConsultationStatus"
       },
       "signature": {
         "anyOf": [
@@ -837,13 +852,13 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "roles": {
         "type": "array",
         "items": {
-          "type": "string"
+          "$ref": "#/components/schemas/StaffRole"
         }
       },
       "permissions": {
         "type": "array",
         "items": {
-          "type": "string"
+          "$ref": "#/components/schemas/Permission"
         }
       }
     },
@@ -880,6 +895,13 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
     ],
     "additionalProperties": false,
     "description": "What the physician writes (free text; empty until filled in)."
+  },
+  "OrganizationStatus": {
+    "type": "string",
+    "enum": [
+      "active",
+      "deleted"
+    ]
   },
   "OrganizationView": {
     "type": "object",
@@ -922,7 +944,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         "type": "string"
       },
       "status": {
-        "type": "string"
+        "$ref": "#/components/schemas/OrganizationStatus"
       },
       "version": {
         "type": "number"
@@ -1033,7 +1055,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         "type": "string"
       },
       "sex": {
-        "type": "string"
+        "$ref": "#/components/schemas/Sex"
       },
       "contact": {
         "type": "object",
@@ -1098,6 +1120,23 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "updatedAt"
     ],
     "additionalProperties": false
+  },
+  "Permission": {
+    "type": "string",
+    "enum": [
+      "patients:read",
+      "patients:write",
+      "appointments:read",
+      "appointments:manage",
+      "admission:manage",
+      "turns:call",
+      "clinical:read",
+      "clinical:write",
+      "pharmacy:dispense",
+      "settings:manage",
+      "staff:manage",
+      "room:view"
+    ]
   },
   "PharmacyPrescriptionView": {
     "type": "object",
@@ -1496,6 +1535,14 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
     ],
     "additionalProperties": false
   },
+  "Sex": {
+    "type": "string",
+    "enum": [
+      "H",
+      "M",
+      "I"
+    ]
+  },
   "SlotView": {
     "type": "object",
     "properties": {
@@ -1514,7 +1561,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
             "type": "string"
           },
           "status": {
-            "type": "string"
+            "$ref": "#/components/schemas/AppointmentStatus"
           },
           "patient": {
             "type": "object",
@@ -1569,7 +1616,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "roles": {
         "type": "array",
         "items": {
-          "type": "string"
+          "$ref": "#/components/schemas/StaffRole"
         },
         "description": "Functional roles assigned by the IPS administrators."
       }
@@ -1583,6 +1630,17 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
     ],
     "additionalProperties": false,
     "description": "A member of an IPS, as shown to the other members (no full e-mail)."
+  },
+  "StaffRole": {
+    "type": "string",
+    "enum": [
+      "agendamiento",
+      "admision",
+      "medico",
+      "farmacia",
+      "soporte",
+      "tv"
+    ]
   },
   "StockAlert": {
     "type": "string",
@@ -1635,6 +1693,15 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "data"
     ],
     "additionalProperties": false
+  },
+  "TurnStatus": {
+    "type": "string",
+    "enum": [
+      "en_espera",
+      "anunciado",
+      "atendido",
+      "no_se_presento"
+    ]
   },
   "TurnView": {
     "type": "object",
@@ -1691,7 +1758,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         "type": "number"
       },
       "status": {
-        "type": "string"
+        "$ref": "#/components/schemas/TurnStatus"
       },
       "calls": {
         "type": "number"

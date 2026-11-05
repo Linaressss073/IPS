@@ -1,5 +1,6 @@
 import { ActorInput } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
+import { TurnStatus } from '../../domain/types/admission.types.js';
 
 // Commands
 
@@ -51,7 +52,7 @@ export interface TurnView {
   origin: { kind: 'cita' } | { kind: 'farmacia'; consultationId: string };
   code: string;
   number: number;
-  status: string;
+  status: TurnStatus;
   calls: number;
   lastCalledAt: string | null;
   arrivedAt: string;
@@ -76,7 +77,7 @@ export interface BoardCall {
   label: string;
   location: string;
   patientName: string | null;
-  status: string;
+  status: TurnStatus;
   calls: number;
   calledAt: string;
 }

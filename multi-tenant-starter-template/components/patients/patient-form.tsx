@@ -56,7 +56,7 @@ function toInput(state: FormState): PatientInput {
       secondLastName: orNull(state.secondLastName),
     },
     birthDate: state.birthDate,
-    sex: state.sex,
+    sex: state.sex as PatientInput["sex"], // empty until chosen; the select is required and the API validates
     contact: { email: state.email, phone: orNull(state.phone), address: orNull(state.address) },
     affiliation: {
       eps: state.regime === "particular" ? null : orNull(state.eps),

@@ -1,45 +1,13 @@
 import { apiFetch, TokenSource } from "./client";
 import { Turn } from "./admission";
+import type { components } from "./schema";
 
-/** Mirrors PharmacyPrescriptionView (api/src/contexts/pharmacy/application/types). */
-export type DispensationStatus = "pendiente" | "parcial" | "completa";
+type Schemas = components["schemas"];
 
-export type PharmacyPrescription = {
-  consultationId: string;
-  patient: { id: string; fullName: string; document: { type: string; number: string } };
-  physician: { userId: string; displayName: string };
-  date: string;
-  signedAt: string;
-  status: DispensationStatus;
-  items: {
-    index: number;
-    medication: string;
-    presentation: string;
-    dose: string;
-    route: string;
-    frequency: string;
-    durationDays: number;
-    instructions: string;
-    prescribed: number;
-    delivered: number;
-    pending: number;
-  }[];
-  deliveries: {
-    at: string;
-    by: string;
-    byName: string;
-    lines: {
-      index: number;
-      medication: string;
-      quantity: number;
-      /** Empty for deliveries made before the inventory existed. */
-      productId: string;
-      lots: { lotNumber: string; expiresOn: string; quantity: number }[];
-    }[];
-    note: string;
-  }[];
-  version: number;
-};
+/** The views come from the API's OpenAPI document (pnpm api:types). */
+export type DispensationStatus = Schemas["DispensationStatus"];
+
+export type PharmacyPrescription = Schemas["PharmacyPrescriptionView"];
 
 export const DISPENSATION_STATUSES: Record<DispensationStatus, string> = {
   pendiente: "Pendiente",
@@ -78,39 +46,12 @@ export const issuePharmacyTurn = (auth: TokenSource, teamId: string, consultatio
     body: JSON.stringify({ windowId }),
   });
 
-/** Mirrors ProductView and MovementView: the pharmacy's catalog, lots and kardex. */
-export type LotStatus = "vigente" | "por_vencer" | "vencido";
-export type StockAlert = "stock_bajo" | "por_vencer" | "vencido";
-
-export type Product = {
-  id: string;
-  name: string;
-  presentation: string;
-  label: string;
-  minStock: number;
-  active: boolean;
-  available: number;
-  expired: number;
-  lots: { lotNumber: string; expiresOn: string; quantity: number; status: LotStatus }[];
-  alerts: StockAlert[];
-  version: number;
-};
-
-export type MovementReference =
-  | { kind: "recepcion"; supplier: string }
-  | { kind: "dispensacion"; consultationId: string }
-  | { kind: "ajuste"; reason: string };
-
-export type Movement = {
-  id: string;
-  type: "entrada" | "salida" | "ajuste";
-  lotNumber: string;
-  quantity: number;
-  reference: MovementReference;
-  at: string;
-  by: string;
-  byName: string;
-};
+/** The pharmacy's catalog, lots and kardex. */
+export type LotStatus = Schemas["LotStatus"];
+export type StockAlert = Schemas["StockAlert"];
+export type Product = Schemas["ProductView"];
+export type MovementReference = Schemas["MovementReference"];
+export type Movement = Schemas["MovementView"];
 
 export const STOCK_ALERTS: Record<StockAlert, string> = {
   stock_bajo: "Stock bajo",

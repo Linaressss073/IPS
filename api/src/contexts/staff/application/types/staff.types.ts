@@ -1,5 +1,7 @@
 import { TeamId } from '../../../../shared/domain/index.js';
+import { Permission } from '../../domain/constants/permissions.js';
 import { StaffProfile } from '../../domain/entities/staff-profile.vo.js';
+import { StaffRole } from '../../domain/types/staff.types.js';
 
 /**
  * A change in the identity provider, already translated to our language by
@@ -27,13 +29,13 @@ export interface StaffMemberView {
   emailMasked: string | null;
   providerRole: string;
   /** Functional roles assigned by the IPS administrators. */
-  roles: string[];
+  roles: StaffRole[];
 }
 
 /** What the caller may do in an IPS (for the UI to show only that). */
 export interface MyAccessView {
   userId: string;
   isAdmin: boolean;
-  roles: string[];
-  permissions: string[];
+  roles: StaffRole[];
+  permissions: Permission[];
 }

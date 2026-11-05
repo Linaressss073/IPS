@@ -1,6 +1,7 @@
 import { ActorInput } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import {
+  ConsultationStatus,
   DiagnosisProps,
   NoteProps,
   PrescriptionItemProps,
@@ -34,7 +35,7 @@ export interface PrescriptionView {
 
 export interface ConsultationView {
   id: string;
-  status: string;
+  status: ConsultationStatus;
   signature: { signed: false } | { signed: true; at: string };
   patient: { id: string; fullName: string; document: { type: string; number: string } };
   physician: { userId: string; displayName: string };

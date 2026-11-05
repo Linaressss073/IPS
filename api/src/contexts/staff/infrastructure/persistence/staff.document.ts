@@ -1,4 +1,5 @@
 import type { Db } from 'mongodb';
+import type { StaffRole } from '../../domain/types/staff.types.js';
 
 export const STAFF_COLLECTION = 'staff';
 
@@ -29,7 +30,7 @@ export interface StaffTeamEntry {
    * agendamiento, admision, medico, farmacia, soporte (assigned by admins).
    * Missing in documents written before roles existed: read it as [].
    */
-  roles?: string[];
+  roles?: StaffRole[];
   sourceUpdatedAt: Date;
 }
 

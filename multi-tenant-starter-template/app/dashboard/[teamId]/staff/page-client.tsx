@@ -7,7 +7,7 @@ import { errorMessage } from "@/components/patients/error-message";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assignRoles, listStaff, ROLE_LABELS, StaffMember } from "@/lib/api/staff";
+import { assignRoles, listStaff, ROLE_LABELS, StaffMember, StaffRole } from "@/lib/api/staff";
 import { useApiAuth } from "@/lib/api/use-api-auth";
 import { PageHeader, PageShell } from "@/components/page-header";
 
@@ -98,16 +98,16 @@ export function PageClient() {
 function StaffRow(props: Readonly<{
   member: StaffMember;
   isMe: boolean;
-  onSave: (roles: string[]) => Promise<void>;
+  onSave: (roles: StaffRole[]) => Promise<void>;
 }>) {
   const { member } = props;
-  const [roles, setRoles] = React.useState<string[]>(member.roles);
+  const [roles, setRoles] = React.useState<StaffRole[]>(member.roles);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const changed =
     roles.length !== member.roles.length || roles.some((role) => !member.roles.includes(role));
 
-  const toggle = (role: string) =>
+  const toggle = (role: StaffRole) =>
     setRoles((current) =>
       current.includes(role) ? current.filter((r) => r !== role) : [...current, role],
     );
@@ -126,7 +126,7 @@ function StaffRow(props: Readonly<{
       </td>
       <td className="py-3 pr-4">
         <div className="flex flex-wrap gap-x-4 gap-y-2">
-          {Object.entries(ROLE_LABELS).map(([role, label]) => (
+          {(Object.entries(ROLE_LABELS) as [StaffRole, string][]).map(([role, label]) => (
             <label key={role} className="flex items-center gap-1.5">
               <input type="checkbox" checked={roles.includes(role)} onChange={() => toggle(role)} />
               {label}

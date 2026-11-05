@@ -1,51 +1,16 @@
 import { apiFetch, TokenSource } from "./client";
+import type { components } from "./schema";
 
-/** Mirrors the views of api/src/contexts/scheduling/application/types/scheduling.types.ts. */
-export type Service = { id: string; code: string; name: string; active: boolean };
-export type Location = { id: string; kind: string; number: string; label: string; active: boolean };
-export type Professional = { userId: string; displayName: string | null };
+type Schemas = components["schemas"];
 
-export type Slot = {
-  time: string;
-  startsAt: string;
-  appointment: {
-    id: string;
-    status: AppointmentStatus;
-    patient: { id: string; fullName: string | null };
-  } | null;
-};
-
-export type Agenda = {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  slotMinutes: number;
-  professional: Professional;
-  service: { id: string; code: string; name: string };
-  location: { id: string; label: string };
-  slots: Slot[];
-};
-
-export type AppointmentStatus = "agendada" | "confirmada" | "cancelada";
-
-export type Appointment = {
-  id: string;
-  status: AppointmentStatus;
-  patient: { id: string; fullName: string | null; document: { type: string; number: string } | null };
-  professional: Professional;
-  service: { id: string; code: string; name: string };
-  location: { id: string; label: string };
-  agendaId: string;
-  date: string;
-  time: string;
-  endTime: string;
-  startsAt: string;
-  cancelReason: string | null;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-};
+/** The views come from the API's OpenAPI document (pnpm api:types). */
+export type Service = Schemas["ServiceView"];
+export type Location = Schemas["LocationView"];
+export type Professional = Schemas["ProfessionalView"];
+export type Slot = Schemas["SlotView"];
+export type Agenda = Schemas["AgendaView"];
+export type AppointmentStatus = Schemas["AppointmentStatus"];
+export type Appointment = Schemas["AppointmentView"];
 
 export type OpenAgendaInput = {
   professionalId: string;

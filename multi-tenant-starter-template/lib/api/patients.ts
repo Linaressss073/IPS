@@ -1,30 +1,16 @@
 import { apiFetch, TokenSource } from "./client";
+import type { components } from "./schema";
 
-/** Mirrors PatientView from the API (api/src/contexts/patients/application/types/patient.types.ts). */
-export type Patient = {
-  id: string;
-  document: { type: string; number: string };
-  name: {
-    firstName: string;
-    middleName: string | null;
-    firstLastName: string;
-    secondLastName: string | null;
-  };
-  fullName: string;
-  birthDate: string;
-  sex: string;
-  contact: { email: string; phone: string | null; address: string | null };
-  affiliation: { eps: string | null; regime: string };
-  version: number;
-  registeredAt: string;
-  updatedAt: string;
-};
+type Schemas = components["schemas"];
+
+/** The views come from the API's OpenAPI document (pnpm api:types). */
+export type Patient = Schemas["PatientView"];
 
 export type PatientInput = {
   document: Patient["document"];
   name: Patient["name"];
   birthDate: string;
-  sex: string;
+  sex: Patient["sex"];
   contact: Patient["contact"];
   affiliation: Patient["affiliation"];
   /** Optional first companion, recorded as #1 (registration only). */
@@ -42,33 +28,10 @@ export type CompanionInput = {
   email?: string | null;
 };
 
-/** Mirrors CompanionView from the API; `number` grows with each companion. */
-export type Companion = {
-  number: number;
-  relationship: string | null;
-  name: Patient["name"] | null;
-  fullName: string | null;
-  document: Patient["document"] | null;
-  phone: string | null;
-  email: string | null;
-  recordedAt: string;
-  requestedBy: string;
-  executedBy: string;
-  /** From the API's staff directory; null when the API does not know the user yet. */
-  requestedByName: string | null;
-  executedByName: string | null;
-};
+/** `number` grows with each companion; the `...ByName` fields are null when the API does not know the user yet. */
+export type Companion = Schemas["CompanionView"];
 
-export type TimelineEntry = {
-  id: string;
-  type: string;
-  occurredAt: string;
-  requestedBy: string;
-  executedBy: string;
-  requestedByName: string | null;
-  executedByName: string | null;
-  data: Record<string, unknown>;
-};
+export type TimelineEntry = Schemas["TimelineEntryView"];
 
 export type Page<T> = { items: T[]; total: number; page: number; pageSize: number };
 

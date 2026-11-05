@@ -330,7 +330,7 @@ function PrescriptionCard(props: Readonly<{ items: PrescriptionItem[]; onChange:
                 <Input id={`dose-${index}`} placeholder="1 tableta" value={item.dose} onChange={(e) => update(index, { dose: e.target.value })} />
               </Field>
               <Field label="Vía" id={`route-${index}`}>
-                <Select id={`route-${index}`} value={item.route} onChange={(e) => update(index, { route: e.target.value })}>
+                <Select id={`route-${index}`} value={item.route} onChange={(e) => update(index, { route: e.target.value as PrescriptionItem["route"] })}>
                   {Object.entries(ROUTES).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
