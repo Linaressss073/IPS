@@ -237,6 +237,11 @@ describe('Pharmacy (e2e)', () => {
       location: 'Farmacia 1',
     });
 
+    // Pharmacy staff without admin rights sees and calls its own turns only.
+    await api('alice').put(`${team}/staff/carol/roles`, { roles: ['farmacia'] }).expect(200);
+    expect((await api('carol').get(`${team}/turns`).expect(200)).body).toEqual([expect.objectContaining({ label: 'FAR 1' })]);
+    await api('carol').post(`${team}/turns/${turn.id}/call`, { version: 2 }).expect(200);
+
     // Once everything is delivered, no more turns.
     await api('alice')
       .post(`${pharmacy}/${consultationId}/deliveries`, {
