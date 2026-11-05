@@ -227,7 +227,7 @@ ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm
 `ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
 `ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
 `his_consulta_externa`; si falta, la de la ruta de la URL, y si tampoco hay, la API no arranca),
-`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS`, `TURN_ANNOUNCER_INTERVAL_MS`, `LOG_LEVEL` (pino: `info` por defecto, `silent` en test; ver `src/config/env.ts`).
+`CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS`, `TURN_ANNOUNCER_INTERVAL_MS`, `LOG_LEVEL` (pino: `info` por defecto, `silent` en test; ver `src/config/env.ts`), `RATE_LIMIT_PER_MINUTE` (peticiones por minuto por cliente, 600 por defecto).
 
 ## Desarrollo local
 
@@ -276,6 +276,16 @@ pnpm test:e2e    # HTTP + MongoDB real en un contenedor desechable (Testcontaine
 ```
 
 El mismo `ci.yml` de la raíz los corre en cadena (lint → build y unitarias → e2e → Sonar); ver [Calidad y CI](../README.md#calidad-y-ci).
+
+## Seguridad HTTP
+
+`src/config/http-security.ts`:
+
+- **Cabeceras** con `helmet`: `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`… y sin `X-Powered-By`. La política de contenido (CSP) se deja fuera: la API devuelve JSON y Swagger UI necesita scripts en línea que la política por defecto bloquea.
+- **Límite de peticiones:** `RATE_LIMIT_PER_MINUTE` por cliente (600 por defecto, a propósito generoso: una clínica entera puede compartir una dirección y cada pantalla abierta consulta cada pocos segundos). Al pasarlo responde `429` con `{ statusCode, code: "TOO_MANY_REQUESTS", message }` y las cabeceras `RateLimit`. `/health` nunca se limita (UptimeRobot y Render lo consultan).
+- **Quién es el cliente:** detrás de Render todas las peticiones llegan desde el proxy, así que se usa `CF-Connecting-IP` (la dirección real, que Cloudflare pone y sobrescribe) y, si no viene (desarrollo, pruebas), la del socket.
+
+La web envía sus propias cabeceras desde `multi-tenant-starter-template/next.config.mjs` (`lib/security-headers.mjs`): CSP con la API y Clerk (tomados de `NEXT_PUBLIC_API_URL` y de la clave de Clerk), `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`, y sin `X-Powered-By`. La CSP sale como **Report-Only** hasta confirmar en la consola del navegador que no bloquearía nada; después se pone `enforce: true`. La ruta del PDF de la fórmula queda fuera de la CSP y del bloqueo de marcos, para no romper el visor de PDF del navegador.
 
 ## Logs
 
