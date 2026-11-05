@@ -2,7 +2,19 @@
 
 La API empuja sus métricas por OpenTelemetry a Grafana Cloud (ver [README de la API](../api/README.md#métricas-opentelemetry--grafana-cloud) y el [ADL](../.pair/adoption/decision-log/2026-11-04-observability-otlp-push-grafana-cloud.md)).
 
-## Dashboard `IPS · APM y logs`
+## Dashboard público `IPS · Rendimiento de la API`
+
+`grafana/ips-apm-public.dashboard.json`. Un dashboard **público** de Grafana (Share → Share externally) no puede usar variables, por eso este archivo no las tiene: el servicio queda fijo en `ips-api`, la fuente de métricas se elige **al importar** (Grafana pide "Fuente de métricas (Prometheus)") y no incluye logs. Pasos:
+
+1. Dashboards → New → **Import** → subir el archivo → elegir la fuente de métricas (la que termina en `-prom`).
+2. Abrir el dashboard → **Share** → **Share externally** → copiar el enlace.
+3. Para dejar de publicarlo: Dashboards → **Shared dashboards** → pausar o eliminar el enlace.
+
+Qué ve cualquiera con el enlace: peticiones por minuto, latencia y errores por **ruta** (como plantilla, `/api/v1/teams/:teamId/patients`, nunca la URL real), sin datos de pacientes ni logs. Cada visita consulta la cuota gratuita de Grafana Cloud: se refresca cada minuto, y si llegara mucho tráfico conviene pausar el enlace.
+
+El archivo privado (`ips-apm.dashboard.json`, con variables y logs) **no** debe publicarse. Ambos salen del mismo generador, así que cambian juntos.
+
+## Dashboard privado `IPS · APM y logs`
 
 `grafana/ips-apm.dashboard.json`. Importarlo: Grafana → Dashboards → New → **Import** → subir el archivo → elegir las fuentes de datos (la de métricas termina en `-prom` y la de logs en `-logs`).
 
