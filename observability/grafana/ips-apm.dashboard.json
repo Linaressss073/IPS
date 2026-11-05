@@ -82,7 +82,7 @@
         },
         "refresh": 2,
         "includeAll": true,
-        "allValue": ".*",
+        "allValue": ".+",
         "multi": false,
         "sort": 1,
         "current": {
