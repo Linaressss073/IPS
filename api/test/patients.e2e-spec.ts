@@ -76,6 +76,14 @@ describe('Patients API (e2e)', () => {
     expect(fetched.body).toEqual(res.body);
   });
 
+  it("registers a patient without the patient's EPS: it is optional", async () => {
+    const res = await registerAs('alice', {
+      ...patient,
+      affiliation: { regime: 'subsidiado' },
+    }).expect(201);
+    expect(res.body.affiliation).toEqual({ eps: null, regime: 'subsidiado' });
+  });
+
   it('registers each document once per team', async () => {
     await registerAs('alice').expect(201);
     const res = await registerAs('alice', {
