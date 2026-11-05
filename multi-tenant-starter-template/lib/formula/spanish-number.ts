@@ -9,16 +9,30 @@ const HUNDREDS = [
   "ochocientos", "novecientos",
 ];
 
-/** A whole number in Spanish words (0 to 999 999), as written next to quantities on prescriptions. */
-export function numberInWords(n: number): string {
+/** Masculine, without apocope: "uno", "veintiuno". */
+function words(n: number): string {
   if (n < 30) return UNITS[n];
   if (n < 100) return n % 10 ? `${TENS[Math.floor(n / 10)]} y ${UNITS[n % 10]}` : TENS[n / 10];
   if (n === 100) return "cien";
-  if (n < 1000) return n % 100 ? `${HUNDREDS[Math.floor(n / 100)]} ${numberInWords(n % 100)}` : HUNDREDS[n / 100];
+  if (n < 1000) return n % 100 ? `${HUNDREDS[Math.floor(n / 100)]} ${words(n % 100)}` : HUNDREDS[n / 100];
   if (n < 1_000_000) {
     const thousands = Math.floor(n / 1000);
-    const head = thousands === 1 ? "mil" : `${numberInWords(thousands)} mil`;
-    return n % 1000 ? `${head} ${numberInWords(n % 1000)}` : head;
+    const head = thousands === 1 ? "mil" : `${words(thousands)} mil`;
+    return n % 1000 ? `${head} ${words(n % 1000)}` : head;
   }
   return String(n);
 }
+
+/**
+ * A whole number in Spanish words (0 to 999 999) as written before a noun on a prescription:
+ * "un frasco", "veintiún mil frascos", "una tableta", "doscientas tabletas".
+ */
+export function numberInWords(n: number, feminine = false): string {
+  const text = words(n)
+    .replace(/uno( mil)?(?=$|\s)/g, (_, mil = "") => (feminine ? "una" : "un") + mil)
+    .replace(/veintiun\b/g, "veintiún");
+  return feminine ? text.replace(/ientos/g, "ientas") : text;
+}
+
+/** Gender of a presentation from its first word ("Tableta", "Solución" feminine; "Frasco", "Jarabe" masculine). */
+export const isFeminine = (presentation: string) => /(a|ión)$/i.test(presentation.trim().split(/\s+/)[0] ?? "");

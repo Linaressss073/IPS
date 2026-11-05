@@ -6,7 +6,6 @@ import {
   TraceEvent,
 } from '../../../../shared/application/index.js';
 import { colombiaDate, UserId } from '../../../../shared/domain/index.js';
-import { PermissionDeniedError } from '../../../staff/application/errors/staff.errors.js';
 import { PHARMACY_SERVICE } from '../../domain/constants/admission.constants.js';
 import { CallSettings } from '../../domain/entities/call-settings.vo.js';
 import { Turn, TurnId } from '../../domain/entities/turn.entity.js';
@@ -18,7 +17,7 @@ import {
   TURN_CHECKED_IN,
   TURN_NO_SHOW,
 } from '../constants/admission.tokens.js';
-import { TurnVersionConflictError } from '../errors/admission.errors.js';
+import { TurnNotFoundError, TurnVersionConflictError } from '../errors/admission.errors.js';
 import {
   AppointmentDirectory,
   CallSettingsRepository,
@@ -133,7 +132,8 @@ abstract class ChangeTurn {
   async execute(command: TurnCommand): Promise<TurnView> {
     const actor = await this.actors.resolve(command.teamId, command.actor);
     const turn = await this.turns.getById(command.teamId, TurnId.of(command.turnId));
-    if (command.onlyOrigin && turn.origin.kind !== command.onlyOrigin) throw new PermissionDeniedError('turns:call');
+    // Another origin looks like a missing turn: a pharmacy caller learns nothing about clinic turns.
+    if (command.onlyOrigin && turn.origin.kind !== command.onlyOrigin) throw new TurnNotFoundError(command.turnId);
     if (turn.version !== command.expectedVersion) throw new TurnVersionConflictError(command.turnId);
     const now = this.clock.now();
     const type = await this.change(turn, now, command);

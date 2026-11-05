@@ -101,6 +101,8 @@ jobs:
       # The API types are generated from api/openapi.json; a stale copy fails here.
       - run: pnpm api:types && git diff --exit-code -- lib/api/schema.d.ts
         working-directory: multi-tenant-starter-template
+      - run: pnpm test
+        working-directory: multi-tenant-starter-template
       # next build compiles and type-checks.
       - run: pnpm build
         working-directory: multi-tenant-starter-template

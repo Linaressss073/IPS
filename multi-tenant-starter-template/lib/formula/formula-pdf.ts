@@ -1,7 +1,7 @@
 import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from "pdf-lib";
 import { ROUTES } from "@/lib/api/consultation";
 import type { components } from "@/lib/api/schema";
-import { numberInWords } from "./spanish-number";
+import { isFeminine, numberInWords } from "./spanish-number";
 
 type Formula = components["schemas"]["FormulaView"];
 
@@ -15,8 +15,19 @@ const M = 40;
 const CONTENT = W - 2 * M;
 const QTY_COL = 130;
 
-/** Standard PDF fonts only draw Latin-1: anything else would throw. */
-const safe = (text: string) => text.replace(/[^ -ÿ]/g, "?");
+/** Typographic characters people paste from Word, as plain equivalents. */
+const PUNCTUATION: Record<string, string> = {
+  "‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-", "…": "...", "•": "-",
+};
+
+/** Standard PDF fonts only draw printable Latin-1: anything else (controls included) would throw or print wrong. */
+export const safe = (text: string) =>
+  text
+    .replace(/[‘’“”–—…•]/g, (ch) => PUNCTUATION[ch])
+    .replace(/[^ -~ -ÿ]/g, "?");
+
+/** The date (YYYY-MM-DD) in Bogotá: what the patient and the printed dates see. */
+const bogotaDate = (iso: string) => new Date(iso).toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
 
 const dateOf = (iso: string, time = false) =>
   new Date(iso).toLocaleString("es-CO", {
@@ -27,18 +38,17 @@ const dateOf = (iso: string, time = false) =>
     ...(time && { hour: "2-digit", minute: "2-digit", hour12: false }),
   });
 
-const ageAt = (birthDate: string, at: string) => {
-  const born = new Date(birthDate);
-  const now = new Date(at);
-  const before =
-    now.getUTCMonth() < born.getUTCMonth() ||
-    (now.getUTCMonth() === born.getUTCMonth() && now.getUTCDate() < born.getUTCDate());
-  return now.getUTCFullYear() - born.getUTCFullYear() - (before ? 1 : 0);
+/** Whole years on the day `at` (an instant), counting that day in Bogotá. */
+export const ageAt = (birthDate: string, at: string) => {
+  const [year, month, day] = bogotaDate(at).split("-").map(Number);
+  const [bornYear, bornMonth, bornDay] = birthDate.slice(0, 10).split("-").map(Number);
+  const before = month < bornMonth || (month === bornMonth && day < bornDay);
+  return year - bornYear - (before ? 1 : 0);
 };
 
-/** Number printed on the prescription: the year it was signed and the end of the consultation id. */
+/** Number printed on the prescription: the year it was signed (in Bogotá) and the end of the consultation id. */
 export const formulaNumber = (f: Formula) =>
-  `F-${new Date(f.signedAt).getUTCFullYear()}-${f.consultationId.replace(/-/g, "").slice(-8).toUpperCase()}`;
+  `F-${bogotaDate(f.signedAt).slice(0, 4)}-${f.consultationId.replace(/-/g, "").slice(-8).toUpperCase()}`;
 
 /** The signed prescription as a PDF: IPS letterhead, patient, diagnoses, medicines and delivery boxes. */
 export async function buildFormulaPdf(f: Formula): Promise<Uint8Array> {
@@ -126,7 +136,11 @@ export async function buildFormulaPdf(f: Formula): Promise<Uint8Array> {
     const how = `Tomar (vía ${route}) ${item.dose} ${item.frequency} por ${item.durationDays} día(s)${item.instructions ? `. ${item.instructions}` : ""}`;
     const head = wrap(`${index + 1}. ${item.medication} ${item.presentation}`, textWidth, 9, bold);
     const body = wrap(how, textWidth, 8);
-    const amount = wrap(`${item.quantity} (${numberInWords(item.quantity)}) ${item.presentation.toLowerCase()}`, QTY_COL - 8, 9);
+    const amount = wrap(
+      `${item.quantity} (${numberInWords(item.quantity, isFeminine(item.presentation))}) ${item.presentation.toLowerCase()}`,
+      QTY_COL - 8,
+      9,
+    );
     const height = Math.max(head.length * 11 + body.length * 10, amount.length * 11) + 14;
     need(height);
     head.forEach((line, i) => draw(line, M + 4, y - 8 - i * 11, 9, bold));
@@ -137,8 +151,8 @@ export async function buildFormulaPdf(f: Formula): Promise<Uint8Array> {
   });
   y -= 10;
 
-  // Notices.
-  need(120);
+  // Notices and the two boxes stay together on one page (about 40 + 14 + 82 points, with margin).
+  need(170);
   [
     "Los medicamentos únicamente deben ser administrados durante el tiempo definido en la formulación.",
     `FÓRMULA MÉDICA VÁLIDA POR ${VALID_DAYS} DÍAS A PARTIR DE LA FECHA DE EXPEDICIÓN.`,
