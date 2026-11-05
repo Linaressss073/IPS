@@ -4,13 +4,13 @@ La API empuja sus métricas por OpenTelemetry a Grafana Cloud (ver [README de la
 
 ## Dashboard público `IPS · Rendimiento de la API`
 
-`grafana/ips-apm-public.dashboard.json`. Un dashboard **público** de Grafana (Share → Share externally) no puede usar variables, por eso este archivo no las tiene: el servicio queda fijo en `ips-api`, la fuente de métricas se elige **al importar** (Grafana pide "Fuente de métricas (Prometheus)") y no incluye logs. Pasos:
+`grafana/ips-apm-public.dashboard.json`. Un dashboard **público** de Grafana (Share → Share externally) no puede usar variables, por eso este archivo no las tiene: el servicio queda fijo en `ips-api` y las fuentes de datos se eligen **al importar** (Grafana pide dos: "Fuente de métricas (Prometheus)" y "Fuente de logs (Loki), solo para contar"). Incluye el **conteo de logs por nivel**, pero no las líneas de log. Pasos:
 
-1. Dashboards → New → **Import** → subir el archivo → elegir la fuente de métricas (la que termina en `-prom`).
+1. Dashboards → New → **Import** → subir el archivo → elegir la fuente de métricas (la que termina en `-prom`) y la de logs (`-logs`).
 2. Abrir el dashboard → **Share** → **Share externally** → copiar el enlace.
 3. Para dejar de publicarlo: Dashboards → **Shared dashboards** → pausar o eliminar el enlace.
 
-Qué ve cualquiera con el enlace: peticiones por minuto, latencia y errores por **ruta** (como plantilla, `/api/v1/teams/:teamId/patients`, nunca la URL real), sin datos de pacientes ni logs. Cada visita consulta la cuota gratuita de Grafana Cloud: se refresca cada minuto, y si llegara mucho tráfico conviene pausar el enlace.
+Qué ve cualquiera con el enlace: peticiones por minuto, latencia y errores por **ruta** (como plantilla, `/api/v1/teams/:teamId/patients`, nunca la URL real) y cuántos logs hay de cada nivel. No ve datos de pacientes ni el contenido de ningún log (las líneas llevan ids de organización y rutas, por eso solo están en el dashboard privado). Cada visita consulta la cuota gratuita de Grafana Cloud: se refresca cada minuto, y si llegara mucho tráfico conviene pausar el enlace.
 
 El archivo privado (`ips-apm.dashboard.json`, con variables y logs) **no** debe publicarse. Ambos salen del mismo generador, así que cambian juntos.
 
