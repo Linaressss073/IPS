@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from '../../src/app.module.js';
 import { API_PREFIX } from '../../src/config/http.js';
+import { setupHttpSecurity } from '../../src/config/http-security.js';
 import { setupOpenApi } from '../../src/config/openapi.js';
 import {
   ACCESS_TOKEN_VERIFIER,
@@ -92,7 +93,7 @@ export class FakeIdentitySource {
 }
 
 /** Boots the real AppModule against the docker-compose MongoDB, with Clerk faked. */
-export async function createTestApp() {
+export async function createTestApp(options: { rateLimitPerMinute?: number } = {}) {
   const organizationProvider = new FakeOrganizationProvider();
   organizationProvider.reset();
   const identitySource = new FakeIdentitySource();
@@ -121,6 +122,8 @@ export async function createTestApp() {
   const app: INestApplication<App> = moduleRef.createNestApplication({
     rawBody: true,
   });
+  // The limit is far out of reach, except in the test that exercises it.
+  setupHttpSecurity(app, options.rateLimitPerMinute ?? 1_000_000);
   app.setGlobalPrefix(API_PREFIX);
   setupOpenApi(app);
   await app.init();

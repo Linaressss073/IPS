@@ -23,6 +23,8 @@ export interface Env {
   TURN_ANNOUNCER_INTERVAL_MS: number;
   /** pino level: trace, debug, info, warn, error, fatal or silent. */
   LOG_LEVEL: string;
+  /** Requests per minute allowed to each client before the API answers 429. */
+  RATE_LIMIT_PER_MINUTE: number;
 }
 
 const REQUIRED = ['MONGO_URL', 'CLERK_SECRET_KEY'] as const;
@@ -57,6 +59,8 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     CLERK_SYNC_INTERVAL_MS: Number(raw.CLERK_SYNC_INTERVAL_MS ?? 600_000),
     TURN_ANNOUNCER_INTERVAL_MS: Number(raw.TURN_ANNOUNCER_INTERVAL_MS ?? 10_000),
     LOG_LEVEL: raw.LOG_LEVEL || (raw.ENV === 'test' ? 'silent' : 'info'),
+    // Generous on purpose: a whole clinic can share one address, and each open screen polls (turns every 5 s, the room board every 3 s).
+    RATE_LIMIT_PER_MINUTE: Number(raw.RATE_LIMIT_PER_MINUTE ?? 600),
   };
 }
 

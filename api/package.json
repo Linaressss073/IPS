@@ -37,6 +37,8 @@
     "@opentelemetry/sdk-metrics": "^3.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "express-rate-limit": "^8.7.3",
+    "helmet": "^8.3.0",
     "mongodb": "^7.7.0",
     "nestjs-pino": "^5.3.1",
     "pino": "^10.4.0",

@@ -4,6 +4,7 @@ import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { Env } from './config/env.js';
 import { API_PREFIX } from './config/http.js';
+import { setupHttpSecurity } from './config/http-security.js';
 import { setupOpenApi } from './config/openapi.js';
 import { requestMetrics, startTelemetry } from './config/telemetry.js';
 
@@ -18,7 +19,8 @@ async function bootstrap() {
   const config = app.get<ConfigService<Env, true>>(ConfigService);
 
   app.useLogger(app.get(Logger));
-  app.use(requestMetrics());
+  app.use(requestMetrics()); // first, so the 429s are measured too
+  setupHttpSecurity(app, config.get('RATE_LIMIT_PER_MINUTE'));
   app.setGlobalPrefix(API_PREFIX);
   setupOpenApi(app);
   app.enableCors({ origin: config.get('CORS_ORIGIN') });
