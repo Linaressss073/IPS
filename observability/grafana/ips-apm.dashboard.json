@@ -1,7 +1,7 @@
 {
   "uid": "ips-apm",
   "title": "IPS · APM y logs",
-  "description": "Rendimiento de la API (métricas OpenTelemetry empujadas a Grafana Cloud) y sus logs. Los paneles de logs necesitan IPS-155.",
+  "description": "Rendimiento de la API (métricas OpenTelemetry empujadas a Grafana Cloud) y sus logs.",
   "tags": [
     "ips",
     "apm",
