@@ -68,6 +68,7 @@ const navigationItems: (SidebarItem & { requires?: Permission[] })[] = [
     href: "/turns/screen",
     icon: MonitorPlay,
     type: "item",
+    requires: ["room:view"],
   },
   {
     type: 'label',
@@ -92,6 +93,7 @@ const navigationItems: (SidebarItem & { requires?: Permission[] })[] = [
     href: "/settings",
     icon: Building2,
     type: "item",
+    requires: ["settings:manage"],
   },
 ];
 

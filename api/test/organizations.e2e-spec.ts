@@ -22,7 +22,9 @@ describe('Organizations API (e2e)', () => {
   });
 
   it('imports the IPS from the provider into the organizations collection', async () => {
-    const res = await api('carol').get(ipsA).expect(200);
+    // Only administrators read the IPS's data.
+    expect((await api('carol').get(ipsA).expect(403)).body.code).toBe('TEAM_ADMIN_REQUIRED');
+    const res = await api('alice').get(ipsA).expect(200);
     expect(res.body).toMatchObject({
       id: TEAM_A,
       name: 'IPS Alfa',

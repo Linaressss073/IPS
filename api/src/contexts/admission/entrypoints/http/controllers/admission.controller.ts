@@ -5,7 +5,6 @@ import { AuthenticatedUser } from '../../../../identity-access/domain/entities/a
 import {
   CurrentTeam,
   CurrentUser,
-  TeamScoped,
 } from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
 import { RequirePermission } from '../../../../staff/entrypoints/http/guards/permission.guard.js';
 import {
@@ -109,14 +108,14 @@ export class AdmissionController {
     return this.markNoShow.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy) });
   }
 
-  /** The waiting-room screen: any member account can show it on a TV. */
-  @TeamScoped()
+  /** The waiting-room screen: administrators and the `tv` role. */
+  @RequirePermission('room:view')
   @Get('turns/board')
   board(@CurrentTeam() teamId: TeamId): Promise<BoardView> {
     return this.getBoard.execute(teamId);
   }
 
-  @TeamScoped()
+  @RequirePermission('admission:manage', 'settings:manage')
   @Get('admission/settings')
   settings(@CurrentTeam() teamId: TeamId): Promise<CallSettingsView> {
     return this.getCallSettings.execute(teamId);

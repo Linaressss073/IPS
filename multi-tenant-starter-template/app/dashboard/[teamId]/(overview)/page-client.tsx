@@ -85,6 +85,7 @@ const SHORTCUTS: Shortcut[] = [
     icon: MonitorPlay,
     title: "Pantalla de sala",
     description: "Abre en el televisor de la sala: muestra y anuncia los llamados.",
+    requires: ["room:view"],
   },
   {
     href: "/staff",
@@ -105,6 +106,7 @@ const SHORTCUTS: Shortcut[] = [
     icon: Building2,
     title: "Datos de la IPS",
     description: "NIT, código de habilitación y contacto de la institución.",
+    requires: ["settings:manage"],
   },
 ];
 

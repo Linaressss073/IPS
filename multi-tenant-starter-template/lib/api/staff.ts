@@ -28,7 +28,8 @@ export type Permission =
   | "clinical:write"
   | "pharmacy:dispense"
   | "settings:manage"
-  | "staff:manage";
+  | "staff:manage"
+  | "room:view";
 
 export const ROLE_LABELS: Record<string, string> = {
   agendamiento: "Agendamiento",
@@ -36,6 +37,7 @@ export const ROLE_LABELS: Record<string, string> = {
   medico: "Médico",
   farmacia: "Farmacia",
   soporte: "Soporte",
+  tv: "TV de sala",
 };
 
 const base = (teamId: string) => `/teams/${encodeURIComponent(teamId)}/staff`;

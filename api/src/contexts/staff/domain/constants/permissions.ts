@@ -13,6 +13,7 @@ export const PERMISSIONS = [
   'pharmacy:dispense',
   'settings:manage',
   'staff:manage',
+  'room:view',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -25,6 +26,8 @@ export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
   medico: ['patients:read', 'appointments:read', 'turns:call', 'clinical:read', 'clinical:write'],
   farmacia: ['patients:read', 'turns:call', 'pharmacy:dispense'],
   soporte: [],
+  // The waiting-room TV: signs in with its own account and can only show the screen.
+  tv: ['room:view'],
 };
 
 export const ADMIN_PERMISSIONS: readonly Permission[] = [
@@ -35,6 +38,7 @@ export const ADMIN_PERMISSIONS: readonly Permission[] = [
   'admission:manage',
   'settings:manage',
   'staff:manage',
+  'room:view',
 ];
 
 /** Union of the permissions of every role the person holds (and admin's). */

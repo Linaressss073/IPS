@@ -13,7 +13,6 @@ import {
   CurrentTeam,
   CurrentUser,
   TeamAdmin,
-  TeamScoped,
 } from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
 import { DeleteOrganization } from '../../../application/commands/delete-organization.command.js';
 import { UpdateOrganization } from '../../../application/commands/update-organization.command.js';
@@ -22,8 +21,8 @@ import { OrganizationView } from '../../../application/types/organization.types.
 import { UpdateOrganizationDto } from '../dto/organization.dto.js';
 
 /**
- * The IPS itself (`:teamId` is its organization id). Any member can read it;
- * only its administrators can change or delete it.
+ * The IPS itself (`:teamId` is its organization id). Only its administrators
+ * can read, change or delete it.
  */
 @Controller('organizations/:teamId')
 export class OrganizationsController {
@@ -34,7 +33,7 @@ export class OrganizationsController {
   ) {}
 
   @Get()
-  @TeamScoped()
+  @TeamAdmin()
   get(@CurrentTeam() teamId: TeamId): Promise<OrganizationView> {
     return this.getOrganization.execute({ teamId });
   }

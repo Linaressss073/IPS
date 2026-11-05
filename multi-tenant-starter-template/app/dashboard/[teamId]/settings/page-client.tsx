@@ -4,6 +4,7 @@ import * as React from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { Pencil, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { NoPermission, useAccess } from "@/components/access/access-context";
 import { errorMessage } from "@/components/patients/error-message";
 import { Field, Section } from "@/components/patients/form-controls";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export function PageClient() {
   const auth = useApiAuth();
   const { membership } = useOrganization();
   const isAdmin = membership?.role === "org:admin";
+  const { access, can } = useAccess();
 
   const [organization, setOrganization] = React.useState<Organization | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -52,6 +54,8 @@ export function PageClient() {
       cancelled = true;
     };
   }, [auth, teamId]);
+
+  if (access && !can("settings:manage")) return <NoPermission what="ver los datos de la IPS" />;
 
   return (
     <PageShell>

@@ -9,6 +9,7 @@ export const STAFF_ROLES = [
   'medico',
   'farmacia',
   'soporte',
+  'tv',
 ] as const;
 
 /** Shown instead of a name once the user was deleted and anonymized. */
