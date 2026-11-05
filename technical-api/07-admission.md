@@ -16,7 +16,8 @@ llegada ──► en_espera ──llamar──► anunciado ──(reanuncio aut
 | Permiso | Quién lo tiene |
 |---|---|
 | `admission:manage` | Administrador, admisión |
-| `turns:call` | Admisión, médico, farmacia |
+| `turns:call` | Admisión, médico |
+| `pharmacy:dispense` | Farmacia: lista, llama y atiende **solo turnos de farmacia** (`origin.kind = farmacia`); en los de cita, 403 |
 | Administrador y rol `tv` | Pantalla de sala (`room:view`) |
 | Administración y admisión | Configuración del llamado (lectura) |
 

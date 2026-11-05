@@ -25,6 +25,7 @@ iniciar ──► en_curso (borrador; se guarda cuantas veces quiera) ──firm
 | POST | `/consultations` | `clinical:write` | 200 `ConsultationView` (la nueva, o la que ya existía para la cita) |
 | GET | `/consultations?patientId=` · `?appointmentId=` | `clinical:read` | 200 `ConsultationView[]` (más reciente primero) |
 | GET | `/consultations/:id` | `clinical:read` | 200 `ConsultationView` |
+| GET | `/consultations/:id/formula` | `clinical:read` o `pharmacy:dispense` | 200 `FormulaView`; 404 `PRESCRIPTION_NOT_FOUND` si no está firmada o no tiene medicamentos |
 | PATCH | `/consultations/:id` | `clinical:write` | 200 (borrador) |
 | POST | `/consultations/:id/sign` | `clinical:write` | 200 |
 | POST | `/consultations/:id/addenda` | `clinical:write` | 200 |

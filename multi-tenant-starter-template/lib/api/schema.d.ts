@@ -452,6 +452,22 @@ export interface paths {
         patch: operations["ConsultationsController_update"];
         trace?: never;
     };
+    "/api/v1/teams/{teamId}/consultations/{consultationId}/formula": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ConsultationsController_formula"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/teams/{teamId}/consultations/{consultationId}/sign": {
         parameters: {
             query?: never;
@@ -482,6 +498,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{teamId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OrganizationsController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["OrganizationsController_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["OrganizationsController_update"];
         trace?: never;
     };
     "/api/v1/teams/{teamId}/pharmacy/prescriptions": {
@@ -628,22 +660,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/organizations/{teamId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["OrganizationsController_get"];
-        put?: never;
-        post?: never;
-        delete: operations["OrganizationsController_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["OrganizationsController_update"];
-        trace?: never;
-    };
     "/api/v1/webhooks/clerk": {
         parameters: {
             query?: never;
@@ -684,13 +700,13 @@ export interface components {
         UpdateConsultationDto: Record<string, never>;
         VersionDto: Record<string, never>;
         AddendumDto: Record<string, never>;
+        UpdateOrganizationDto: Record<string, never>;
         DispenseDto: Record<string, never>;
         PharmacyTurnDto: Record<string, never>;
         CreateProductDto: Record<string, never>;
         UpdateProductDto: Record<string, never>;
         ReceiveLotDto: Record<string, never>;
         AdjustLotDto: Record<string, never>;
-        UpdateOrganizationDto: Record<string, never>;
         AgendaView: {
             id: string;
             date: string;
@@ -854,6 +870,37 @@ export interface components {
         };
         /** @enum {string} */
         DispensationStatus: "pendiente" | "parcial" | "completa";
+        /** @description Everything printed on the prescription; the frontend's BFF turns it into a PDF. */
+        FormulaView: {
+            consultationId: string;
+            signedAt: string;
+            ips: {
+                name: string;
+                nit: string | null;
+                habilitationCode: string | null;
+                address: string | null;
+                city: string | null;
+                department: string | null;
+                phone: string | null;
+            };
+            patient: {
+                fullName: string;
+                document: {
+                    type: string;
+                    number: string;
+                };
+                sex: components["schemas"]["Sex"];
+                birthDate: string;
+                eps: string | null;
+                regime: string;
+            };
+            physician: {
+                displayName: string;
+            };
+            service: string;
+            diagnoses: components["schemas"]["DiagnosisProps"][];
+            prescription: components["schemas"]["PrescriptionItemProps"][];
+        };
         LocationView: {
             id: string;
             kind: string;
@@ -2588,6 +2635,41 @@ export interface operations {
             };
         };
     };
+    ConsultationsController_formula: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
+                 * @example org_2abc…
+                 */
+                teamId: string;
+                consultationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormulaView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     ConsultationsController_sign: {
         parameters: {
             query?: never;
@@ -2653,6 +2735,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsultationView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    OrganizationsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
+                 * @example org_2abc…
+                 */
+                teamId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    OrganizationsController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
+                 * @example org_2abc…
+                 */
+                teamId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    OrganizationsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
+                 * @example org_2abc…
+                 */
+                teamId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOrganizationDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationView"];
                 };
             };
             /** @description Error */
@@ -3059,110 +3245,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductView"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    OrganizationsController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
-                 * @example org_2abc…
-                 */
-                teamId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizationView"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    OrganizationsController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
-                 * @example org_2abc…
-                 */
-                teamId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    OrganizationsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
-                 * @example org_2abc…
-                 */
-                teamId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOrganizationDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizationView"];
                 };
             };
             /** @description Error */

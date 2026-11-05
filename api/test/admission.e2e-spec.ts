@@ -196,6 +196,22 @@ describe('Admission and turns (e2e)', () => {
     expect((await api('carol').get(`${team}/turns?status=atendido`).expect(200)).body).toHaveLength(1);
   });
 
+  it('lets pharmacy staff see and call only pharmacy turns', async () => {
+    const turn = (await checkIn(await appointment(await registerPatient('1000123457', 'Beatriz'))).expect(201)).body;
+    await api('alice').put(`${team}/staff/carol/roles`, { roles: ['farmacia'] }).expect(200);
+
+    expect((await api('carol').get(`${team}/turns`).expect(200)).body).toEqual([]);
+    expect((await api('carol').post(`${team}/turns/${turn.id}/call`, { version: 1 }).expect(403)).body.code).toBe(
+      'PERMISSION_DENIED',
+    );
+    expect((await api('carol').post(`${team}/turns/${turn.id}/attend`, { version: 1 }).expect(403)).body.code).toBe(
+      'PERMISSION_DENIED',
+    );
+    // Admission still sees and calls everything.
+    expect((await api('alice').get(`${team}/turns`).expect(200)).body).toHaveLength(1);
+    await api('alice').put(`${team}/staff/carol/roles`, { roles: ['medico'] }).expect(200);
+  });
+
   it('shows the room screen only to administrators and the tv role', async () => {
     expect((await api('carol').get(`${team}/turns/board`).expect(403)).body.code).toBe('PERMISSION_DENIED');
     await api().get(`${team}/turns/board`).expect(401);

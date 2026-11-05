@@ -16,6 +16,8 @@ export interface TurnCommand {
   /** The version the client read; a stale one is rejected (409). */
   expectedVersion: number;
   actor: ActorInput;
+  /** Set for callers who may only act on turns of this origin (pharmacy staff). */
+  onlyOrigin?: 'farmacia';
 }
 
 export interface IssuePharmacyTurnCommand {
@@ -41,6 +43,8 @@ export interface ListTurnsQuery {
   date?: string;
   status?: string;
   professionalId?: string;
+  /** Set for callers who may only see turns of this origin (pharmacy staff). */
+  onlyOrigin?: 'farmacia';
 }
 
 // Read models

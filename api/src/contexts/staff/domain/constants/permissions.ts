@@ -24,7 +24,8 @@ export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
   admision: ['patients:read', 'patients:write', 'appointments:read', 'admission:manage', 'turns:call'],
   // Clinical records only for physicians: not even administrators read them.
   medico: ['patients:read', 'appointments:read', 'turns:call', 'clinical:read', 'clinical:write'],
-  farmacia: ['patients:read', 'turns:call', 'pharmacy:dispense'],
+  // Pharmacy calls only its own turns (origin "farmacia") with pharmacy:dispense.
+  farmacia: ['patients:read', 'pharmacy:dispense'],
   soporte: [],
   // The waiting-room TV: signs in with its own account and can only show the screen.
   tv: ['room:view'],

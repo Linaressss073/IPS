@@ -1,5 +1,6 @@
 import { ActorInput } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
+import type { PatientView } from '../../../patients/application/types/patient.types.js';
 import {
   ConsultationStatus,
   DiagnosisProps,
@@ -52,4 +53,31 @@ export interface ConsultationView {
   startedAt: string;
   updatedAt: string;
   version: number;
+}
+
+/** Everything printed on the prescription; the frontend's BFF turns it into a PDF. */
+export interface FormulaView {
+  consultationId: string;
+  signedAt: string;
+  ips: {
+    name: string;
+    nit: string | null;
+    habilitationCode: string | null;
+    address: string | null;
+    city: string | null;
+    department: string | null;
+    phone: string | null;
+  };
+  patient: {
+    fullName: string;
+    document: { type: string; number: string };
+    sex: PatientView['sex'];
+    birthDate: string;
+    eps: string | null;
+    regime: string;
+  };
+  physician: { displayName: string };
+  service: string;
+  diagnoses: DiagnosisProps[];
+  prescription: PrescriptionItemProps[];
 }

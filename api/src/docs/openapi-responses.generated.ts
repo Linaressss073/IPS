@@ -694,6 +694,144 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "completa"
     ]
   },
+  "FormulaView": {
+    "type": "object",
+    "properties": {
+      "consultationId": {
+        "type": "string"
+      },
+      "signedAt": {
+        "type": "string"
+      },
+      "ips": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "nit": {
+            "type": "string",
+            "nullable": true
+          },
+          "habilitationCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "department": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "nit",
+          "habilitationCode",
+          "address",
+          "city",
+          "department",
+          "phone"
+        ],
+        "additionalProperties": false
+      },
+      "patient": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "document": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "number"
+            ],
+            "additionalProperties": false
+          },
+          "sex": {
+            "$ref": "#/components/schemas/Sex"
+          },
+          "birthDate": {
+            "type": "string"
+          },
+          "eps": {
+            "type": "string",
+            "nullable": true
+          },
+          "regime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fullName",
+          "document",
+          "sex",
+          "birthDate",
+          "eps",
+          "regime"
+        ],
+        "additionalProperties": false
+      },
+      "physician": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "displayName"
+        ],
+        "additionalProperties": false
+      },
+      "service": {
+        "type": "string"
+      },
+      "diagnoses": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/DiagnosisProps"
+        }
+      },
+      "prescription": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PrescriptionItemProps"
+        }
+      }
+    },
+    "required": [
+      "consultationId",
+      "signedAt",
+      "ips",
+      "patient",
+      "physician",
+      "service",
+      "diagnoses",
+      "prescription"
+    ],
+    "additionalProperties": false,
+    "description": "Everything printed on the prescription; the frontend's BFF turns it into a PDF."
+  },
   "LocationView": {
     "type": "object",
     "properties": {
@@ -2011,6 +2149,9 @@ export const RESPONSE_SCHEMAS: Record<string, object> = {
   },
   "ConsultationsController_addendum": {
     "$ref": "#/components/schemas/ConsultationView"
+  },
+  "ConsultationsController_formula": {
+    "$ref": "#/components/schemas/FormulaView"
   },
   "ConsultationsController_get": {
     "$ref": "#/components/schemas/ConsultationView"

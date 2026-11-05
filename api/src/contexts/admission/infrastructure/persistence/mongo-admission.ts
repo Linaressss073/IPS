@@ -211,6 +211,7 @@ export class MongoTurnReadModel implements TurnReadModel {
         date: query.date,
         ...(query.status && { status: query.status as TurnStatus }),
         ...(query.professionalId && { 'appointment.professionalId': query.professionalId }),
+        ...(query.onlyOrigin && { 'origin.kind': query.onlyOrigin }),
       })
       .sort({ arrivedAt: 1, _id: 1 })
       .limit(1000)

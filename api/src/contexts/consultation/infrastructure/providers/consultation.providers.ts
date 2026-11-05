@@ -9,6 +9,8 @@ import {
 import { MONGO_CLIENT, MONGO_DB } from '../../../../shared/infrastructure/persistence/mongo.js';
 import { systemClock } from '../../../../shared/infrastructure/providers/system-clock.js';
 import { TEAM_MEMBERSHIP_CHECKER } from '../../../identity-access/application/constants/injection-tokens.js';
+import { GetOrganization } from '../../../organizations/application/queries/get-organization.query.js';
+import { GetPatient } from '../../../patients/application/queries/get-patient.query.js';
 import { GetPatientSummaries } from '../../../patients/application/queries/get-patient-summaries.query.js';
 import { GetAppointment } from '../../../scheduling/application/queries/get-appointment.query.js';
 import { GetStaffNames } from '../../../staff/application/queries/get-staff-names.query.js';
@@ -32,6 +34,7 @@ import type {
   ConsultationRepository,
 } from '../../application/ports/consultation.ports.js';
 import { ConsultationQueries } from '../../application/queries/consultation.queries.js';
+import { GetFormula } from '../../application/queries/formula.query.js';
 import { PrescriptionQueries } from '../../application/queries/prescription.queries.js';
 import {
   MongoConsultationReadModel,
@@ -107,6 +110,12 @@ export const consultationProviders: Provider[] = [
     inject: [CONSULTATION_READ_MODEL, CONSULTATION_NAMES],
     useFactory: (readModel: ConsultationReadModel, names: ConsultationNames) =>
       new ConsultationQueries(readModel, names),
+  },
+  {
+    provide: GetFormula,
+    inject: [ConsultationQueries, GetPatient, GetOrganization],
+    useFactory: (consultations: ConsultationQueries, patients: GetPatient, organizations: GetOrganization) =>
+      new GetFormula(consultations, patients, organizations),
   },
   {
     provide: PrescriptionQueries,
