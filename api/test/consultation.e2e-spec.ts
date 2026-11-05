@@ -1,4 +1,5 @@
 import { CONSULTATIONS_COLLECTION } from '../src/contexts/consultation/infrastructure/persistence/mongo-consultation.js';
+import { ORGANIZATIONS_COLLECTION } from '../src/contexts/organizations/infrastructure/persistence/mongo-organization.repository.js';
 import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
 import { APPOINTMENTS_COLLECTION } from '../src/contexts/scheduling/infrastructure/persistence/scheduling.documents.js';
 import { STAFF_COLLECTION } from '../src/contexts/staff/infrastructure/persistence/staff.document.js';
@@ -18,7 +19,15 @@ describe('Consultation / clinical record (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await t.wipe(CONSULTATIONS_COLLECTION, APPOINTMENTS_COLLECTION, PATIENTS_COLLECTION, STAFF_COLLECTION, TRACE_EVENTS_COLLECTION);
+    // The IPS is re-imported from the provider: another file may have renamed or deleted it.
+    await t.wipe(
+      CONSULTATIONS_COLLECTION,
+      APPOINTMENTS_COLLECTION,
+      PATIENTS_COLLECTION,
+      STAFF_COLLECTION,
+      TRACE_EVENTS_COLLECTION,
+      ORGANIZATIONS_COLLECTION,
+    );
     // carol: the physician of the appointments. alice: admin (no clinical access by default).
     await api('alice').put(`${team}/staff/carol/roles`, { roles: ['medico'] }).expect(200);
   });

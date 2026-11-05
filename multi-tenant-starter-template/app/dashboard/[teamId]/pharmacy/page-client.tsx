@@ -7,6 +7,7 @@ import { BellRing, Boxes, PackageCheck, RefreshCw } from "lucide-react";
 import { NoPermission, useAccess } from "@/components/access/access-context";
 import { PageHeader, PageShell } from "@/components/page-header";
 import { errorMessage } from "@/components/patients/error-message";
+import { PharmacyTurns } from "@/components/pharmacy/pharmacy-turns";
 import { Select } from "@/components/patients/form-controls";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -98,6 +99,7 @@ export function PageClient() {
           </div>
         }
       />
+      <PharmacyTurns teamId={teamId} />
       <div className="flex flex-wrap gap-2">
         <Input aria-label="Fecha de las fórmulas" type="date" className="w-40" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
         <Select aria-label="Estado de la fórmula" className="w-48" value={status} onChange={(e) => setStatus(e.target.value)}>
