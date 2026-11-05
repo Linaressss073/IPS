@@ -1,6 +1,9 @@
 import { TeamId } from '../../../../shared/domain/index.js';
 import { OrganizationProfileInput } from '../../domain/entities/organization-profile.vo.js';
-import { OrganizationProfileProps } from '../../domain/types/organization.types.js';
+import {
+  OrganizationProfileProps,
+  OrganizationStatus,
+} from '../../domain/types/organization.types.js';
 
 /** What the identity provider knows about an organization. */
 export interface ProviderOrganization {
@@ -31,7 +34,7 @@ export interface DeleteOrganizationCommand {
 export interface OrganizationView extends OrganizationProfileProps {
   id: string;
   name: string;
-  status: string;
+  status: OrganizationStatus;
   version: number;
   createdAt: string;
   updatedAt: string;

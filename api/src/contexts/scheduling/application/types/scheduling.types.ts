@@ -1,5 +1,6 @@
 import { ActorInput } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
+import { AppointmentStatus } from '../../domain/types/scheduling.types.js';
 
 // Commands (write side)
 
@@ -121,7 +122,7 @@ export interface SlotView {
   /** The active appointment holding the slot, if any. */
   appointment: {
     id: string;
-    status: string;
+    status: AppointmentStatus;
     patient: { id: string; fullName: string | null };
   } | null;
 }
@@ -140,7 +141,7 @@ export interface AgendaView {
 
 export interface AppointmentView {
   id: string;
-  status: string;
+  status: AppointmentStatus;
   patient: {
     id: string;
     fullName: string | null;

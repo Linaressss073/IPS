@@ -1,21 +1,8 @@
 import { apiFetch, TokenSource } from "./client";
+import type { components } from "./schema";
 
-/** Mirrors OrganizationView from the API (api/src/contexts/organizations/application/types). */
-export type Organization = {
-  id: string;
-  name: string;
-  nit: string | null;
-  habilitationCode: string | null;
-  address: string | null;
-  city: string | null;
-  department: string | null;
-  phone: string | null;
-  email: string | null;
-  status: string;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-};
+/** From the API's OpenAPI document (pnpm api:types). */
+export type Organization = components["schemas"]["OrganizationView"];
 
 /** Fields left out keep their value; null clears an optional field. */
 export type OrganizationChanges = Partial<

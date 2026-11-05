@@ -1,4 +1,5 @@
 import type { Db } from 'mongodb';
+import type { Sex } from '../../domain/types/patient.types.js';
 
 export const PATIENTS_COLLECTION = 'patients';
 
@@ -15,7 +16,7 @@ export interface PatientDocument {
     secondLastName: string | null;
   };
   birthDate: string;
-  sex: string;
+  sex: Sex;
   contact: { email: string; phone: string | null; address: string | null };
   affiliation: { eps: string | null; regime: string };
   /** Lower-case, accent-free document number and names, for searching. */

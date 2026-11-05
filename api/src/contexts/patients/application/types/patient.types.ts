@@ -1,4 +1,5 @@
 import { TeamId } from '../../../../shared/domain/index.js';
+import { Sex } from '../../domain/types/patient.types.js';
 
 /** Raw patient data as received from a client, before domain validation. */
 export interface PatientInput {
@@ -80,7 +81,7 @@ export interface PatientView {
   };
   fullName: string;
   birthDate: string;
-  sex: string;
+  sex: Sex;
   contact: { email: string; phone: string | null; address: string | null };
   affiliation: { eps: string | null; regime: string };
   version: number;

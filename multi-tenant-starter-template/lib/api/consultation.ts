@@ -1,39 +1,14 @@
 import { apiFetch, TokenSource } from "./client";
+import type { components } from "./schema";
 
-/** Mirrors api/src/contexts/consultation/application/types/consultation.types.ts. */
-export type Note = { reason: string; currentIllness: string; physicalExam: string; plan: string };
+type Schemas = components["schemas"];
+
+/** The views come from the API's OpenAPI document (pnpm api:types). */
+export type Note = Schemas["NoteProps"];
 export type VitalSign = { name: VitalSignName; value: number };
-export type Diagnosis = { code: string; description: string; principal: boolean };
-export type PrescriptionItem = {
-  medication: string;
-  presentation: string;
-  dose: string;
-  route: string;
-  frequency: string;
-  durationDays: number;
-  quantity: number;
-  instructions: string;
-};
-
-export type Consultation = {
-  id: string;
-  status: "en_curso" | "firmada";
-  signature: { signed: false } | { signed: true; at: string };
-  patient: { id: string; fullName: string; document: { type: string; number: string } };
-  physician: { userId: string; displayName: string };
-  appointment: { id: string; date: string; time: string };
-  service: { id: string; code: string; name: string };
-  location: { id: string; label: string };
-  note: Note;
-  vitals: (VitalSign & { unit: string })[];
-  bmi: number[];
-  diagnoses: Diagnosis[];
-  prescription: PrescriptionItem[];
-  addenda: { text: string; writtenBy: string; writtenByName: string; writtenAt: string }[];
-  startedAt: string;
-  updatedAt: string;
-  version: number;
-};
+export type Diagnosis = Schemas["DiagnosisProps"];
+export type PrescriptionItem = Schemas["PrescriptionItemProps"];
+export type Consultation = Schemas["ConsultationView"];
 
 /** Same names, units and ranges as the API (VITAL_SIGNS). */
 export const VITAL_SIGNS = {
