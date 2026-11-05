@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { BellRing, Maximize, Volume2, VolumeX, X } from "lucide-react";
+import { NoPermission, useAccess } from "@/components/access/access-context";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Board, getBoard } from "@/lib/api/admission";
@@ -23,6 +24,7 @@ const spoken = (label: string) => label.replace(/^([A-Z]+)/, (code) => code.spli
 export function PageClient() {
   const { teamId } = useParams<{ teamId: string }>();
   const auth = useApiAuth();
+  const { access, can } = useAccess();
   const [board, setBoard] = React.useState<Board>({
     current: null,
     recent: [],
@@ -67,6 +69,8 @@ export function PageClient() {
     setTimeout(() => setFlash(false), 2_500);
     if (sound) announce(`Turno ${spoken(current.label)}, ${current.location}. ${current.patientName ?? ""}`);
   }, [board, sound]);
+
+  if (access && !can("room:view")) return <NoPermission what="abrir la pantalla de sala" />;
 
   const current = board.current;
   return (

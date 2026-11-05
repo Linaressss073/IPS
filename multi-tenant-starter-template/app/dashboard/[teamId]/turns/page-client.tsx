@@ -107,11 +107,13 @@ export function PageClient() {
             <Button variant={mine ? "default" : "outline"} onClick={() => setMine((value) => !value)}>
               {mine ? "Solo mis pacientes" : "Todos los pacientes"}
             </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/dashboard/${teamId}/turns/screen`}>
-                <MonitorPlay className="mr-2 h-4 w-4" /> Pantalla de sala
-              </Link>
-            </Button>
+            {can("room:view") && (
+              <Button variant="outline" asChild>
+                <Link href={`/dashboard/${teamId}/turns/screen`}>
+                  <MonitorPlay className="mr-2 h-4 w-4" /> Pantalla de sala
+                </Link>
+              </Button>
+            )}
           </>
         }
       />

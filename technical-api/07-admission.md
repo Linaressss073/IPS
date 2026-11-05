@@ -17,7 +17,8 @@ llegada ──► en_espera ──llamar──► anunciado ──(reanuncio aut
 |---|---|
 | `admission:manage` | Administrador, admisión |
 | `turns:call` | Admisión, médico, farmacia |
-| Miembro de la IPS | Pantalla de sala y configuración (lectura) |
+| Administrador y rol `tv` | Pantalla de sala (`room:view`) |
+| Administración y admisión | Configuración del llamado (lectura) |
 
 ## Registrar llegada
 
@@ -96,7 +97,7 @@ condicionales por versión, así varias instancias no duplican un paso.
 GET /api/v1/teams/:teamId/turns/board
 ```
 
-**Acceso:** cualquier miembro (un televisor con una cuenta del personal). Solo turno, lugar y **nombre y primer
+**Acceso:** permiso `room:view` (administradores y el rol `tv`, para el televisor con su propia cuenta). Solo turno, lugar y **nombre y primer
 apellido**: nunca el documento.
 
 ```json
@@ -113,7 +114,7 @@ apellido**: nunca el documento.
 
 | Método | Ruta | Permiso |
 |---|---|---|
-| GET | `/admission/settings` | Miembro |
+| GET | `/admission/settings` | `admission:manage` o `settings:manage` |
 | PUT | `/admission/settings` | `settings:manage` |
 
 ```json

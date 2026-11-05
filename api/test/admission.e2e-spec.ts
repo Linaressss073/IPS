@@ -125,7 +125,7 @@ describe('Admission and turns (e2e)', () => {
       'TURN_VERSION_CONFLICT',
     );
 
-    const board = (await api('carol').get(`${team}/turns/board`).expect(200)).body;
+    const board = (await api('alice').get(`${team}/turns/board`).expect(200)).body;
     expect(board).toEqual({
       current: expect.objectContaining({
         label: 'RTH 1',
@@ -149,7 +149,7 @@ describe('Admission and turns (e2e)', () => {
 
     const [closed] = (await api('alice').get(`${team}/turns`).expect(200)).body;
     expect(closed).toMatchObject({ status: 'no_se_presento', calls: 3 });
-    expect((await api('carol').get(`${team}/turns/board`)).body).toMatchObject({
+    expect((await api('alice').get(`${team}/turns/board`)).body).toMatchObject({
       current: null,
       recent: [expect.objectContaining({ label: 'RTH 1', status: 'no_se_presento' })],
     });
@@ -185,7 +185,8 @@ describe('Admission and turns (e2e)', () => {
     expect(
       (await api('alice').put(`${team}/admission/settings`, { announceIntervalSeconds: 60, maxCalls: 2 }).expect(200)).body,
     ).toEqual({ announceIntervalSeconds: 60, maxCalls: 2 });
-    expect((await api('carol').get(`${team}/admission/settings`).expect(200)).body.maxCalls).toBe(2);
+    await api('carol').get(`${team}/admission/settings`).expect(403);
+    expect((await api('alice').get(`${team}/admission/settings`).expect(200)).body.maxCalls).toBe(2);
 
     // A médico calls turns but does not check patients in.
     const other = await appointment(andres, { minute: 9 * 60 });
@@ -193,5 +194,17 @@ describe('Admission and turns (e2e)', () => {
       'PERMISSION_DENIED',
     );
     expect((await api('carol').get(`${team}/turns?status=atendido`).expect(200)).body).toHaveLength(1);
+  });
+
+  it('shows the room screen only to administrators and the tv role', async () => {
+    expect((await api('carol').get(`${team}/turns/board`).expect(403)).body.code).toBe('PERMISSION_DENIED');
+    await api().get(`${team}/turns/board`).expect(401);
+
+    await api('alice').put(`${team}/staff/carol/roles`, { roles: ['tv'] }).expect(200);
+    await api('carol').get(`${team}/turns/board`).expect(200);
+    // The TV account can show the screen and nothing else.
+    await api('carol').get(`${team}/turns`).expect(403);
+    await api('carol').get(`${team}/patients`).expect(403);
+    await api('alice').put(`${team}/staff/carol/roles`, { roles: ['medico'] }).expect(200);
   });
 });

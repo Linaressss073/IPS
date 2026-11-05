@@ -33,7 +33,7 @@ GET /api/v1/teams/:teamId/staff
 | `displayName` | Nombre y apellido; si no hay, el nombre de usuario; si no, `null` |
 | `emailMasked` | E-mail enmascarado: 3 letras del usuario, 3 del dominio y 1 de la terminación, con máscaras de largo fijo |
 | `providerRole` | Rol en Clerk: `org:admin`, `org:member` |
-| `roles` | Roles funcionales: `agendamiento`, `admision`, `medico`, `farmacia`, `soporte` |
+| `roles` | Roles funcionales: `agendamiento`, `admision`, `medico`, `farmacia`, `soporte`, `tv` (cuenta del televisor de la sala) |
 
 ## Mi acceso
 
@@ -66,7 +66,7 @@ todos.
 { "roles": ["agendamiento", "admision"] }
 ```
 
-- Roles válidos: `agendamiento`, `admision`, `medico`, `farmacia`, `soporte` (sin distinguir mayúsculas). Los
+- Roles válidos: `agendamiento`, `admision`, `medico`, `farmacia`, `soporte`, `tv` (sin distinguir mayúsculas). Los
   administradores no son un rol de esta lista: vienen de Clerk.
 - La persona debe pertenecer a la IPS en Clerk; si aún no estaba en el directorio, se agrega.
 - Cada cambio queda en la trazabilidad (colección `trace_events`, tipo `staff.roles_assigned`): quién lo hizo, a quién y

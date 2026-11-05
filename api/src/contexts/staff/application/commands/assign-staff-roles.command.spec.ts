@@ -42,7 +42,10 @@ describe('Permissions matrix', () => {
       'admission:manage',
       'settings:manage',
       'staff:manage',
+      'room:view',
     ]);
+    // The waiting-room TV only shows the screen.
+    expect(permissionsFor({ isAdmin: false, roles: ['tv'] })).toEqual(['room:view']);
   });
 
   it('normalizes and validates role names', () => {

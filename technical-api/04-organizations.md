@@ -19,7 +19,7 @@ nombre; esta ficha agrega los datos propios de una IPS colombiana. `:teamId` es 
 GET /api/v1/organizations/:teamId
 ```
 
-**Acceso:** miembros de la IPS.
+**Acceso:** solo **administradores** de la IPS (403 `TEAM_ADMIN_REQUIRED` para miembros).
 
 Si la IPS aún no está en MongoDB (por ejemplo, se creó antes de configurar los webhooks), se **importa desde Clerk** la
 primera vez que se consulta.

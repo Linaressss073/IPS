@@ -60,8 +60,8 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | POST | `/teams/:teamId/turns` | `admission:manage` | 201 | [Admisión](07-admission.md#registrar-llegada) |
 | GET | `/teams/:teamId/turns` | `turns:call` o `admission:manage` | 200 | [Admisión](07-admission.md#turnos-del-día) |
 | POST | `/teams/:teamId/turns/:id/call` · `/attend` · `/no-show` | `turns:call` | 200 | [Admisión](07-admission.md#llamar-atender-no-se-presentó) |
-| GET | `/teams/:teamId/turns/board` | Miembro | 200 | [Admisión](07-admission.md#pantalla-de-sala) |
-| GET · PUT | `/teams/:teamId/admission/settings` | Miembro · `settings:manage` | 200 | [Admisión](07-admission.md#configuración-del-llamado) |
+| GET | `/teams/:teamId/turns/board` | `room:view` | 200 | [Admisión](07-admission.md#pantalla-de-sala) |
+| GET · PUT | `/teams/:teamId/admission/settings` | `admission:manage` o `settings:manage` · `settings:manage` | 200 | [Admisión](07-admission.md#configuración-del-llamado) |
 | POST | `/teams/:teamId/consultations` | `clinical:write` | 200 | [Consulta](08-consultation.md#iniciar) |
 | GET | `/teams/:teamId/consultations` · `/:id` | `clinical:read` | 200 | [Consulta](08-consultation.md#endpoints) |
 | PATCH · POST | `/teams/:teamId/consultations/:id` · `/sign` · `/addenda` | `clinical:write` | 200 | [Consulta](08-consultation.md#guardar-borrador) |
@@ -70,7 +70,7 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | POST | `/teams/:teamId/pharmacy/prescriptions/:consultationId/turn` | `pharmacy:dispense` | 201 | [Farmacia](09-pharmacy.md#dar-turno) |
 | GET · POST · PATCH | `/teams/:teamId/pharmacy/products` · `/:productId` | `pharmacy:dispense` | 200 · 201 | [Inventario](09-pharmacy.md#inventario) |
 | POST · GET | `/teams/:teamId/pharmacy/products/:productId/lots` · `/adjustments` · `/movements` | `pharmacy:dispense` | 201 · 200 | [Inventario](09-pharmacy.md#inventario) |
-| GET | `/organizations/:teamId` | Miembro | 200 | [Organizaciones](04-organizations.md#ver-ips) |
+| GET | `/organizations/:teamId` | Administrador | 200 | [Organizaciones](04-organizations.md#ver-ips) |
 | PATCH | `/organizations/:teamId` | **Administrador** | 200 | [Organizaciones](04-organizations.md#actualizar-ips) |
 | DELETE | `/organizations/:teamId` | **Administrador** | 204 | [Organizaciones](04-organizations.md#eliminar-ips) |
 | POST | `/webhooks/clerk` | Clerk (firma) | 200 | [Webhooks](05-webhooks.md) |
@@ -96,19 +96,20 @@ La API valida la firma del token contra Clerk y que haya sido emitido para el fr
 - **Roles funcionales** (los asigna un administrador; una persona puede tener varios) y los **permisos** que dan.
   Un endpoint marcado con un permiso responde 403 `PERMISSION_DENIED` si los roles de quien llama no lo incluyen:
 
-| Permiso | Administrador | Agendamiento | Admisión | Médico | Farmacia | Soporte |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|
-| `patients:read` | ✓ | ✓ | ✓ | ✓ | ✓ | |
-| `patients:write` | ✓ | ✓ | ✓ | | | |
-| `appointments:read` | ✓ | ✓ | ✓ | ✓ | | |
-| `appointments:manage` | ✓ | ✓ | | | | |
-| `admission:manage` | ✓ | | ✓ | | | |
-| `turns:call` | | | ✓ | ✓ | ✓ | |
-| `clinical:read` | | | | ✓ | | |
-| `clinical:write` | | | | ✓ | | |
-| `pharmacy:dispense` | | | | | ✓ | |
-| `settings:manage` | ✓ | | | | | |
-| `staff:manage` | ✓ | | | | | |
+| Permiso | Administrador | Agendamiento | Admisión | Médico | Farmacia | Soporte | TV |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| `patients:read` | ✓ | ✓ | ✓ | ✓ | ✓ | | |
+| `patients:write` | ✓ | ✓ | ✓ | | | | |
+| `appointments:read` | ✓ | ✓ | ✓ | ✓ | | | |
+| `appointments:manage` | ✓ | ✓ | | | | | |
+| `admission:manage` | ✓ | | ✓ | | | | |
+| `turns:call` | | | ✓ | ✓ | ✓ | | |
+| `clinical:read` | | | | ✓ | | | |
+| `clinical:write` | | | | ✓ | | | |
+| `pharmacy:dispense` | | | | | ✓ | | |
+| `settings:manage` | ✓ | | | | | | |
+| `staff:manage` | ✓ | | | | | | |
+| `room:view` | ✓ | | | | | | ✓ |
 
 Un endpoint puede aceptar **cualquiera** de varios permisos (p. ej. la lista de turnos: `turns:call` o `admission:manage`).
 
