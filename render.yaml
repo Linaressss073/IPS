@@ -50,6 +50,18 @@ projects:
               # (api/deployment/config.json: his_consulta_externa), not the URL.
               - key: MONGO_URL
                 sync: false
+              # Metrics go to Grafana Cloud over OTLP: the API pushes them, so it
+              # works while this free instance sleeps. The headers hold the access
+              # token ("Authorization=Basic …", from Grafana → Connections →
+              # OpenTelemetry): a secret, set only here, never in the repository.
+              - key: OTEL_EXPORTER_OTLP_ENDPOINT
+                value: https://otlp-gateway-prod-us-east-2.grafana.net/otlp
+              - key: OTEL_EXPORTER_OTLP_PROTOCOL
+                value: http/protobuf
+              - key: OTEL_SERVICE_NAME
+                value: ips-api
+              - key: OTEL_EXPORTER_OTLP_HEADERS
+                sync: false
 
           - type: web
             name: ips-web

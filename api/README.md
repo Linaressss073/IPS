@@ -283,6 +283,15 @@ El mismo `ci.yml` de la raíz los corre en cadena (lint → build y unitarias �
 Nivel con `LOG_LEVEL` (`info` por defecto). Se redactan `authorization`, `cookie` y la firma de webhooks, y no se registra `/health`.
 El `Logger` de NestJS de cada clase pasa por pino.
 
+## Métricas (OpenTelemetry → Grafana Cloud)
+
+La API **empuja** sus métricas por OTLP (`src/config/telemetry.ts`); no hay `/metrics` ni nadie que la consulte, así que funciona aunque la instancia gratuita de Render duerma (al recibir `SIGTERM` envía lo pendiente). Decisión: [ADL 2026-11-04](../.pair/adoption/decision-log/2026-11-04-observability-otlp-push-grafana-cloud.md).
+
+- Mide la duración de cada petición (`http.server.request.duration`, en segundos) por **plantilla** de ruta (`/api/v1/teams/:teamId/patients/:patientId`, nunca la URL real, así que sin ids de pacientes), método, código de respuesta e IPS (`ips.team_id`). Las rutas que no existen se agrupan como `unmatched`.
+- Solo se activa con `OTEL_EXPORTER_OTLP_ENDPOINT` y fuera de `ENV=test`. Variables: `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_PROTOCOL` (`http/protobuf`), `OTEL_SERVICE_NAME` y `OTEL_EXPORTER_OTLP_HEADERS`.
+- `OTEL_EXPORTER_OTLP_HEADERS` lleva el token (`Authorization=Basic …`, de Grafana → Connections → OpenTelemetry): **es un secreto**, se guarda solo en las variables de entorno de Render, nunca en el repositorio, en `.env.example` ni en el chat. En `render.yaml` está como `sync: false`.
+- Para probarlo en local sin cuenta, apunta `OTEL_EXPORTER_OTLP_ENDPOINT` a un receptor OTLP propio (por ejemplo `http://127.0.0.1:4318`).
+
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Linaressss073_IPS)](https://sonarcloud.io/summary/new_code?id=Linaressss073_IPS)
 
