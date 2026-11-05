@@ -6,8 +6,9 @@ import { EPS_MAX_LENGTH, REGIMES } from '../constants/patient.constants.js';
 import { Regime } from '../types/patient.types.js';
 
 /**
- * Health insurance of the patient: the EPS and the regime. A "particular"
- * patient pays directly and has no EPS; every other regime requires one.
+ * Health insurance of the patient (not the IPS's): the regime and, optionally, the
+ * patient's EPS. A "particular" patient pays directly and has no EPS; for the other
+ * regimes the EPS may be left empty and filled in later.
  */
 export class Affiliation extends ValueObject<{
   eps: string | null;
@@ -24,9 +25,6 @@ export class Affiliation extends ValueObject<{
     const eps = (input.eps ?? '').trim().replace(/\s+/g, ' ') || null;
     if (regime === 'particular' && eps) {
       throw new InvalidValueError('A "particular" patient has no EPS');
-    }
-    if (regime !== 'particular' && !eps) {
-      throw new InvalidValueError(`The "${regime}" regime requires an EPS`);
     }
     if (eps && eps.length > EPS_MAX_LENGTH) {
       throw new InvalidValueError(

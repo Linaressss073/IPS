@@ -77,11 +77,10 @@ describe('Patient value objects', () => {
     ).toThrow(InvalidValueError);
   });
 
-  it('requires an EPS except for "particular" patients', () => {
+  it('makes the patient\'s EPS optional, and "particular" patients have none', () => {
     expect(Affiliation.of({ regime: 'particular' }).eps).toBeNull();
-    expect(() => Affiliation.of({ regime: 'subsidiado' })).toThrow(
-      'The "subsidiado" regime requires an EPS',
-    );
+    expect(Affiliation.of({ regime: 'subsidiado' }).eps).toBeNull();
+    expect(Affiliation.of({ regime: 'contributivo', eps: '  Sanitas  ' }).eps).toBe('Sanitas');
     expect(() =>
       Affiliation.of({ eps: 'Sanitas', regime: 'particular' }),
     ).toThrow('A "particular" patient has no EPS');

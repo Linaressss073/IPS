@@ -190,7 +190,7 @@ function PatientDetails({ patient }: Readonly<{ patient: Patient }>) {
     ["Teléfono", patient.contact.phone ?? "—"],
     ["Dirección", patient.contact.address ?? "—"],
     ["Régimen", REGIMES[patient.affiliation.regime] ?? patient.affiliation.regime],
-    ["EPS", patient.affiliation.eps ?? "No aplica"],
+    ["EPS del paciente", patient.affiliation.eps ?? (patient.affiliation.regime === "particular" ? "No aplica" : "Sin registrar")],
     ["Registrado", formatDateTime(patient.registeredAt)],
     ["Última modificación", formatDateTime(patient.updatedAt)],
   ];

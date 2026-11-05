@@ -180,14 +180,13 @@ export function PatientForm(props: Readonly<{
             ))}
           </Select>
         </Field>
-        <Field label={particular ? "EPS (no aplica)" : "EPS"} id="eps">
+        <Field label={particular ? "EPS del paciente (no aplica)" : "EPS del paciente (opcional)"} id="eps">
           <Input
             id="eps"
             placeholder={particular ? "" : "Sanitas"}
             value={particular ? "" : state.eps}
             onChange={set("eps")}
             disabled={particular}
-            required={!particular}
           />
         </Field>
       </Section>

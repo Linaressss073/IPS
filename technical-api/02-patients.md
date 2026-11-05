@@ -65,7 +65,7 @@ acompañante **#1** en la misma operación.
 | `contact.phone` | No | 7-15 dígitos, opcionalmente con `+`; se ignoran espacios, guiones y paréntesis |
 | `contact.address` | No | Hasta 200 caracteres |
 | `affiliation.regime` | Sí | `contributivo`, `subsidiado`, `especial`, `particular` |
-| `affiliation.eps` | Según régimen | Obligatoria salvo en `particular`, donde debe ir vacía |
+| `affiliation.eps` | No | EPS **del paciente** (su aseguradora, no la de la IPS). Opcional; en `particular` debe ir vacía |
 | `companion` | No | Ver [acompañante](#registrar-acompañante) |
 | `requestedBy` | No | Id de usuario de Clerk que pidió el registro; debe ser miembro de la IPS. Por defecto, quien llama. |
 
