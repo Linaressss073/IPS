@@ -6,6 +6,7 @@ import { loadDeploymentConfig } from './config/deployment-config.js';
 import { type Env, validateEnv } from './config/env.js';
 import { logTransport } from './config/log-transport.js';
 import { logUrl } from './config/log-url.js';
+import { requestLogProps, requestSerializer } from './config/request-log.js';
 import { IdentityAccessModule } from './contexts/identity-access/identity-access.module.js';
 import { AdmissionModule } from './contexts/admission/admission.module.js';
 import { ConsultationModule } from './contexts/consultation/consultation.module.js';
@@ -38,7 +39,8 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
           redact: ['req.headers.authorization', 'req.headers.cookie', 'req.headers["svix-signature"]'],
           autoLogging: { ignore: (req) => req.url?.endsWith('/health') ?? false },
           // Requests log as "GET /api/v1/... 200" with no headers and no query values (a search can be a patient's name or document).
-          serializers: { req: (req) => ({ method: req.method, url: logUrl(req.url) }), res: (res) => ({ status: res.statusCode }) },
+          serializers: { req: requestSerializer, res: (res) => ({ status: res.statusCode }) },
+          customProps: requestLogProps,
           customSuccessMessage: (req, res) => `${req.method} ${logUrl(req.url)} ${res.statusCode}`,
           customErrorMessage: (req, res) => `${req.method} ${logUrl(req.url)} ${res.statusCode}`,
           transport: logTransport(config.get('LOG_LEVEL')),
