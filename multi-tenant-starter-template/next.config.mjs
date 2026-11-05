@@ -4,8 +4,9 @@ const headers = securityHeaders({
   apiUrl: process.env.NEXT_PUBLIC_API_URL,
   clerkKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   dev: process.env.NODE_ENV !== "production",
-  // Report-Only until the console of the deployed app shows no violations; then true.
-  enforce: false,
+  // Enforced since 2026-11-04: the console of the deployed app showed no violations on the 11 dashboard screens.
+  // To investigate a block, switch to false (Report-Only) and read the console.
+  enforce: true,
 });
 
 /** @type {import('next').NextConfig} */
