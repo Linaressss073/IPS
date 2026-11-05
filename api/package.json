@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "docs:generate": "node scripts/generate-openapi.mjs",
+    "docs:json": "node scripts/write-openapi.mjs",
     "build": "pnpm docs:generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

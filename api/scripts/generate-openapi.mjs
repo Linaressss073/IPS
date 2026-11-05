@@ -94,6 +94,8 @@ const toOpenApi = (node) => {
     out.nullable = true;
     if (kept.length === 1) { delete out[k]; Object.assign(out, kept[0]); } else out[k] = kept;
   }
+  // OpenAPI 3.0 ignores siblings of $ref, so a nullable reference has to be wrapped.
+  if (out.$ref && out.nullable) { const { $ref, ...rest } = out; return { ...rest, allOf: [{ $ref }] }; }
   return out;
 };
 const sorted = (o) => Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)));

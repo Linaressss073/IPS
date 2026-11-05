@@ -253,7 +253,11 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "current": {
         "description": "The latest turn being announced, shown large.",
         "nullable": true,
-        "$ref": "#/components/schemas/BoardCall"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BoardCall"
+          }
+        ]
       },
       "recent": {
         "type": "array",

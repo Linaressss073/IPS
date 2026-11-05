@@ -1,21 +1,11 @@
 import { apiFetch, TokenSource } from "./client";
+import type { components } from "./schema";
 
-/** Mirrors StaffMemberView from the API: never the full e-mail. */
-export type StaffMember = {
-  userId: string;
-  displayName: string | null;
-  emailMasked: string | null;
-  providerRole: string;
-  roles: string[];
-};
+/** Never the full e-mail. Generated from the API's OpenAPI document (pnpm api:types). */
+export type StaffMember = components["schemas"]["StaffMemberView"];
 
 /** What the signed-in user may do in the IPS (GET /staff/me). */
-export type MyAccess = {
-  userId: string;
-  isAdmin: boolean;
-  roles: string[];
-  permissions: string[];
-};
+export type MyAccess = components["schemas"]["MyAccessView"];
 
 export type Permission =
   | "patients:read"
