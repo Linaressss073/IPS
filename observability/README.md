@@ -17,7 +17,7 @@ Paneles:
 
 - **Estado general:** si llegan métricas, tasa de éxito (sin 5xx), peticiones por segundo y segundos desde la última métrica.
 - **Rendimiento:** peticiones por minuto por método y ruta, latencia p50/p95/p99 y tabla de errores 4xx/5xx.
-- **Logs:** listado y volumen por nivel. **Vacíos hasta IPS-155** (logs por OTLP).
+- **Logs:** listado y volumen por nivel. Se llenan cuando la API desplegada envía sus logs por OTLP (IPS-155). El volumen por nivel agrupa por `detected_level`, que Loki asigna solo; si en tu Grafana el nivel llega con otro nombre (por ejemplo `severity_text`), cámbialo en la consulta del panel.
 
 Limitaciones conocidas:
 

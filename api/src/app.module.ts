@@ -1,10 +1,11 @@
-import { createRequire } from 'node:module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { loadDeploymentConfig } from './config/deployment-config.js';
 import { type Env, validateEnv } from './config/env.js';
+import { logTransport } from './config/log-transport.js';
+import { logUrl } from './config/log-url.js';
 import { IdentityAccessModule } from './contexts/identity-access/identity-access.module.js';
 import { AdmissionModule } from './contexts/admission/admission.module.js';
 import { ConsultationModule } from './contexts/consultation/consultation.module.js';
@@ -36,25 +37,11 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
           level: config.get('LOG_LEVEL'),
           redact: ['req.headers.authorization', 'req.headers.cookie', 'req.headers["svix-signature"]'],
           autoLogging: { ignore: (req) => req.url?.endsWith('/health') ?? false },
-          // Requests log as "GET /api/v1/... 200" with no headers.
-          serializers: { req: (req) => ({ method: req.method, url: req.url }), res: (res) => ({ status: res.statusCode }) },
-          customSuccessMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
-          customErrorMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
-          transport:
-            process.env.ENV === 'test'
-              ? undefined
-              : {
-                  // Resolved here: pino cannot find it from inside nestjs-pino under pnpm's strict layout.
-                  target: createRequire(import.meta.url).resolve('pino-pretty'),
-                  options: {
-                    // Render's log viewer renders ANSI colors; set NO_COLOR=1 to turn them off.
-                    colorize: process.env.NO_COLOR === undefined,
-                    translateTime: 'SYS:HH:MM:ss.l',
-                    ignore: 'hostname,context,req,res',
-                    messageFormat: '{if context}[{context}] {end}{msg}',
-                    singleLine: true,
-                  },
-                },
+          // Requests log as "GET /api/v1/... 200" with no headers and no query values (a search can be a patient's name or document).
+          serializers: { req: (req) => ({ method: req.method, url: logUrl(req.url) }), res: (res) => ({ status: res.statusCode }) },
+          customSuccessMessage: (req, res) => `${req.method} ${logUrl(req.url)} ${res.statusCode}`,
+          customErrorMessage: (req, res) => `${req.method} ${logUrl(req.url)} ${res.statusCode}`,
+          transport: logTransport(config.get('LOG_LEVEL')),
         },
       }),
     }),
