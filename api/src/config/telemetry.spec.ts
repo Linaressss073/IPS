@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { requestMetrics, startTelemetry } from './telemetry.js';
+import { requestMetrics, startTelemetry, telemetryStatus } from './telemetry.js';
 
 describe('startTelemetry', () => {
   it('stays off without an endpoint', () => {
@@ -10,6 +10,31 @@ describe('startTelemetry', () => {
 
   it('stays off in tests even with an endpoint', () => {
     expect(startTelemetry({ ENV: 'test', OTEL_EXPORTER_OTLP_ENDPOINT: 'https://example.invalid/otlp' })).toBeNull();
+  });
+});
+
+describe('telemetryStatus', () => {
+  const url = 'https://otlp-gateway-prod-us-east-2.grafana.net/otlp';
+
+  it('says where it sends, with the host only and never the credentials', () => {
+    const status = telemetryStatus({ ENV: 'prod', OTEL_EXPORTER_OTLP_ENDPOINT: url, OTEL_EXPORTER_OTLP_HEADERS: 'Authorization=Basic SECRET' });
+    expect(status).toEqual({
+      level: 'log',
+      message: 'Sending metrics and logs to otlp-gateway-prod-us-east-2.grafana.net as "ips-api"',
+    });
+    expect(JSON.stringify(status)).not.toContain('SECRET');
+  });
+
+  it('warns when the credentials are missing', () => {
+    const status = telemetryStatus({ ENV: 'prod', OTEL_EXPORTER_OTLP_ENDPOINT: url });
+    expect(status.level).toBe('warn');
+    expect(status.message).toContain('OTEL_EXPORTER_OTLP_HEADERS is not set');
+  });
+
+  it('says why it is off', () => {
+    expect(telemetryStatus({ ENV: 'prod' }).message).toContain('OTEL_EXPORTER_OTLP_ENDPOINT is not set');
+    expect(telemetryStatus({ ENV: 'test', OTEL_EXPORTER_OTLP_ENDPOINT: url }).message).toBe('Telemetry off in tests');
+    expect(telemetryStatus({ ENV: 'prod', OTEL_EXPORTER_OTLP_ENDPOINT: 'not a url' }).level).toBe('warn');
   });
 });
 

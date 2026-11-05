@@ -25,7 +25,7 @@ describe('logTransport', () => {
       OTEL_EXPORTER_OTLP_ENDPOINT: 'https://example.invalid/otlp',
     })!;
     expect(targets).toHaveLength(2);
-    expect(targets[1].target).toContain('pino-opentelemetry-transport');
+    expect(targets[1].target).toContain('otlp-logs-transport');
     expect(targets.map((t) => t.level)).toEqual(['warn', 'warn']);
     expect(targets[1].options).toMatchObject({
       resourceAttributes: { 'service.name': 'ips-api', 'deployment.environment': 'prod' },

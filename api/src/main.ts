@@ -6,7 +6,7 @@ import { Env } from './config/env.js';
 import { API_PREFIX } from './config/http.js';
 import { setupHttpSecurity } from './config/http-security.js';
 import { setupOpenApi } from './config/openapi.js';
-import { requestMetrics, startTelemetry } from './config/telemetry.js';
+import { requestMetrics, startTelemetry, telemetryStatus } from './config/telemetry.js';
 
 async function bootstrap() {
   // Before anything else, so every request is measured. Render stops the free
@@ -27,5 +27,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   await app.listen(config.get('PORT'));
+  const { level, message } = telemetryStatus();
+  app.get(Logger)[level](message, 'Telemetry');
 }
 await bootstrap();
