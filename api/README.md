@@ -283,6 +283,8 @@ El mismo `ci.yml` de la raíz los corre en cadena (lint → build y unitarias �
 Nivel con `LOG_LEVEL` (`info` por defecto). Se redactan `authorization`, `cookie` y la firma de webhooks, y no se registra `/health`.
 El `Logger` de NestJS de cada clase pasa por pino.
 
+Con `OTEL_EXPORTER_OTLP_ENDPOINT` los logs **también** se envían por OTLP a Grafana Cloud (Loki) con `pino-opentelemetry-transport`, con las mismas variables `OTEL_*` que las métricas (`src/config/log-transport.ts`); en Render siguen saliendo por la salida estándar. En las URL de las peticiones se ocultan los valores del query string (`/patients?q=***`), porque una búsqueda puede ser el nombre o el documento de un paciente (`src/config/log-url.ts`); `redact` oculta las credenciales antes de que un log llegue a cualquier destino.
+
 ## Métricas (OpenTelemetry → Grafana Cloud)
 
 La API **empuja** sus métricas por OTLP (`src/config/telemetry.ts`); no hay `/metrics` ni nadie que la consulte, así que funciona aunque la instancia gratuita de Render duerma (al recibir `SIGTERM` envía lo pendiente). Decisión: [ADL 2026-11-04](../.pair/adoption/decision-log/2026-11-04-observability-otlp-push-grafana-cloud.md).
