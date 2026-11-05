@@ -98,6 +98,9 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: ./.github/actions/setup-pnpm
         with: { working-directory: multi-tenant-starter-template }
+      # The API types are generated from api/openapi.json; a stale copy fails here.
+      - run: pnpm api:types && git diff --exit-code -- lib/api/schema.d.ts
+        working-directory: multi-tenant-starter-template
       # next build compiles and type-checks.
       - run: pnpm build
         working-directory: multi-tenant-starter-template

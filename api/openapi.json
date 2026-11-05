@@ -1,0 +1,4925 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "database": {
+                      "type": "string",
+                      "enum": [
+                        "up"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "database"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ],
+        "security": []
+      }
+    },
+    "/api/v1/teams/{teamId}/patients": {
+      "post": {
+        "operationId": "PatientCommandsController_register",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterPatientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      },
+      "get": {
+        "operationId": "PatientQueriesController_search",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PatientView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/patients/{patientId}": {
+      "patch": {
+        "operationId": "PatientCommandsController_update",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePatientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      },
+      "get": {
+        "operationId": "PatientQueriesController_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/patients/{patientId}/companions": {
+      "post": {
+        "operationId": "PatientCommandsController_addCompanion",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordCompanionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      },
+      "get": {
+        "operationId": "PatientQueriesController_companions",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "history": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CompanionView"
+                      }
+                    }
+                  },
+                  "required": [
+                    "history"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/patients/{patientId}/timeline": {
+      "get": {
+        "operationId": "PatientQueriesController_timeline",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimelineEntryView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/staff": {
+      "get": {
+        "operationId": "StaffController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffMemberView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/staff/me": {
+      "get": {
+        "operationId": "StaffController_me",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyAccessView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/staff/{userId}/roles": {
+      "put": {
+        "operationId": "StaffController_assignRoles",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignStaffRolesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffMemberView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/services": {
+      "get": {
+        "operationId": "SchedulingSettingsController_services",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServiceView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "services"
+        ]
+      },
+      "post": {
+        "operationId": "SchedulingSettingsController_addService",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateServiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "services"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/services/{serviceId}": {
+      "patch": {
+        "operationId": "SchedulingSettingsController_changeService",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "serviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "services"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/locations": {
+      "get": {
+        "operationId": "SchedulingSettingsController_locations",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LocationView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "locations"
+        ]
+      },
+      "post": {
+        "operationId": "SchedulingSettingsController_addLocation",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "locations"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/locations/{locationId}": {
+      "patch": {
+        "operationId": "SchedulingSettingsController_changeLocation",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "locations"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/professionals": {
+      "get": {
+        "operationId": "SchedulingSettingsController_professionals",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProfessionalView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "professionals"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/agendas": {
+      "get": {
+        "operationId": "AgendasController_day",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgendaView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agendas"
+        ]
+      },
+      "post": {
+        "operationId": "AgendasController_open",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenAgendaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agendas"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/agendas/{agendaId}": {
+      "delete": {
+        "operationId": "AgendasController_remove",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "agendaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "agendas"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/appointments": {
+      "get": {
+        "operationId": "AppointmentsController_search",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppointmentView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "appointments"
+        ]
+      },
+      "post": {
+        "operationId": "AppointmentsController_schedule",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/appointments/{appointmentId}": {
+      "get": {
+        "operationId": "AppointmentsController_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "appointmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/appointments/{appointmentId}/confirm": {
+      "post": {
+        "operationId": "AppointmentsController_confirm",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "appointmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/appointments/{appointmentId}/cancel": {
+      "post": {
+        "operationId": "AppointmentsController_cancel",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "appointmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/appointments/{appointmentId}/reschedule": {
+      "post": {
+        "operationId": "AppointmentsController_reschedule",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "appointmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/turns": {
+      "post": {
+        "operationId": "AdmissionController_arrive",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "turns"
+        ]
+      },
+      "get": {
+        "operationId": "AdmissionController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TurnView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "turns"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/turns/{turnId}/call": {
+      "post": {
+        "operationId": "AdmissionController_call",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "turns"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/turns/{turnId}/attend": {
+      "post": {
+        "operationId": "AdmissionController_attend",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "turns"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/turns/{turnId}/no-show": {
+      "post": {
+        "operationId": "AdmissionController_noShow",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "turnId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "turns"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/turns/board": {
+      "get": {
+        "operationId": "AdmissionController_board",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "turns"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/admission/settings": {
+      "get": {
+        "operationId": "AdmissionController_settings",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallSettingsView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admission"
+        ]
+      },
+      "put": {
+        "operationId": "AdmissionController_changeSettings",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CallSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallSettingsView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "admission"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/consultations": {
+      "get": {
+        "operationId": "ConsultationsController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConsultationView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consultations"
+        ]
+      },
+      "post": {
+        "operationId": "ConsultationsController_start",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartConsultationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consultations"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/consultations/{consultationId}": {
+      "get": {
+        "operationId": "ConsultationsController_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consultations"
+        ]
+      },
+      "patch": {
+        "operationId": "ConsultationsController_update",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConsultationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consultations"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/consultations/{consultationId}/sign": {
+      "post": {
+        "operationId": "ConsultationsController_sign",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consultations"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/consultations/{consultationId}/addenda": {
+      "post": {
+        "operationId": "ConsultationsController_addendum",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddendumDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consultations"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/prescriptions": {
+      "get": {
+        "operationId": "PharmacyController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PharmacyPrescriptionView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/prescriptions/{consultationId}": {
+      "get": {
+        "operationId": "PharmacyController_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PharmacyPrescriptionView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/prescriptions/{consultationId}/deliveries": {
+      "post": {
+        "operationId": "PharmacyController_deliver",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PharmacyPrescriptionView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/prescriptions/{consultationId}/turn": {
+      "post": {
+        "operationId": "PharmacyController_turn",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "consultationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PharmacyTurnDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/products": {
+      "get": {
+        "operationId": "InventoryController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      },
+      "post": {
+        "operationId": "InventoryController_create",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/products/{productId}": {
+      "get": {
+        "operationId": "InventoryController_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      },
+      "patch": {
+        "operationId": "InventoryController_update",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/products/{productId}/movements": {
+      "get": {
+        "operationId": "InventoryController_movements",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovementView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/products/{productId}/lots": {
+      "post": {
+        "operationId": "InventoryController_receive",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiveLotDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/teams/{teamId}/pharmacy/products/{productId}/adjustments": {
+      "post": {
+        "operationId": "InventoryController_adjust",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdjustLotDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pharmacy"
+        ]
+      }
+    },
+    "/api/v1/organizations/{teamId}": {
+      "get": {
+        "operationId": "OrganizationsController_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "organizations"
+        ]
+      },
+      "patch": {
+        "operationId": "OrganizationsController_update",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationView"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "organizations"
+        ]
+      },
+      "delete": {
+        "operationId": "OrganizationsController_delete",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "organizations"
+        ]
+      }
+    },
+    "/api/v1/webhooks/clerk": {
+      "post": {
+        "operationId": "ClerkWebhookController_receive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "received": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "received"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "webhooks"
+        ],
+        "security": []
+      }
+    }
+  },
+  "info": {
+    "title": "IPS · API de la consulta externa",
+    "description": "Agendamiento, admisión, consulta médica y farmacia. Todas las rutas, salvo /health y el webhook de Clerk, exigen `Authorization: Bearer <token de sesión de Clerk>` y viven bajo `/teams/{teamId}` (la IPS).",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Token de sesión de Clerk, sin la palabra Bearer."
+      },
+      "team": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Team-Id",
+        "description": "Id de la IPS (org_…). Rellena {teamId} en todas las rutas; la API no lo lee."
+      }
+    },
+    "schemas": {
+      "RegisterPatientDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdatePatientDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RecordCompanionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AssignStaffRolesDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateServiceDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateServiceDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateLocationDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateLocationDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "OpenAgendaDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ScheduleAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ChangeAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CancelAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RescheduleAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CheckInDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "TurnChangeDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CallSettingsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "StartConsultationDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateConsultationDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "VersionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AddendumDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "DispenseDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PharmacyTurnDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateProductDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateProductDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ReceiveLotDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AdjustLotDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateOrganizationDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AgendaView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "slotMinutes": {
+            "type": "number"
+          },
+          "professional": {
+            "$ref": "#/components/schemas/ProfessionalView"
+          },
+          "service": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlotView"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "startTime",
+          "endTime",
+          "slotMinutes",
+          "professional",
+          "service",
+          "location",
+          "slots"
+        ],
+        "additionalProperties": false
+      },
+      "AppointmentView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "patient": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "fullName": {
+                "type": "string",
+                "nullable": true
+              },
+              "document": {
+                "nullable": true,
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "number"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "fullName",
+              "document"
+            ],
+            "additionalProperties": false
+          },
+          "professional": {
+            "$ref": "#/components/schemas/ProfessionalView"
+          },
+          "service": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "agendaId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "cancelReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "patient",
+          "professional",
+          "service",
+          "location",
+          "agendaId",
+          "date",
+          "time",
+          "endTime",
+          "startsAt",
+          "cancelReason",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "BoardCall": {
+        "type": "object",
+        "properties": {
+          "turnId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "calls": {
+            "type": "number"
+          },
+          "calledAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "turnId",
+          "label",
+          "location",
+          "patientName",
+          "status",
+          "calls",
+          "calledAt"
+        ],
+        "additionalProperties": false,
+        "description": "One call shown on the waiting-room screen (no document, no full name)."
+      },
+      "BoardView": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "description": "The latest turn being announced, shown large.",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BoardCall"
+              }
+            ]
+          },
+          "recent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardCall"
+            },
+            "description": "The previous calls, most recent first."
+          },
+          "settings": {
+            "$ref": "#/components/schemas/CallSettingsView"
+          }
+        },
+        "required": [
+          "current",
+          "recent",
+          "settings"
+        ],
+        "additionalProperties": false
+      },
+      "CallSettingsView": {
+        "type": "object",
+        "properties": {
+          "announceIntervalSeconds": {
+            "type": "number"
+          },
+          "maxCalls": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "announceIntervalSeconds",
+          "maxCalls"
+        ],
+        "additionalProperties": false
+      },
+      "CompanionView": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "number"
+          },
+          "relationship": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "firstName": {
+                "type": "string"
+              },
+              "middleName": {
+                "type": "string",
+                "nullable": true
+              },
+              "firstLastName": {
+                "type": "string"
+              },
+              "secondLastName": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "firstName",
+              "middleName",
+              "firstLastName",
+              "secondLastName"
+            ],
+            "additionalProperties": false
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "document": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "number"
+            ],
+            "additionalProperties": false
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "executedBy": {
+            "type": "string"
+          },
+          "requestedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "executedByName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "number",
+          "relationship",
+          "name",
+          "fullName",
+          "document",
+          "phone",
+          "email",
+          "recordedAt",
+          "requestedBy",
+          "executedBy",
+          "requestedByName",
+          "executedByName"
+        ],
+        "additionalProperties": false,
+        "description": "One companion of the patient's history; `number` grows with each one."
+      },
+      "ConsultationView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "signed": {
+                    "type": "boolean",
+                    "enum": [
+                      false
+                    ]
+                  }
+                },
+                "required": [
+                  "signed"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "signed": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "signed",
+                  "at"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "patient": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "document": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "number"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "fullName",
+              "document"
+            ],
+            "additionalProperties": false
+          },
+          "physician": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId",
+              "displayName"
+            ],
+            "additionalProperties": false
+          },
+          "appointment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              },
+              "time": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "date",
+              "time"
+            ],
+            "additionalProperties": false
+          },
+          "service": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "note": {
+            "$ref": "#/components/schemas/NoteProps"
+          },
+          "vitals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "unit": {
+                  "type": "string"
+                },
+                "name": {
+                  "$ref": "#/components/schemas/VitalSignName"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "name",
+                "unit",
+                "value"
+              ]
+            }
+          },
+          "bmi": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Body mass index, when weight and height were measured."
+          },
+          "diagnoses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiagnosisProps"
+            }
+          },
+          "prescription": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrescriptionItemProps"
+            }
+          },
+          "addenda": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "writtenBy": {
+                  "type": "string"
+                },
+                "writtenByName": {
+                  "type": "string"
+                },
+                "writtenAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "text",
+                "writtenBy",
+                "writtenByName",
+                "writtenAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "signature",
+          "patient",
+          "physician",
+          "appointment",
+          "service",
+          "location",
+          "note",
+          "vitals",
+          "bmi",
+          "diagnoses",
+          "prescription",
+          "addenda",
+          "startedAt",
+          "updatedAt",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "DiagnosisProps": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "CIE-10 code, e.g. \"J06.9\"."
+          },
+          "description": {
+            "type": "string"
+          },
+          "principal": {
+            "type": "boolean",
+            "description": "Exactly one diagnosis is the main one (principal) to sign."
+          }
+        },
+        "required": [
+          "code",
+          "description",
+          "principal"
+        ],
+        "additionalProperties": false
+      },
+      "DispensationStatus": {
+        "type": "string",
+        "enum": [
+          "pendiente",
+          "parcial",
+          "completa"
+        ]
+      },
+      "LocationView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "number",
+          "label",
+          "active"
+        ],
+        "additionalProperties": false
+      },
+      "LotStatus": {
+        "type": "string",
+        "enum": [
+          "vigente",
+          "por_vencer",
+          "vencido"
+        ]
+      },
+      "MovementReference": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "recepcion"
+                ]
+              },
+              "supplier": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "supplier"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "dispensacion"
+                ]
+              },
+              "consultationId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "consultationId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "ajuste"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "description": "Why stock moved: what the kardex shows."
+      },
+      "MovementType": {
+        "type": "string",
+        "enum": [
+          "entrada",
+          "salida",
+          "ajuste"
+        ]
+      },
+      "MovementView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/MovementType"
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/MovementReference"
+          },
+          "at": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          },
+          "byName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "lotNumber",
+          "quantity",
+          "reference",
+          "at",
+          "by",
+          "byName"
+        ],
+        "additionalProperties": false
+      },
+      "MyAccessView": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "isAdmin",
+          "roles",
+          "permissions"
+        ],
+        "additionalProperties": false,
+        "description": "What the caller may do in an IPS (for the UI to show only that)."
+      },
+      "NoteProps": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "currentIllness": {
+            "type": "string"
+          },
+          "physicalExam": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "currentIllness",
+          "physicalExam",
+          "plan"
+        ],
+        "additionalProperties": false,
+        "description": "What the physician writes (free text; empty until filled in)."
+      },
+      "OrganizationView": {
+        "type": "object",
+        "properties": {
+          "nit": {
+            "type": "string",
+            "description": "\"900123456-8\": base and DIAN check digit.",
+            "nullable": true
+          },
+          "habilitationCode": {
+            "type": "string",
+            "description": "Código de habilitación (REPS).",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "department": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "description": "Institutional e-mail (not personal data).",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "address",
+          "city",
+          "createdAt",
+          "department",
+          "email",
+          "habilitationCode",
+          "id",
+          "name",
+          "nit",
+          "phone",
+          "status",
+          "updatedAt",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "Page_PatientView": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientView"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "additionalProperties": false
+      },
+      "PatientView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "document": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "number"
+            ],
+            "additionalProperties": false
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "firstName": {
+                "type": "string"
+              },
+              "middleName": {
+                "type": "string",
+                "nullable": true
+              },
+              "firstLastName": {
+                "type": "string"
+              },
+              "secondLastName": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "firstName",
+              "middleName",
+              "firstLastName",
+              "secondLastName"
+            ],
+            "additionalProperties": false
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "contact": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string",
+                "nullable": true
+              },
+              "address": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "email",
+              "phone",
+              "address"
+            ],
+            "additionalProperties": false
+          },
+          "affiliation": {
+            "type": "object",
+            "properties": {
+              "eps": {
+                "type": "string",
+                "nullable": true
+              },
+              "regime": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "eps",
+              "regime"
+            ],
+            "additionalProperties": false
+          },
+          "version": {
+            "type": "number"
+          },
+          "registeredAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "document",
+          "name",
+          "fullName",
+          "birthDate",
+          "sex",
+          "contact",
+          "affiliation",
+          "version",
+          "registeredAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "PharmacyPrescriptionView": {
+        "type": "object",
+        "properties": {
+          "consultationId": {
+            "type": "string"
+          },
+          "patient": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "document": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "number"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "fullName",
+              "document"
+            ],
+            "additionalProperties": false
+          },
+          "physician": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId",
+              "displayName"
+            ],
+            "additionalProperties": false
+          },
+          "date": {
+            "type": "string"
+          },
+          "signedAt": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DispensationStatus"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "number"
+                },
+                "medication": {
+                  "type": "string"
+                },
+                "presentation": {
+                  "type": "string"
+                },
+                "dose": {
+                  "type": "string"
+                },
+                "route": {
+                  "type": "string"
+                },
+                "frequency": {
+                  "type": "string"
+                },
+                "durationDays": {
+                  "type": "number"
+                },
+                "instructions": {
+                  "type": "string"
+                },
+                "prescribed": {
+                  "type": "number"
+                },
+                "delivered": {
+                  "type": "number"
+                },
+                "pending": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "index",
+                "medication",
+                "presentation",
+                "dose",
+                "route",
+                "frequency",
+                "durationDays",
+                "instructions",
+                "prescribed",
+                "delivered",
+                "pending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "deliveries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "at": {
+                  "type": "string"
+                },
+                "by": {
+                  "type": "string"
+                },
+                "byName": {
+                  "type": "string"
+                },
+                "lines": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "index": {
+                        "type": "number"
+                      },
+                      "medication": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "number"
+                      },
+                      "productId": {
+                        "type": "string"
+                      },
+                      "lots": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "lotNumber": {
+                              "type": "string"
+                            },
+                            "expiresOn": {
+                              "type": "string"
+                            },
+                            "quantity": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "lotNumber",
+                            "expiresOn",
+                            "quantity"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "index",
+                      "medication",
+                      "quantity",
+                      "productId",
+                      "lots"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "at",
+                "by",
+                "byName",
+                "lines",
+                "note"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "consultationId",
+          "patient",
+          "physician",
+          "date",
+          "signedAt",
+          "status",
+          "items",
+          "deliveries",
+          "version"
+        ],
+        "additionalProperties": false,
+        "description": "A signed prescription (as the pharmacy may see it) and what was delivered of it."
+      },
+      "PrescriptionItemProps": {
+        "type": "object",
+        "properties": {
+          "medication": {
+            "type": "string"
+          },
+          "presentation": {
+            "type": "string"
+          },
+          "dose": {
+            "type": "string"
+          },
+          "route": {
+            "$ref": "#/components/schemas/Route"
+          },
+          "frequency": {
+            "type": "string"
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "instructions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "medication",
+          "presentation",
+          "dose",
+          "route",
+          "frequency",
+          "durationDays",
+          "quantity",
+          "instructions"
+        ],
+        "additionalProperties": false
+      },
+      "ProductView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "presentation": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "minStock": {
+            "type": "number"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "available": {
+            "type": "number",
+            "description": "Units that can be dispensed (not expired)."
+          },
+          "expired": {
+            "type": "number",
+            "description": "Units in expired lots, to write off."
+          },
+          "lots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lotNumber": {
+                  "type": "string"
+                },
+                "expiresOn": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "number"
+                },
+                "status": {
+                  "$ref": "#/components/schemas/LotStatus"
+                }
+              },
+              "required": [
+                "lotNumber",
+                "expiresOn",
+                "quantity",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockAlert"
+            }
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "presentation",
+          "label",
+          "minStock",
+          "active",
+          "available",
+          "expired",
+          "lots",
+          "alerts",
+          "version"
+        ],
+        "additionalProperties": false,
+        "description": "A catalog product with its stock as of today (Colombia)."
+      },
+      "ProfessionalView": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "userId",
+          "displayName"
+        ],
+        "additionalProperties": false
+      },
+      "Route": {
+        "type": "string",
+        "enum": [
+          "oral",
+          "sublingual",
+          "intravenosa",
+          "intramuscular",
+          "subcutanea",
+          "topica",
+          "inhalada",
+          "oftalmica",
+          "otica",
+          "nasal",
+          "rectal",
+          "vaginal",
+          "transdermica"
+        ]
+      },
+      "ServiceView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "active"
+        ],
+        "additionalProperties": false
+      },
+      "SlotView": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "appointment": {
+            "description": "The active appointment holding the slot, if any.",
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "patient": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "id",
+                  "fullName"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "patient"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "time",
+          "startsAt",
+          "appointment"
+        ],
+        "additionalProperties": false
+      },
+      "StaffMemberView": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailMasked": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerRole": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Functional roles assigned by the IPS administrators."
+          }
+        },
+        "required": [
+          "userId",
+          "displayName",
+          "emailMasked",
+          "providerRole",
+          "roles"
+        ],
+        "additionalProperties": false,
+        "description": "A member of an IPS, as shown to the other members (no full e-mail)."
+      },
+      "StockAlert": {
+        "type": "string",
+        "enum": [
+          "stock_bajo",
+          "por_vencer",
+          "vencido"
+        ]
+      },
+      "TimelineEntryView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "occurredAt": {
+            "type": "string"
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "executedBy": {
+            "type": "string"
+          },
+          "requestedByName": {
+            "type": "string",
+            "description": "From the staff directory at read time; null when unknown.",
+            "nullable": true
+          },
+          "executedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "occurredAt",
+          "requestedBy",
+          "executedBy",
+          "requestedByName",
+          "executedByName",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "TurnView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "cita"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "farmacia"
+                    ]
+                  },
+                  "consultationId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "consultationId"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Waiting for an appointment, or to pick up a prescription at the pharmacy."
+          },
+          "code": {
+            "type": "string"
+          },
+          "number": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "calls": {
+            "type": "number"
+          },
+          "lastCalledAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "arrivedAt": {
+            "type": "string"
+          },
+          "closedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string"
+          },
+          "appointment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "time": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "time"
+            ],
+            "additionalProperties": false
+          },
+          "patient": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "fullName": {
+                "type": "string",
+                "nullable": true
+              },
+              "shortName": {
+                "type": "string",
+                "nullable": true
+              },
+              "document": {
+                "nullable": true,
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "number"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "fullName",
+              "shortName",
+              "document"
+            ],
+            "additionalProperties": false
+          },
+          "professional": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "userId",
+              "displayName"
+            ],
+            "additionalProperties": false
+          },
+          "service": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "origin",
+          "code",
+          "number",
+          "status",
+          "calls",
+          "lastCalledAt",
+          "arrivedAt",
+          "closedAt",
+          "date",
+          "appointment",
+          "patient",
+          "professional",
+          "service",
+          "location",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "VitalSignName": {
+        "type": "string",
+        "enum": [
+          "presion_sistolica",
+          "presion_diastolica",
+          "frecuencia_cardiaca",
+          "frecuencia_respiratoria",
+          "temperatura",
+          "saturacion_oxigeno",
+          "peso",
+          "talla"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Error body. `code` is a machine-readable domain error (see technical-api/errors.md); shape errors have none.",
+        "required": [
+          "statusCode",
+          "message"
+        ],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "example": 409
+          },
+          "code": {
+            "type": "string",
+            "example": "DOCUMENT_ALREADY_REGISTERED"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearer": [],
+      "team": []
+    }
+  ]
+}

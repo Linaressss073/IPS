@@ -1,47 +1,21 @@
 import { apiFetch, TokenSource } from "./client";
+import type { components } from "./schema";
 
-/** Mirrors the views of api/src/contexts/admission/application/types/admission.types.ts. */
+type Schemas = components["schemas"];
+
+/** The views come from the API's OpenAPI document (pnpm api:types); only the status is narrowed here. */
 export type TurnStatus = "en_espera" | "anunciado" | "atendido" | "no_se_presento";
 
-export type Turn = {
-  id: string;
-  label: string;
-  /** Waiting for an appointment, or to pick up a prescription. */
-  origin: { kind: "cita" } | { kind: "farmacia"; consultationId: string };
-  code: string;
-  number: number;
-  status: TurnStatus;
-  calls: number;
-  lastCalledAt: string | null;
-  arrivedAt: string;
-  closedAt: string | null;
-  date: string;
-  appointment: { id: string; time: string };
-  patient: {
-    id: string;
-    fullName: string | null;
-    shortName: string | null;
-    document: { type: string; number: string } | null;
-  };
-  professional: { userId: string; displayName: string | null };
-  service: { id: string; code: string; name: string };
-  location: { id: string; label: string };
-  version: number;
+export type Turn = Omit<Schemas["TurnView"], "status"> & { status: TurnStatus };
+
+export type BoardCall = Omit<Schemas["BoardCall"], "status"> & { status: TurnStatus };
+
+export type CallSettings = Schemas["CallSettingsView"];
+
+export type Board = Omit<Schemas["BoardView"], "current" | "recent"> & {
+  current: BoardCall | null;
+  recent: BoardCall[];
 };
-
-export type BoardCall = {
-  turnId: string;
-  label: string;
-  location: string;
-  patientName: string | null;
-  status: TurnStatus;
-  calls: number;
-  calledAt: string;
-};
-
-export type CallSettings = { announceIntervalSeconds: number; maxCalls: number };
-
-export type Board = { current: BoardCall | null; recent: BoardCall[]; settings: CallSettings };
 
 export const TURN_STATUSES: Record<TurnStatus, string> = {
   en_espera: "En espera",

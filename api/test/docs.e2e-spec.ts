@@ -1,4 +1,8 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createTestApp } from './support/test-app.js';
+
+/** The committed copy the frontend generates its types from (`pnpm docs:json` rewrites it). */
+const SPEC_FILE = new URL('../openapi.json', import.meta.url);
 
 interface Operation {
   tags?: string[];
@@ -56,6 +60,11 @@ describe('OpenAPI docs (e2e)', () => {
     expect(doc.paths['/api/v1/health'].get.security).toEqual([]);
     expect(doc.paths['/api/v1/webhooks/clerk'].post.security).toEqual([]);
     expect(doc.paths['/api/v1/teams/{teamId}/patients'].get.security).toBeUndefined();
+  });
+
+  it('matches the committed openapi.json (run `pnpm docs:json` after changing the API)', () => {
+    if (process.env.UPDATE_OPENAPI) writeFileSync(SPEC_FILE, `${JSON.stringify(doc, null, 2)}\n`);
+    expect(JSON.parse(readFileSync(SPEC_FILE, 'utf8'))).toEqual(JSON.parse(JSON.stringify(doc)));
   });
 
   it('describes the error body as the default response', () => {
