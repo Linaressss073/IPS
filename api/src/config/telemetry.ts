@@ -1,4 +1,4 @@
-import { type Histogram, metrics } from '@opentelemetry/api';
+import { diag, DiagConsoleLogger, DiagLogLevel, type Histogram, metrics } from '@opentelemetry/api';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
@@ -15,6 +15,8 @@ const EXPORT_INTERVAL_MS = 30_000;
  */
 export function startTelemetry(env: NodeJS.ProcessEnv = process.env): MeterProvider | null {
   if (env.ENV === 'test' || !env.OTEL_EXPORTER_OTLP_ENDPOINT) return null;
+  // A failed export (wrong token, wrong endpoint) is otherwise silent: warnings and errors go to the standard output.
+  diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.WARN);
   const provider = new MeterProvider({
     // deployment.environment becomes the `deployment_environment` label the dashboard filters by.
     resource: resourceFromAttributes({
@@ -27,6 +29,22 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): MeterProvi
   });
   metrics.setGlobalMeterProvider(provider);
   return provider;
+}
+
+/** One line for the boot log: whether telemetry is on and where it goes (the host only, never the credentials). */
+export function telemetryStatus(env: NodeJS.ProcessEnv = process.env): { level: 'log' | 'warn'; message: string } {
+  if (env.ENV === 'test') return { level: 'log', message: 'Telemetry off in tests' };
+  if (!env.OTEL_EXPORTER_OTLP_ENDPOINT) return { level: 'log', message: 'Telemetry off: OTEL_EXPORTER_OTLP_ENDPOINT is not set' };
+  let host: string;
+  try {
+    host = new URL(env.OTEL_EXPORTER_OTLP_ENDPOINT).host;
+  } catch {
+    return { level: 'warn', message: 'Telemetry off: OTEL_EXPORTER_OTLP_ENDPOINT is not a valid URL' };
+  }
+  const sending = `Sending metrics and logs to ${host} as "${env.OTEL_SERVICE_NAME ?? 'ips-api'}"`;
+  return env.OTEL_EXPORTER_OTLP_HEADERS
+    ? { level: 'log', message: sending }
+    : { level: 'warn', message: `${sending}, but OTEL_EXPORTER_OTLP_HEADERS is not set: it will be rejected (401)` };
 }
 
 type Recorder = Pick<Histogram, 'record'>;

@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import type { TransportTargetOptions } from 'pino';
 
 /**
@@ -32,7 +33,8 @@ export function logTransport(
   if (env.OTEL_EXPORTER_OTLP_ENDPOINT) {
     targets.push({
       level,
-      target: resolve('pino-opentelemetry-transport'),
+      // Our wrapper around pino-opentelemetry-transport: it also reports failed exports.
+      target: fileURLToPath(new URL('./otlp-logs-transport.js', import.meta.url)),
       options: {
         loggerName: 'ips-api',
         resourceAttributes: {
