@@ -150,6 +150,7 @@ function PrescriptionCard(props: Readonly<{
   onTurn: (windowId: string) => Promise<string>;
 }>) {
   const { prescription: p } = props;
+  const { teamId } = useParams<{ teamId: string }>();
   const [delivering, setDelivering] = React.useState(false);
   const [quantities, setQuantities] = React.useState<Record<number, string>>({});
   const [chosen, setChosen] = React.useState<Record<number, string>>({});
@@ -190,6 +191,15 @@ function PrescriptionCard(props: Readonly<{
           <CardTitle className="truncate text-base">{p.patient.fullName || "Paciente"}</CardTitle>
           <p className="text-sm text-muted-foreground">
             {p.patient.document.type} {p.patient.document.number} · Dr(a). {p.physician.displayName || p.physician.userId}
+            {" · "}
+            <a
+              href={`/dashboard/${teamId}/consultations/${p.consultationId}/formula`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Fórmula (PDF)
+            </a>
           </p>
         </div>
         <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", STATUS_STYLES[p.status])}>

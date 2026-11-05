@@ -3,6 +3,7 @@ import type { Db } from 'mongodb';
 import { MONGO_DB } from '../../shared/infrastructure/persistence/mongo.js';
 import { MongoConnection } from '../../shared/infrastructure/persistence/mongo-connection.js';
 import { IdentityAccessModule } from '../identity-access/identity-access.module.js';
+import { OrganizationsModule } from '../organizations/organizations.module.js';
 import { PatientsModule } from '../patients/patients.module.js';
 import { SchedulingModule } from '../scheduling/scheduling.module.js';
 import { StaffModule } from '../staff/staff.module.js';
@@ -18,7 +19,7 @@ import { PrescriptionQueries } from './application/queries/prescription.queries.
  * prescription pharmacy will dispense. Signed records only take addenda.
  */
 @Module({
-  imports: [IdentityAccessModule, PatientsModule, SchedulingModule, StaffModule],
+  imports: [IdentityAccessModule, OrganizationsModule, PatientsModule, SchedulingModule, StaffModule],
   controllers: [ConsultationsController],
   providers: consultationProviders,
   // Public query for the pharmacy: prescriptions only.

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useParams } from "next/navigation";
 import { errorMessage } from "@/components/patients/error-message";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,12 +26,20 @@ export function ConsultationRecord(props: Readonly<{
   onAddendum: (text: string) => Promise<void>;
 }>) {
   const { consultation: c } = props;
+  const { teamId } = useParams<{ teamId: string }>();
   const [text, setText] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
 
   return (
     <div className="space-y-4">
+      {c.prescription.length > 0 && (
+        <Button variant="outline" size="sm" asChild>
+          <a href={`/dashboard/${teamId}/consultations/${c.id}/formula`} target="_blank" rel="noopener noreferrer">
+            Fórmula médica (PDF)
+          </a>
+        </Button>
+      )}
       <Card>
         <CardContent className="space-y-5 pt-6">
           <Section title="Motivo de consulta">{c.note.reason || "—"}</Section>

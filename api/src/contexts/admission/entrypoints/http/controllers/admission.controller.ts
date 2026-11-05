@@ -1,11 +1,15 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
 import { ActorInput } from '../../../../../shared/application/index.js';
 import { TeamId, UserId } from '../../../../../shared/domain/index.js';
+import { TEAM_ADMIN_ROLE } from '../../../../identity-access/domain/constants/roles.js';
 import { AuthenticatedUser } from '../../../../identity-access/domain/entities/authenticated-user.entity.js';
 import {
   CurrentTeam,
+  CurrentTeamRole,
   CurrentUser,
 } from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
+import { AccessService } from '../../../../staff/application/services/access.service.js';
+import { Permission } from '../../../../staff/domain/constants/permissions.js';
 import { RequirePermission } from '../../../../staff/entrypoints/http/guards/permission.guard.js';
 import {
   AttendTurn,
@@ -44,7 +48,23 @@ export class AdmissionController {
     private readonly getBoard: GetBoard,
     private readonly getCallSettings: GetCallSettings,
     private readonly updateCallSettings: UpdateCallSettings,
+    private readonly access: AccessService,
   ) {}
+
+  /** Pharmacy staff (no `unrestricted` permission) only see and act on pharmacy turns. */
+  private async originScope(
+    teamId: TeamId,
+    user: AuthenticatedUser,
+    teamRole: string,
+    unrestricted: Permission[],
+  ): Promise<'farmacia' | undefined> {
+    const { permissions } = await this.access.accessOf({
+      teamId,
+      userId: user.userId.value,
+      isAdmin: teamRole === TEAM_ADMIN_ROLE,
+    });
+    return unrestricted.some((permission) => permissions.includes(permission)) ? undefined : 'farmacia';
+  }
 
   /** The patient arrived: they get the next turn of the service. */
   @RequirePermission('admission:manage')
@@ -61,51 +81,63 @@ export class AdmissionController {
     });
   }
 
-  @RequirePermission('turns:call', 'admission:manage')
+  @RequirePermission('turns:call', 'admission:manage', 'pharmacy:dispense')
   @Get('turns')
-  list(@CurrentTeam() teamId: TeamId, @Query() query: ListTurnsQueryDto): Promise<TurnView[]> {
+  async list(
+    @CurrentTeam() teamId: TeamId,
+    @CurrentUser() user: AuthenticatedUser,
+    @CurrentTeamRole() teamRole: string,
+    @Query() query: ListTurnsQueryDto,
+  ): Promise<TurnView[]> {
     return this.listTurns.execute({
       teamId,
       date: query.date,
       status: query.status,
       professionalId: query.professionalId,
+      onlyOrigin: await this.originScope(teamId, user, teamRole, ['turns:call', 'admission:manage']),
     });
   }
 
-  @RequirePermission('turns:call')
+  @RequirePermission('turns:call', 'pharmacy:dispense')
   @Post('turns/:turnId/call')
   @HttpCode(200)
-  call(
+  async call(
     @CurrentTeam() teamId: TeamId,
     @CurrentUser() user: AuthenticatedUser,
+    @CurrentTeamRole() teamRole: string,
     @Param('turnId') turnId: string,
     @Body() dto: TurnChangeDto,
   ): Promise<TurnView> {
-    return this.callTurn.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy) });
+    const onlyOrigin = await this.originScope(teamId, user, teamRole, ['turns:call']);
+    return this.callTurn.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy), onlyOrigin });
   }
 
-  @RequirePermission('turns:call')
+  @RequirePermission('turns:call', 'pharmacy:dispense')
   @Post('turns/:turnId/attend')
   @HttpCode(200)
-  attend(
+  async attend(
     @CurrentTeam() teamId: TeamId,
     @CurrentUser() user: AuthenticatedUser,
+    @CurrentTeamRole() teamRole: string,
     @Param('turnId') turnId: string,
     @Body() dto: TurnChangeDto,
   ): Promise<TurnView> {
-    return this.attendTurn.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy) });
+    const onlyOrigin = await this.originScope(teamId, user, teamRole, ['turns:call']);
+    return this.attendTurn.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy), onlyOrigin });
   }
 
-  @RequirePermission('turns:call', 'admission:manage')
+  @RequirePermission('turns:call', 'admission:manage', 'pharmacy:dispense')
   @Post('turns/:turnId/no-show')
   @HttpCode(200)
-  noShow(
+  async noShow(
     @CurrentTeam() teamId: TeamId,
     @CurrentUser() user: AuthenticatedUser,
+    @CurrentTeamRole() teamRole: string,
     @Param('turnId') turnId: string,
     @Body() dto: TurnChangeDto,
   ): Promise<TurnView> {
-    return this.markNoShow.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy) });
+    const onlyOrigin = await this.originScope(teamId, user, teamRole, ['turns:call', 'admission:manage']);
+    return this.markNoShow.execute({ teamId, turnId, expectedVersion: dto.version, actor: actor(user, dto.requestedBy), onlyOrigin });
   }
 
   /** The waiting-room screen: administrators and the `tv` role. */

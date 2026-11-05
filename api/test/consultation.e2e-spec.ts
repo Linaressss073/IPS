@@ -136,6 +136,31 @@ describe('Consultation / clinical record (e2e)', () => {
     expect(history.map((c: { id: string }) => c.id)).toEqual([started.id]);
   });
 
+  it('gives the printable prescription only once signed, to physicians and pharmacy', async () => {
+    const { appointmentId } = await setUp();
+    const started = (await api('carol').post(consultations, { appointmentId }).expect(200)).body;
+    const formula = `${consultations}/${started.id}/formula`;
+    await api('carol').patch(`${consultations}/${started.id}`, { version: 1, ...draft }).expect(200);
+    expect((await api('carol').get(formula).expect(404)).body.code).toBe('PRESCRIPTION_NOT_FOUND');
+
+    await api('carol').post(`${consultations}/${started.id}/sign`, { version: 2 }).expect(200);
+    const view = (await api('carol').get(formula).expect(200)).body;
+    expect(view).toMatchObject({
+      consultationId: started.id,
+      ips: { name: 'IPS Alfa' },
+      patient: { fullName: 'Andrés Gómez', sex: expect.stringMatching(/^[HMI]$/) },
+      physician: { displayName: expect.any(String) },
+      diagnoses: [{ code: 'J06.9', principal: true }],
+      prescription: [{ medication: 'Acetaminofén 500 mg', quantity: 15 }],
+    });
+
+    // Pharmacy prints it too; the administrator alone does not read clinical records.
+    await api('alice').get(formula).expect(403);
+    await api('alice').put(`${team}/staff/alice/roles`, { roles: ['farmacia'] }).expect(200);
+    await api('alice').get(formula).expect(200);
+    await api('bob').get(formula).expect(403);
+  });
+
   it('keeps the clinical record to physicians, and out of the shared timeline', async () => {
     const { patientId, appointmentId } = await setUp();
     const started = (await api('carol').post(consultations, { appointmentId }).expect(200)).body;

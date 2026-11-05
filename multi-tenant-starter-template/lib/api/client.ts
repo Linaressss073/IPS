@@ -1,6 +1,8 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 /** Must match API_PREFIX in api/src/config/http.ts. */
 const API_PREFIX = "/api/v1";
+/** Base URL of the API, for server-side callers (the BFF routes). */
+export const API_BASE = `${API_URL}${API_PREFIX}`;
 
 /** Anything that can hand out the current session token (see useApiAuth). */
 export type TokenSource = { getAccessToken(): Promise<string | null> };

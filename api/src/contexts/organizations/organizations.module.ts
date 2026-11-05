@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { IdentityAccessModule } from '../identity-access/identity-access.module.js';
 import { ApplyOrganizationChange } from './application/commands/apply-organization-change.command.js';
 import { SyncOrganizationsFromProvider } from './application/commands/sync-organizations-from-provider.command.js';
+import { GetOrganization } from './application/queries/get-organization.query.js';
 import { OrganizationsController } from './entrypoints/http/controllers/organizations.controller.js';
 import { organizationsProviders } from './infrastructure/providers/organizations.providers.js';
 
@@ -15,6 +16,6 @@ import { organizationsProviders } from './infrastructure/providers/organizations
   controllers: [OrganizationsController],
   providers: organizationsProviders,
   // Used by the Clerk webhooks and the bulk sync script.
-  exports: [ApplyOrganizationChange, SyncOrganizationsFromProvider],
+  exports: [ApplyOrganizationChange, SyncOrganizationsFromProvider, GetOrganization],
 })
 export class OrganizationsModule {}

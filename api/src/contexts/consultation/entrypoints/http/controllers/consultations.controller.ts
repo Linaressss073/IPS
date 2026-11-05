@@ -14,7 +14,8 @@ import {
   UpdateConsultation,
 } from '../../../application/commands/consultation.commands.js';
 import { ConsultationQueries } from '../../../application/queries/consultation.queries.js';
-import { ConsultationView } from '../../../application/types/consultation.types.js';
+import { GetFormula } from '../../../application/queries/formula.query.js';
+import { ConsultationView, FormulaView } from '../../../application/types/consultation.types.js';
 import {
   DiagnosisProps,
   PrescriptionItemProps,
@@ -40,6 +41,7 @@ export class ConsultationsController {
     private readonly updateConsultation: UpdateConsultation,
     private readonly signConsultation: SignConsultation,
     private readonly addAddendum: AddAddendum,
+    private readonly getFormula: GetFormula,
   ) {}
 
   @RequirePermission('clinical:read')
@@ -55,6 +57,13 @@ export class ConsultationsController {
   @Get(':consultationId')
   get(@CurrentTeam() teamId: TeamId, @Param('consultationId') id: string): Promise<ConsultationView> {
     return this.queries.get(teamId, id);
+  }
+
+  /** The signed prescription's printable data: for the physician and for the pharmacy. */
+  @RequirePermission('clinical:read', 'pharmacy:dispense')
+  @Get(':consultationId/formula')
+  formula(@CurrentTeam() teamId: TeamId, @Param('consultationId') id: string): Promise<FormulaView> {
+    return this.getFormula.execute(teamId, id);
   }
 
   /** Opens the consultation of the appointment (or returns the one already open). */
