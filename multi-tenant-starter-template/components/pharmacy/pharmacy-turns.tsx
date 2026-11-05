@@ -20,11 +20,12 @@ export function PharmacyTurns(props: Readonly<{ teamId: string }>) {
   const [error, setError] = React.useState("");
   const [busy, setBusy] = React.useState("");
 
-  const load = React.useCallback(async () => {
+  /** `keepError`: after an action that failed, reloading must not wipe the message. */
+  const load = React.useCallback(async (keepError = false) => {
     try {
       const today = await listTurns(auth, teamId, { date: colombiaToday() });
       setTurns(today.filter((turn) => turn.origin.kind === "farmacia" && (turn.status === "en_espera" || turn.status === "anunciado")));
-      setError("");
+      if (!keepError) setError("");
     } catch (e) {
       setError(errorMessage(e));
     }
@@ -38,13 +39,14 @@ export function PharmacyTurns(props: Readonly<{ teamId: string }>) {
 
   const act = async (turn: Turn, action: typeof callTurn) => {
     setBusy(turn.id);
+    setError("");
     try {
       await action(auth, teamId, turn);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
       setBusy("");
-      await load();
+      await load(true);
     }
   };
 

@@ -5,8 +5,14 @@
 Dispensación de fórmulas médicas **firmadas**, completa o por partes, con **inventario por lotes y vencimientos**, y turnos de farmacia en la pantalla de sala.
 Rutas bajo `/api/v1/teams/:teamId/pharmacy/prescriptions`. Permiso: **`pharmacy:dispense`** (rol Farmacia).
 
-Farmacia ve **solo la fórmula** (medicamentos, dosis, vía, frecuencia, cantidades) y quién la firmó: nunca la nota
-clínica, los signos vitales ni los diagnósticos.
+Las rutas de este documento muestran a farmacia **solo la fórmula** (medicamentos, dosis, vía, frecuencia, cantidades)
+y quién la firmó: nunca la nota clínica ni los signos vitales.
+
+> **Excepción decidida (Sprint 5): la fórmula impresa lleva diagnósticos.** `GET /consultations/:id/formula` (permiso
+> `clinical:read` o `pharmacy:dispense`) devuelve los diagnósticos CIE-10, la fecha de nacimiento y la EPS del paciente,
+> porque la fórmula médica colombiana los muestra y de ella sale el PDF. Es la única vía por la que farmacia lee
+> diagnósticos; funciona con cualquier consulta **firmada y con medicamentos** de su IPS, no solo con las que tiene
+> pendientes. Nunca entrega la nota clínica ni los signos vitales. Ver [Consulta](08-consultation.md).
 
 ```
 pendiente ──entrega parcial──► parcial ──entrega del resto──► completa
@@ -50,7 +56,9 @@ pendiente ──entrega parcial──► parcial ──entrega del resto──�
 ### Dar turno
 
 `{ "windowId": "<id de una ubicación activa, p. ej. Farmacia 1>" }`. Crea el turno `FAR 1`, `FAR 2`… del día en esa
-ventanilla; se llama desde [Turnos](07-admission.md) y sale en la pantalla de sala. Uno por fórmula y día (409
+ventanilla; se llama y se atiende desde el **panel de turnos de la propia pantalla de Farmacia** (el rol Farmacia no usa
+la pantalla de Turnos: con `pharmacy:dispense` solo ve y actúa sobre turnos de farmacia, ver
+[Admisión](07-admission.md)) y sale en la pantalla de sala. Uno por fórmula y día (409
 `ALREADY_CHECKED_IN`); no si ya está completa (409 `ALREADY_DISPENSED`); ventanilla desconocida o inactiva → 404
 `WINDOW_NOT_FOUND`. El `TurnView` trae `origin: { "kind": "farmacia", "consultationId": "…" }`.
 
@@ -98,6 +106,7 @@ ventanilla; se llama desde [Turnos](07-admission.md) y sale en la pantalla de sa
 
 `pharmacy.dispensed` con `{ consultationId, status, units }`: **unidades, sin nombres de medicamentos** (el historial
 lo ven roles que no deben inferir diagnósticos). Los turnos de farmacia aparecen como `turn.*` con `consultationId`.
+Un turno de otro origen (de una cita) se ve como inexistente para farmacia: 404 `TURN_NOT_FOUND`.
 
 ## Inventario
 

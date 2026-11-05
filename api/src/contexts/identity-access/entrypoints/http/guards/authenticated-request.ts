@@ -7,4 +7,6 @@ export interface AuthenticatedRequest extends Request {
   teamId?: TeamId;
   /** Caller's role in `teamId`, set by TeamMemberGuard. */
   teamRole?: string;
+  /** Caller's permissions in `teamId`, set by PermissionGuard (so handlers need not look them up again). */
+  permissions?: readonly string[];
 }

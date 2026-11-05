@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest run",
     "api:types": "openapi-typescript ../api/openapi.json -o lib/api/schema.d.ts"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "openapi-typescript": "^7.13.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.1.0"
   }
 }

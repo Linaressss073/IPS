@@ -1,6 +1,7 @@
 import {
   applyDecorators,
   CanActivate,
+  createParamDecorator,
   ExecutionContext,
   Injectable,
   SetMetadata,
@@ -42,9 +43,16 @@ export class PermissionGuard implements CanActivate {
     if (!permissions.some((permission) => access.permissions.includes(permission))) {
       throw new PermissionDeniedError(permissions.join(' | '));
     }
+    request.permissions = access.permissions;
     return true;
   }
 }
+
+/** The caller's permissions in the route's IPS, as resolved by PermissionGuard. */
+export const CurrentPermissions = createParamDecorator(
+  (_: unknown, context: ExecutionContext) =>
+    context.switchToHttp().getRequest<AuthenticatedRequest>().permissions ?? [],
+);
 
 /** Token + membership of `:teamId` + any one of the given permissions. */
 export const RequirePermission = (...permissions: [Permission, ...Permission[]]) =>

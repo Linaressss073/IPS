@@ -201,11 +201,12 @@ describe('Admission and turns (e2e)', () => {
     await api('alice').put(`${team}/staff/carol/roles`, { roles: ['farmacia'] }).expect(200);
 
     expect((await api('carol').get(`${team}/turns`).expect(200)).body).toEqual([]);
-    expect((await api('carol').post(`${team}/turns/${turn.id}/call`, { version: 1 }).expect(403)).body.code).toBe(
-      'PERMISSION_DENIED',
+    // A clinic turn looks like a missing one: pharmacy learns nothing about it.
+    expect((await api('carol').post(`${team}/turns/${turn.id}/call`, { version: 1 }).expect(404)).body.code).toBe(
+      'TURN_NOT_FOUND',
     );
-    expect((await api('carol').post(`${team}/turns/${turn.id}/attend`, { version: 1 }).expect(403)).body.code).toBe(
-      'PERMISSION_DENIED',
+    expect((await api('carol').post(`${team}/turns/${turn.id}/attend`, { version: 1 }).expect(404)).body.code).toBe(
+      'TURN_NOT_FOUND',
     );
     // Admission still sees and calls everything.
     expect((await api('alice').get(`${team}/turns`).expect(200)).body).toHaveLength(1);
