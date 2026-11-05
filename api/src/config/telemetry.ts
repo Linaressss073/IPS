@@ -16,7 +16,11 @@ const EXPORT_INTERVAL_MS = 30_000;
 export function startTelemetry(env: NodeJS.ProcessEnv = process.env): MeterProvider | null {
   if (env.ENV === 'test' || !env.OTEL_EXPORTER_OTLP_ENDPOINT) return null;
   const provider = new MeterProvider({
-    resource: resourceFromAttributes({ 'service.name': env.OTEL_SERVICE_NAME ?? 'ips-api' }),
+    // deployment.environment becomes the `deployment_environment` label the dashboard filters by.
+    resource: resourceFromAttributes({
+      'service.name': env.OTEL_SERVICE_NAME ?? 'ips-api',
+      'deployment.environment': env.ENV ?? 'dev',
+    }),
     readers: [
       new PeriodicExportingMetricReader({ exporter: new OTLPMetricExporter(), exportIntervalMillis: EXPORT_INTERVAL_MS }),
     ],
