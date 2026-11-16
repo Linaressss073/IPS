@@ -94,6 +94,37 @@ const tagOf = (path: string): string => {
   return (segments[0] === 'teams' ? segments[2] : segments[0]) ?? 'api';
 };
 
+type Operation = NonNullable<OpenAPIObject['paths'][string]['get']>;
+
+const TEAM_PARAMETER = {
+  name: 'teamId',
+  in: 'path',
+  required: true,
+  description: 'Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.',
+  schema: { type: 'string' },
+  example: 'org_2abc…',
+} as const;
+
+/** The controllers read the IPS with @CurrentTeam(), which Nest swagger does not see: declare it here. */
+function declareTeamParameter(path: string, operation: Operation): void {
+  if (!path.includes('{teamId}')) return;
+  const parameters = operation.parameters ?? [];
+  if (parameters.some((p) => 'name' in p && p.in === 'path' && p.name === 'teamId')) return;
+  operation.parameters = [TEAM_PARAMETER, ...parameters];
+}
+
+/** The 2xx response gets the schema generated from the return type; every other outcome is an ErrorResponse. */
+function describeResponses(operation: Operation): void {
+  const id = operation.operationId ?? '';
+  const schema = RESPONSE_OVERRIDES[id] ?? (RESPONSE_SCHEMAS[id] as Schema | undefined);
+  const success = Object.entries(operation.responses).find(([status]) => status.startsWith('2'));
+  if (schema && success?.[1]) Object.assign(success[1], { content: { 'application/json': { schema } } });
+  operation.responses.default = {
+    description: 'Error',
+    content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+  };
+}
+
 function enrich(document: OpenAPIObject): void {
   document.components = {
     ...document.components,
@@ -108,26 +139,9 @@ function enrich(document: OpenAPIObject): void {
       const operation = item[method];
       if (!operation) continue;
       operation.tags = [tagOf(path)];
-      // The controllers read the IPS with @CurrentTeam(), which Nest swagger does not see: declare it here.
-      if (path.includes('{teamId}') && !operation.parameters?.some((p) => 'name' in p && p.in === 'path' && p.name === 'teamId')) {
-        (operation.parameters ??= []).unshift({
-          name: 'teamId',
-          in: 'path',
-          required: true,
-          description: 'Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.',
-          schema: { type: 'string' },
-          example: 'org_2abc…',
-        });
-      }
+      declareTeamParameter(path, operation);
       if (PUBLIC_ROUTES.some((route) => path.endsWith(route))) operation.security = [];
-      const id = operation.operationId ?? '';
-      const schema = RESPONSE_OVERRIDES[id] ?? (RESPONSE_SCHEMAS[id] as Schema | undefined);
-      const success = Object.entries(operation.responses).find(([status]) => status.startsWith('2'));
-      if (schema && success?.[1]) Object.assign(success[1], { content: { 'application/json': { schema } } });
-      operation.responses.default = {
-        description: 'Error',
-        content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
-      };
+      describeResponses(operation);
     }
   }
 }

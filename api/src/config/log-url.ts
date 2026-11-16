@@ -6,6 +6,7 @@
 export function logUrl(url = ''): string {
   const at = url.indexOf('?');
   if (at < 0) return url;
-  const keys = [...new URLSearchParams(url.slice(at + 1)).keys()];
-  return keys.length ? `${url.slice(0, at)}?${keys.map((key) => `${key}=***`).join('&')}` : url.slice(0, at);
+  const path = url.slice(0, at);
+  const hidden = [...new URLSearchParams(url.slice(at + 1)).keys()].map((key) => `${key}=***`).join('&');
+  return hidden ? `${path}?${hidden}` : path;
 }

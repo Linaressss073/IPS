@@ -106,10 +106,12 @@ export async function buildFormulaPdf(f: Formula): Promise<Uint8Array> {
 
   // Patient.
   const { patient } = f;
+  const regime = patient.regime.charAt(0).toUpperCase() + patient.regime.slice(1);
+  const eps = patient.eps ? ` - EPS: ${patient.eps}` : "";
   const patientLines = [
     `Nombre: ${patient.fullName}`,
     `Identificación: ${patient.document.type} ${patient.document.number} - Sexo: ${SEX[patient.sex]} - Edad: ${ageAt(patient.birthDate, f.signedAt)} años`,
-    `Tipo de usuario: ${patient.regime.charAt(0).toUpperCase()}${patient.regime.slice(1)}${patient.eps ? ` - EPS: ${patient.eps}` : ""}`,
+    `Tipo de usuario: ${regime}${eps}`,
   ];
   patientLines.forEach((line) => {
     draw(line, M, y);
@@ -133,7 +135,8 @@ export async function buildFormulaPdf(f: Formula): Promise<Uint8Array> {
   const textWidth = CONTENT - QTY_COL - 12;
   f.prescription.forEach((item, index) => {
     const route = ROUTES[item.route ?? "oral"] ?? item.route;
-    const how = `Tomar (vía ${route}) ${item.dose} ${item.frequency} por ${item.durationDays} día(s)${item.instructions ? `. ${item.instructions}` : ""}`;
+    const extra = item.instructions ? `. ${item.instructions}` : "";
+    const how = `Tomar (vía ${route}) ${item.dose} ${item.frequency} por ${item.durationDays} día(s)${extra}`;
     const head = wrap(`${index + 1}. ${item.medication} ${item.presentation}`, textWidth, 9, bold);
     const body = wrap(how, textWidth, 8);
     const amount = wrap(

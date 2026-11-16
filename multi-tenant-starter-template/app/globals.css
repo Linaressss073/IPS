@@ -95,13 +95,24 @@
   top: 0;
   left: 0;
   box-sizing: border-box;
-  animation: animloader 1s linear infinite;
   @apply bg-primary;
+}
+
+/* With "reduce motion" the bar stays still (a static segment) instead of sweeping. */
+@media (prefers-reduced-motion: no-preference) {
+  .loader::after {
+    animation: animloader 1s linear infinite;
+  }
 }
 
 @media (min-width: 800px) {
   .loader::after {
     width: 20%;
+  }
+}
+
+@media (min-width: 800px) and (prefers-reduced-motion: no-preference) {
+  .loader::after {
     animation: animloader 2s linear infinite;
   }
 }
