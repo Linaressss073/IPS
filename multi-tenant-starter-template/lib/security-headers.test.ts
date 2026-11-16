@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { clerkHost, contentSecurityPolicy, securityHeaders } from "./security-headers.mjs";
 
-const key = (host: string) => `pk_test_${Buffer.from(`${host}$`).toString("base64")}`;
+const key = (host: string) => "pk_test_" + Buffer.from(host + "$").toString("base64");
 
 describe("clerkHost", () => {
   it("reads the frontend API host from the publishable key", () => {
