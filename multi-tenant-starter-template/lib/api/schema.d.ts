@@ -500,6 +500,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/teams/{teamId}/clinical-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ClinicalAccessController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations/{teamId}": {
         parameters: {
             query?: never;
@@ -779,6 +795,16 @@ export interface components {
             announceIntervalSeconds: number;
             maxCalls: number;
         };
+        /** @enum {string} */
+        ClinicalAccessKind: "consulta" | "historia" | "formula";
+        /** @description Who opened clinical data and when. Never any clinical content. */
+        ClinicalAccessView: {
+            userId: string;
+            displayName: string;
+            kind: components["schemas"]["ClinicalAccessKind"];
+            consultationId: string | null;
+            at: string;
+        };
         /** @description One companion of the patient's history; `number` grows with each one. */
         CompanionView: {
             number: number;
@@ -1005,7 +1031,7 @@ export interface components {
             updatedAt: string;
         };
         /** @enum {string} */
-        Permission: "patients:read" | "patients:write" | "appointments:read" | "appointments:manage" | "admission:manage" | "turns:call" | "clinical:read" | "clinical:write" | "pharmacy:dispense" | "settings:manage" | "staff:manage" | "room:view";
+        Permission: "patients:read" | "patients:write" | "appointments:read" | "appointments:manage" | "admission:manage" | "turns:call" | "clinical:read" | "clinical:write" | "pharmacy:dispense" | "settings:manage" | "staff:manage" | "audit:read" | "room:view";
         /** @description A signed prescription (as the pharmacy may see it) and what was delivered of it. */
         PharmacyPrescriptionView: {
             consultationId: string;
@@ -2735,6 +2761,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsultationView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ClinicalAccessController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
+                 * @example org_2abc…
+                 */
+                teamId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClinicalAccessView"][];
                 };
             };
             /** @description Error */

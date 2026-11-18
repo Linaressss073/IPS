@@ -21,6 +21,7 @@ import {
   UpdateConsultation,
 } from '../../application/commands/consultation.commands.js';
 import {
+  CLINICAL_ACCESS_LOG,
   CONSULTATION_APPOINTMENTS,
   CONSULTATION_NAMES,
   CONSULTATION_READ_MODEL,
@@ -28,14 +29,17 @@ import {
   CONSULTATION_TEAM_MEMBERS,
 } from '../../application/constants/consultation.tokens.js';
 import type {
+  ClinicalAccessLog,
   ConsultationAppointments,
   ConsultationNames,
   ConsultationReadModel,
   ConsultationRepository,
 } from '../../application/ports/consultation.ports.js';
+import { ClinicalAccessAudit } from '../../application/queries/clinical-access.audit.js';
 import { ConsultationQueries } from '../../application/queries/consultation.queries.js';
 import { GetFormula } from '../../application/queries/formula.query.js';
 import { PrescriptionQueries } from '../../application/queries/prescription.queries.js';
+import { MongoClinicalAccessLog } from '../persistence/mongo-clinical-access.js';
 import {
   MongoConsultationReadModel,
   MongoConsultationRepository,
@@ -104,6 +108,17 @@ export const consultationProviders: Provider[] = [
     provide: CONSULTATION_READ_MODEL,
     inject: [MONGO_DB],
     useFactory: (db: Db) => new MongoConsultationReadModel(db),
+  },
+  {
+    provide: CLINICAL_ACCESS_LOG,
+    inject: [MONGO_DB],
+    useFactory: (db: Db) => new MongoClinicalAccessLog(db),
+  },
+  {
+    provide: ClinicalAccessAudit,
+    inject: [CLINICAL_ACCESS_LOG, CONSULTATION_READ_MODEL, CONSULTATION_NAMES, CLOCK],
+    useFactory: (log: ClinicalAccessLog, readModel: ConsultationReadModel, names: ConsultationNames, clock: Clock) =>
+      new ClinicalAccessAudit(log, readModel, names, clock),
   },
   {
     provide: ConsultationQueries,

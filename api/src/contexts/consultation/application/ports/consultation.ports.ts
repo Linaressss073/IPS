@@ -1,7 +1,7 @@
 import { TraceEvent } from '../../../../shared/application/index.js';
 import { TeamId } from '../../../../shared/domain/index.js';
 import { AppointmentSnapshot, Consultation, ConsultationId } from '../../domain/entities/consultation.entity.js';
-import { ConsultationView, PrescriptionView } from '../types/consultation.types.js';
+import { ClinicalAccessKind, ConsultationView, PrescriptionView } from '../types/consultation.types.js';
 
 /** Port (write side); every write stores its trace events atomically. */
 export interface ConsultationRepository {
@@ -37,4 +37,19 @@ export interface ConsultationAppointments {
 export interface ConsultationNames {
   patients(teamId: TeamId, ids: readonly string[]): Promise<Map<string, { fullName: string; document: { type: string; number: string } }>>;
   staff(ids: readonly string[]): Promise<Map<string, string>>;
+}
+
+export interface ClinicalAccessEntry {
+  patientId: string;
+  consultationId: string | null;
+  userId: string;
+  kind: ClinicalAccessKind;
+  at: Date;
+}
+
+/** Port: the log of who read clinical data (reads leave a trace, like writes do). */
+export interface ClinicalAccessLog {
+  record(teamId: TeamId, entries: readonly ClinicalAccessEntry[]): Promise<void>;
+  /** Newest first. */
+  list(teamId: TeamId, patientId: string, limit: number): Promise<ClinicalAccessEntry[]>;
 }

@@ -2181,6 +2181,51 @@
         ]
       }
     },
+    "/api/v1/teams/{teamId}/clinical-access": {
+      "get": {
+        "operationId": "ClinicalAccessController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "description": "Id de la IPS (organización de Clerk). Con el auth \"team\" de Authorize se rellena solo.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "org_2abc…"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClinicalAccessView"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "clinical-access"
+        ]
+      }
+    },
     "/api/v1/organizations/{teamId}": {
       "get": {
         "operationId": "OrganizationsController_get",
@@ -3374,6 +3419,44 @@
         ],
         "additionalProperties": false
       },
+      "ClinicalAccessKind": {
+        "type": "string",
+        "enum": [
+          "consulta",
+          "historia",
+          "formula"
+        ]
+      },
+      "ClinicalAccessView": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ClinicalAccessKind"
+          },
+          "consultationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "displayName",
+          "kind",
+          "consultationId",
+          "at"
+        ],
+        "additionalProperties": false,
+        "description": "Who opened clinical data and when. Never any clinical content."
+      },
       "CompanionView": {
         "type": "object",
         "properties": {
@@ -4346,6 +4429,7 @@
           "pharmacy:dispense",
           "settings:manage",
           "staff:manage",
+          "audit:read",
           "room:view"
         ]
       },

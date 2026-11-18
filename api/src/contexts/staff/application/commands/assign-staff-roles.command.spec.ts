@@ -42,6 +42,7 @@ describe('Permissions matrix', () => {
       'admission:manage',
       'settings:manage',
       'staff:manage',
+      'audit:read',
       'room:view',
     ]);
     // The waiting-room TV only shows the screen.

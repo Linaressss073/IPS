@@ -7,7 +7,9 @@ import { OrganizationsModule } from '../organizations/organizations.module.js';
 import { PatientsModule } from '../patients/patients.module.js';
 import { SchedulingModule } from '../scheduling/scheduling.module.js';
 import { StaffModule } from '../staff/staff.module.js';
+import { ClinicalAccessController } from './entrypoints/http/controllers/clinical-access.controller.js';
 import { ConsultationsController } from './entrypoints/http/controllers/consultations.controller.js';
+import { ensureClinicalAccessIndexes } from './infrastructure/persistence/mongo-clinical-access.js';
 import { ensureConsultationIndexes } from './infrastructure/persistence/mongo-consultation.js';
 import { consultationProviders } from './infrastructure/providers/consultation.providers.js';
 import { PrescriptionQueries } from './application/queries/prescription.queries.js';
@@ -20,7 +22,7 @@ import { PrescriptionQueries } from './application/queries/prescription.queries.
  */
 @Module({
   imports: [IdentityAccessModule, OrganizationsModule, PatientsModule, SchedulingModule, StaffModule],
-  controllers: [ConsultationsController],
+  controllers: [ConsultationsController, ClinicalAccessController],
   providers: consultationProviders,
   // Public query for the pharmacy: prescriptions only.
   exports: [PrescriptionQueries],
@@ -33,5 +35,6 @@ export class ConsultationModule implements OnModuleInit {
 
   onModuleInit(): void {
     this.connection.afterConnect('consultation indexes', () => ensureConsultationIndexes(this.db));
+    this.connection.afterConnect('clinical access indexes', () => ensureClinicalAccessIndexes(this.db));
   }
 }

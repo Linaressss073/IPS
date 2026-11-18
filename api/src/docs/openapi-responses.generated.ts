@@ -301,6 +301,44 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
     ],
     "additionalProperties": false
   },
+  "ClinicalAccessKind": {
+    "type": "string",
+    "enum": [
+      "consulta",
+      "historia",
+      "formula"
+    ]
+  },
+  "ClinicalAccessView": {
+    "type": "object",
+    "properties": {
+      "userId": {
+        "type": "string"
+      },
+      "displayName": {
+        "type": "string"
+      },
+      "kind": {
+        "$ref": "#/components/schemas/ClinicalAccessKind"
+      },
+      "consultationId": {
+        "type": "string",
+        "nullable": true
+      },
+      "at": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "userId",
+      "displayName",
+      "kind",
+      "consultationId",
+      "at"
+    ],
+    "additionalProperties": false,
+    "description": "Who opened clinical data and when. Never any clinical content."
+  },
   "CompanionView": {
     "type": "object",
     "properties": {
@@ -1273,6 +1311,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "pharmacy:dispense",
       "settings:manage",
       "staff:manage",
+      "audit:read",
       "room:view"
     ]
   },
@@ -2146,6 +2185,12 @@ export const RESPONSE_SCHEMAS: Record<string, object> = {
       "received"
     ],
     "additionalProperties": false
+  },
+  "ClinicalAccessController_list": {
+    "type": "array",
+    "items": {
+      "$ref": "#/components/schemas/ClinicalAccessView"
+    }
   },
   "ConsultationsController_addendum": {
     "$ref": "#/components/schemas/ConsultationView"

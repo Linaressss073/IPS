@@ -81,3 +81,16 @@ export interface FormulaView {
   diagnoses: DiagnosisProps[];
   prescription: PrescriptionItemProps[];
 }
+
+/** What was opened: a consultation, a patient's whole history, or a signed prescription. */
+export const CLINICAL_ACCESS_KINDS = ['consulta', 'historia', 'formula'] as const;
+export type ClinicalAccessKind = (typeof CLINICAL_ACCESS_KINDS)[number];
+
+/** Who opened clinical data and when. Never any clinical content. */
+export interface ClinicalAccessView {
+  userId: string;
+  displayName: string;
+  kind: ClinicalAccessKind;
+  consultationId: string | null;
+  at: string;
+}
