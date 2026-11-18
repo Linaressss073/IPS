@@ -24,7 +24,7 @@ Los datos de una consulta externa (identidad del paciente, diagnósticos, fórmu
 |---|---|---|
 | Solo entra quien se identificó | Autenticación con Clerk: la API valida el token firmado y su origen autorizado (`azp`) en cada petición | e2e: «rejects requests without a valid token» |
 | **Cada IPS ve solo sus datos** (multiinquilino) | Toda colección se consulta por `teamId`; el `teamId` de la ruta debe coincidir con la membresía de quien llama | e2e: «hides patients and timelines of other teams» |
-| **Mínimo privilegio** | Matriz de permisos por rol (administración, agendamiento, admisión, médico, farmacia, soporte, TV): 12 permisos, cada endpoint exige uno | Prueba unitaria de la matriz; e2e de roles |
+| **Mínimo privilegio** | Matriz de permisos por rol (administración, agendamiento, admisión, médico, farmacia, soporte, TV): 13 permisos, cada endpoint exige uno | Prueba unitaria de la matriz; e2e de roles |
 | **Reserva de la historia clínica** | `clinical:read` y `clinical:write` solo para el rol médico: **ni los administradores leen la historia clínica**; solo el médico de la cita escribe la consulta (`NOT_THE_TREATING_PHYSICIAN`) | Prueba unitaria de la matriz |
 | La farmacia solo ve lo suyo | Llama solo turnos de origen «farmacia», con `pharmacy:dispense` | e2e de farmacia |
 | **Quién leyó la historia queda registrado** | Abrir una consulta, el historial de un paciente o una fórmula guarda quién y cuándo (`clinical_access`, sin contenido clínico); si el registro falla, la lectura falla. Solo administración (`audit:read`) lo consulta | e2e: «logs who opens clinical data…» y «leaves no trace when the access is denied» |

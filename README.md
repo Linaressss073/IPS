@@ -70,6 +70,6 @@ web ─────────────────────────�
   rojo no llega a producción. **La Pi no tiene ese freno**: `deploy/pi/deploy.sh` es manual, así que se ejecuta solo con el CI de `main` en verde.
 - Las acciones de GitHub van fijadas por SHA de commit.
 
-Evidencia de calidad: [`docs/`](docs/README.md) (pruebas y cobertura, validación con usuarios, seguridad y protección de datos).
+Evidencia de calidad: [`docs/`](docs/README.md) (pruebas y cobertura, validación con usuarios, seguridad y protección de datos) y la [demo interactiva](docs/demo/IPS-proyecto.html) (un solo archivo HTML, se abre sin internet).
 
 Backlog y sprints: [`.epics/`](.epics/README.md) (tablero en Jira, proyecto IPS).
