@@ -38,6 +38,8 @@ export interface MailEnv {
   from: string;
   /** null in prod (any recipient); elsewhere the only addresses that get mail. */
   devAllow: string[] | null;
+  /** Prod over STARTTLS (port 587) must not fall back to plain text if the server stops offering TLS. */
+  requireTls: boolean;
 }
 
 const REQUIRED = ['MONGO_URL', 'CLERK_SECRET_KEY'] as const;
@@ -85,10 +87,12 @@ function mailEnv(raw: Record<string, string | undefined>): MailEnv | undefined {
     throw new Error(`MAIL_HOST is set, so also set: ${missing.join(', ')}`);
   }
   const port = Number(raw.MAIL_PORT ?? 465);
+  const secure = raw.MAIL_SECURE ? raw.MAIL_SECURE === 'true' : port === 465;
   return {
     host: raw.MAIL_HOST,
     port,
-    secure: raw.MAIL_SECURE ? raw.MAIL_SECURE === 'true' : port === 465,
+    secure,
+    requireTls: raw.ENV === 'prod' && !secure,
     user: raw.MAIL_USER!,
     pass: raw.MAIL_PASS!,
     from: raw.MAIL_FROM!,

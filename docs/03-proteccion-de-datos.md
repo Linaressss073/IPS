@@ -46,12 +46,12 @@ Los datos de una consulta externa (identidad del paciente, diagnósticos, fórmu
 
 ### 2.4 Transporte, perímetro y secretos
 
-- **HTTPS** en Render; la API envía `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy` y no expone `x-powered-by` (`helmet`).
+- **HTTPS** por el túnel de Cloudflare (los puertos de la Pi solo escuchan en `127.0.0.1`); la API envía `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy` y no expone `x-powered-by` (`helmet`).
 - **La web** aplica una política de seguridad de contenido (CSP), `X-Frame-Options` y demás cabeceras desde `next.config.mjs` (prueba: `security-headers.test.ts`).
 - **Límite de peticiones** por cliente (429) contra abuso y fuerza bruta.
 - **CORS** restringido a los orígenes del frontend configurados.
 - **Webhooks de Clerk:** se rechazan si la firma sobre el cuerpo crudo no es válida; el cuerpo no se registra.
-- **Sin secretos en el repositorio:** no hay archivos `.env`; los valores vienen de variables del entorno (Render). SonarCloud: 0 vulnerabilidades y 0 *security hotspots*; las acciones de CI están fijadas por SHA.
+- **Sin secretos en el repositorio:** no hay archivos `.env`; los valores vienen del `.env` de la Pi (permisos 600, fuera del repositorio) o del entorno. SonarCloud: 0 vulnerabilidades y 0 *security hotspots*; las acciones de CI están fijadas por SHA.
 - **Errores uniformes:** el cliente recibe `code` y mensaje sin trazas internas ni detalles de la base.
 
 ### 2.5 Registros (logs) sin datos de salud

@@ -10,7 +10,7 @@ Cuánto tiempo se guardan los datos, quién responde por ellos, qué pasa cuando
 |---|---|---|
 | **Responsable del tratamiento** | Cada IPS (organización en Clerk) | Decide para qué y por cuánto tiempo se usan los datos; recoge la autorización del paciente; atiende sus solicitudes |
 | **Encargado del tratamiento** | Quien opera el sistema | Trata los datos solo según las instrucciones de la IPS; aplica los controles de seguridad del documento 03 |
-| **Subencargados (proveedores)** | Render (API y web), MongoDB Atlas (base de datos), Clerk (identidad), Grafana Cloud (logs sin datos de salud) | Alojan o procesan datos por cuenta del encargado; se verifican sus condiciones antes de usar datos reales |
+| **Subencargados (proveedores)** | Raspberry Pi propia con Cloudflare (API y web; no guarda datos), MongoDB Atlas (base de datos), Clerk (identidad), Spacemail (correo), Grafana Cloud (logs sin datos de salud) | Alojan o procesan datos por cuenta del encargado; se verifican sus condiciones antes de usar datos reales |
 
 ## 2. Conservación
 
@@ -47,14 +47,14 @@ Cada solicitud y su respuesta se registran fuera del sistema por la IPS (por aho
 |---|---|---|
 | Base de datos (todas las colecciones) | Copias del proveedor en MongoDB Atlas (instantáneas programadas). **Verificar en la consola que el nivel del clúster las incluya**; los clústeres gratuitos no las ofrecen y requieren `mongodump` manual | Por confirmar en Atlas |
 | Identidad (usuarios, organizaciones, membresías) | Clerk es la fuente; la API se reconcilia sola al arrancar y cada 10 minutos (`pnpm clerk:sync` carga todo de nuevo) | Implementado |
-| Configuración del despliegue | `render.yaml` y variables de entorno en Render; los secretos no están en el repositorio | Implementado (guardar copia de los secretos en un gestor de contraseñas) |
+| Configuración del despliegue | `deploy/pi/` (compose y script) y el `.env` de la Pi; los secretos no están en el repositorio | Implementado (guardar copia de los secretos en un gestor de contraseñas) |
 | Código | GitHub | Implementado |
 
 ### Procedimiento de restauración
 
 1. Declarar el incidente y avisar a las IPS (quién: el encargado; en el mismo día).
 2. En MongoDB Atlas, restaurar la instantánea más reciente en un clúster nuevo (o, sin instantáneas, `mongorestore` de la última copia de `mongodump`).
-3. Cambiar `MONGO_URL` (y `MONGO_DB_NAME` si cambió) en las variables de Render y reiniciar la API.
+3. Cambiar `MONGO_URL` (y `MONGO_DB_NAME` si cambió) en el `.env` de la Pi y recrear el contenedor (`docker compose up -d --force-recreate api`).
 4. Ejecutar `pnpm clerk:sync` para reconciliar personal e IPS con Clerk.
 5. Comprobar `GET /api/v1/health` (`database: up`) y abrir un paciente, su historial y una consulta de prueba en la organización DEV.
 6. Revisar `trace_events`: al ser solo de agregar, permite reconstruir el estado de un paciente si su documento se perdió (se hizo una vez en la migración desde PostgreSQL, con `api/src/scripts/recover-from-timeline.ts`).

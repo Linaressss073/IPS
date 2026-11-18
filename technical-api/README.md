@@ -24,9 +24,9 @@ Todas las rutas cuelgan del prefijo **`/api/v1`**.
 | Entorno | URL base |
 |---|---|
 | Local (`ENV=dev`) | `http://localhost:3001/api/v1` |
-| Producción (Render, `ENV=prod`) | `https://ips-api-3404.onrender.com/api/v1` |
+| Producción (Raspberry Pi + Cloudflare, `ENV=prod`) | `https://ips-api.devrojas.xyz/api/v1` |
 
-> En el plan gratuito de Render el servicio se duerme tras ~15 min sin uso: la primera petición puede tardar 30-60 s.
+> La API ya no está en el plan gratuito de Render (se suspendió el 17-nov-2026 al agotar las horas): corre siempre encendida en la Raspberry Pi.
 
 ## Resumen de endpoints
 

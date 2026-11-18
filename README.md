@@ -33,15 +33,18 @@ pnpm dev
 Los detalles (arquitectura, tests) están en el README de cada carpeta; la referencia de **todos los endpoints**
 está en [`technical-api/`](technical-api/README.md).
 
-## Despliegue (Render)
+## Despliegue
 
-[`render.yaml`](render.yaml) es un *Blueprint* de Render: en **New → Blueprint** se elige este repositorio y crea
-`ips-api` y `ips-web` en el proyecto *Practica / Production*. La única base es MongoDB Atlas (`MONGO_URL`). Solo
-pide los secretos (las llaves de Clerk y `MONGO_URL`); la API crea sus índices al arrancar.
+**Producción:** una Raspberry Pi con Docker Compose, publicada por un túnel de Cloudflare: web en <https://ips.devrojas.xyz> y API en
+<https://ips-api.devrojas.xyz/api/v1> (Swagger en [`/api/v1/docs`](https://ips-api.devrojas.xyz/api/v1/docs); salud en `/health`).
+La única base es MongoDB Atlas (`MONGO_URL`), así que la Pi no guarda datos. Guía completa, variables y pasos en
+[`deploy/pi/`](deploy/pi/README.md). El despliegue es **manual** (`deploy/pi/deploy.sh`) y se hace con el CI de `main` en verde.
 
-Documentación interactiva de la API (Swagger): [`/api/v1/docs`](https://ips-api-3404.onrender.com/api/v1/docs); detalles en [`api/README.md`](api/README.md#documentación-interactiva-swagger--openapi).
+**Alternativa en Render:** [`render.yaml`](render.yaml) es un *Blueprint* (en **New → Blueprint** se elige este repositorio y crea
+`ips-api` y `ips-web`). El plan gratuito se agotó y suspendió la API el 17-nov-2026 (ver abajo); por eso la producción pasó a la Pi.
+Detalles de la API en [`api/README.md`](api/README.md#documentación-interactiva-swagger--openapi).
 
-### Que la API no se duerma (plan gratuito)
+### Solo si se usa Render: que la API no se duerma (plan gratuito)
 
 Render duerme los servicios gratuitos tras 15 minutos sin tráfico (la primera petición tarda 30-60 s). Un monitor de
 [UptimeRobot](https://uptimerobot.com) (plan gratuito) mantiene despierta la API:
@@ -69,8 +72,8 @@ web ─────────────────────────�
 - **e2e**: MongoDB desechable con Testcontainers (requiere Docker en local; en GitHub ya viene).
 - **SonarQube Cloud**: calidad y cobertura (secreto `SONAR_TOKEN`; con el análisis automático del proyecto desactivado).
   Configuración en [`sonar-project.properties`](sonar-project.properties).
-- **Render** despliega solo cuando pasan los checks (`autoDeployTrigger: checksPass` en `render.yaml`): un commit con el CI en
-  rojo no llega a producción.
+- **Render** (alternativa) despliega solo cuando pasan los checks (`autoDeployTrigger: checksPass` en `render.yaml`): un commit con el CI en
+  rojo no llega a producción. **La Pi no tiene ese freno**: `deploy/pi/deploy.sh` es manual, así que se ejecuta solo con el CI de `main` en verde.
 - Las acciones de GitHub van fijadas por SHA de commit.
 
 Evidencia de calidad: [`docs/`](docs/README.md) (pruebas y cobertura, validación con usuarios, seguridad y protección de datos).

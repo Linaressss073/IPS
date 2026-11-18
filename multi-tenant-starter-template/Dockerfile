@@ -15,11 +15,14 @@ ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY \
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 RUN --mount=type=secret,id=clerk_secret,required=false \
     CLERK_SECRET_KEY="$(cat /run/secrets/clerk_secret 2>/dev/null)" pnpm build
+# Runtime needs no build tools: drop the dev dependencies after building.
+RUN pnpm prune --prod
 
 FROM node:24-slim
 ENV NODE_ENV=production
 WORKDIR /app
-COPY --from=build /app ./
+# Owned by `node`: next start writes its image cache under .next/cache.
+COPY --from=build --chown=node:node /app ./
 USER node
 EXPOSE 3000
 CMD ["node_modules/.bin/next", "start"]

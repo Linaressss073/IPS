@@ -1,5 +1,6 @@
 # Raspberry Pi: copiar a ~/docker/b2b junto con .env (ver .env.example). Solo escucha en 127.0.0.1:
-# Tailscale Funnel lo publica (web 443, API 8443). 3000/3001 los usan Homepage y Uptime Kuma.
+# lo publica el tunel de Cloudflare (perfil `tunnel`: ips.devrojas.xyz y ips-api.devrojas.xyz) o, como
+# alternativa, Tailscale Funnel. 3000/3001 los usan Homepage y Uptime Kuma.
 services:
   api:
     container_name: b2b-api

@@ -26,8 +26,8 @@ export class SmtpMailer implements Mailer {
       await this.transport.sendMail({ from: this.from, ...message, to });
       return true;
     } catch (error) {
-      // No recipient or body in the log: both can be patient data.
-      this.logger.error(`Email not sent: ${error instanceof Error ? error.message : 'unknown error'}`);
+      // Only the codes: the message of a rejection usually repeats the recipient, which is patient data.
+      this.logger.error(`Email not sent: ${errorCodes(error)}`);
       return false;
     }
   }
@@ -38,4 +38,13 @@ export class DisabledMailer implements Mailer {
   async send(): Promise<boolean> {
     return false;
   }
+}
+
+/** `EAUTH 535`-style summary; anything that is not a short code is dropped. */
+function errorCodes(error: unknown): string {
+  const { code, responseCode } = (error ?? {}) as { code?: unknown; responseCode?: unknown };
+  const safe = [code, responseCode]
+    .map(String)
+    .filter((value) => /^[A-Z0-9_]{1,40}$/.test(value));
+  return safe.length > 0 ? safe.join(' ') : 'UNKNOWN';
 }
