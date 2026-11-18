@@ -22,6 +22,11 @@ Dos cosas que decir si preguntan: la web usa la instancia de **producción** de 
 4. Ensayar una vez el recorrido de la sección 3 y dejar abiertas: Swagger (`/api/v1/docs`), GitHub Actions, SonarCloud y las capturas de Clerk.
 5. Mostrar Grafana solo si ya tiene datos (la API de la Pi envía métricas si su `.env` tiene las variables `OTEL_*`).
 
+**Datos de demostración ya creados en producción** (18-nov-2026, organización «Productivo test», todo ficticio): IPS con NIT de ejemplo, servicio Medicina general (MG), Consultorio 301, pacientes *Ana María Prueba Demo* (con autorización de datos) y *Carlos Ejemplo Demo* (sin autorización, para mostrar el aviso), una agenda del 18-nov, una consulta firmada con fórmula y una fórmula entregada en dos partes. El usuario administrador tiene además los roles Agendamiento, Admisión, Médico y Farmacia. Las capturas del recorrido están en la [demo interactiva](demo/IPS-proyecto.html#recorrido).
+
+- **Las agendas son por día:** para la demo del 19-nov abrir una agenda nueva (por ejemplo de 16:00 a 18:00) y repetir el flujo, unos 10 minutos. Los pacientes ya existen.
+- **Paso 7 (permiso denegado):** hace falta un usuario sin el rol Médico. Lo más rápido es quitarte el rol Médico en «Personal», mostrar que no abre la consulta y volver a asignarlo.
+
 ### Opción B: demo local (respaldo, 30 min)
 
 Requisitos: Docker Desktop abierto y sesión en Clerk.

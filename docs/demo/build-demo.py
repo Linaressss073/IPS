@@ -5,7 +5,7 @@ Uso (desde la raiz del repo):  python docs/demo/build-demo.py
 Los numeros de pruebas y cobertura se actualizan a mano en CIFRAS (salen de `pnpm test`, `pnpm test:e2e`, `pnpm test` del frontend y SonarCloud);
 los commits por semana se calculan de git.
 """
-import base64, colorsys, datetime, os, subprocess, sys
+import base64, colorsys, datetime, json, os, subprocess, sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT = os.path.join(os.path.dirname(__file__), 'IPS-proyecto.html')
@@ -233,6 +233,23 @@ pre { font-family: var(--mono); font-size: 13.5px; background: #0B1622; color: #
 .capa ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 14.5px; color: #E2E9F0; }
 .capa li::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--blue); border-radius: 2px; margin-right: 8px; vertical-align: 2px; }
 
+/* Visor del recorrido */
+.rec { display: grid; grid-template-columns: 290px 1fr; gap: 22px; background: var(--ink); color: #fff; border-radius: 18px; padding: 20px; margin-top: 22px; }
+.caps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; align-content: start; counter-reset: c; }
+.caps button { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; color: #D5DEE8; }
+.caps button::before { counter-increment: c; content: counter(c); font-family: var(--mono); font-size: 12.5px; color: var(--greenl); padding-top: 2px; }
+.caps button:hover { background: rgba(255,255,255,.07); }
+.caps button[aria-current="step"] { background: rgba(60,200,140,.18); color: #fff; font-weight: 700; }
+.caps button:focus-visible { outline: 3px solid var(--amber); outline-offset: 1px; }
+.vista img { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); display: block; background: #0B1622; }
+.vista .txt { margin-top: 14px; min-height: 92px; }
+.vista .txt b { display: block; font-size: 19px; margin-bottom: 4px; }
+.vista .txt p { color: #C3CFDB; margin: 0; max-width: 78ch; }
+.ctl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+.ctl button { font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.28); background: transparent; color: #fff; cursor: pointer; }
+.ctl button[aria-pressed="true"] { background: var(--greenl); border-color: var(--greenl); color: var(--ink); }
+.ctl small { margin-left: auto; color: #A9B8C8; }
+@media (max-width: 860px) { .rec { grid-template-columns: 1fr; } .caps { grid-template-columns: 1fr 1fr; } }
 footer { background: var(--ink); color: #A9B8C8; padding: 26px 0; font-size: 14px; }
 code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding: 1px 6px; border-radius: 5px; }
 .dark code { background: rgba(255,255,255,.1); }
@@ -245,7 +262,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
 <nav class="nav" aria-label="Secciones">
   <div class="wrap">
     <b>IPS <i>Consulta Externa</i></b>
-    <a href="#docente">Observaciones</a><a href="#demo">Demo</a><a href="#pruebas">Pruebas</a><a href="#validacion">Validación</a>
+    <a href="#docente">Observaciones</a><a href="#demo">Demo</a><a href="#recorrido">Recorrido</a><a href="#pruebas">Pruebas</a><a href="#validacion">Validación</a>
     <a href="#seguridad">Seguridad</a><a href="#entrega">Entrega</a><a href="#arquitectura">Arquitectura</a><a href="#estado">Estado</a>
   </div>
 </nav>
@@ -343,6 +360,29 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
       <li><span class="chip rol">Seguridad</span><b>Agendamiento intenta abrir una consulta: denegado. Administración abre el registro de accesos</b><span>Mínimo privilegio y trazabilidad de lecturas: quién abrió qué y cuándo, sin contenido clínico.</span></li>
       <li><span class="chip rol">Terminal</span><b>Ejecutar <code>bash deploy/pi/smoke-test.sh</code> (≈ 40 s)</b><span>@@SMOKE@@ pruebas de seguridad de solo lectura contra producción, en vivo.</span></li>
     </ol>
+  </div>
+</section>
+
+<section id="recorrido" style="padding-top:0">
+  <div class="wrap">
+    <span class="eti">Producción, de punta a punta</span>
+    <h2>El recorrido real: de la apertura de la IPS a la entrega de la fórmula</h2>
+    <p class="lead">Se ejecutó en <b>ips.devrojas.xyz</b> el 18 de noviembre de 2026, con datos ficticios en una organización de prueba. Elige un capítulo, recórrelo con las flechas o reprodúcelo solo.</p>
+    <div class="rec">
+      <ol class="caps" id="rec-caps" aria-label="Capítulos del recorrido"></ol>
+      <div class="vista">
+        <img id="rec-img" alt="">
+        <img id="rec-gif" alt="Recorrido animado de producción: admisión, turnos, consulta y farmacia" hidden src="@@GIF@@">
+        <div class="txt" aria-live="polite"><b id="rec-t"></b><p id="rec-d"></p></div>
+        <div class="ctl">
+          <button type="button" id="rec-prev">‹ Anterior</button>
+          <button type="button" id="rec-play" aria-pressed="false">▶ Reproducir</button>
+          <button type="button" id="rec-next">Siguiente ›</button>
+          <button type="button" id="rec-gifbtn" aria-pressed="false">Ver animado</button>
+          <small id="rec-pos"></small>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -528,7 +568,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
     <span class="eti">Sin adornos</span>
     <h2>Qué está listo y qué falta</h2>
     <div class="cards">
-      <div class="card"><span class="chip ok">Listo</span><ul><li>Flujo completo: registrar, agendar, admitir, llamar, consultar, firmar y dispensar</li><li>Roles, aislamiento por IPS y registro de lecturas</li><li>Autorización del titular y política de conservación (Res. 1995/1999)</li><li>Producción con Clerk de producción, HTTPS y Grafana</li><li>CI, Sonar y @@SMOKE@@ pruebas de seguridad</li></ul></div>
+      <div class="card"><span class="chip ok">Listo</span><ul><li>Flujo completo ejecutado en producción el 18-nov-2026 con datos ficticios: registrar, agendar, admitir, llamar, consultar, firmar y dispensar</li><li>Roles, aislamiento por IPS y registro de lecturas</li><li>Autorización del titular y política de conservación (Res. 1995/1999)</li><li>Producción con Clerk de producción, HTTPS y Grafana</li><li>CI, Sonar y @@SMOKE@@ pruebas de seguridad</li></ul></div>
       <div class="card"><span class="chip pend">Falta validar</span><ul><li>Sesiones de usabilidad con personas reales (herramienta lista arriba)</li><li>Pruebas automáticas de la interfaz de extremo a extremo (IPS-152)</li><li>Copias de seguridad de Atlas y primera restauración de prueba</li><li>Escaneo de penetración</li><li>Correo al paciente: el envío SMTP está listo; faltan las historias 2 y 3 de la épica 8</li></ul></div>
     </div>
   </div>
@@ -673,6 +713,40 @@ bash deploy/pi/smoke-test.sh                                   # pruebas de segu
     guardar([]); armado = false; borrar.textContent = 'Borrar todo'; document.getElementById('v-msg').textContent = 'Registros borrados.'; pintarTabla();
   });
   pintarTabla();
+
+  /* ---- Visor del recorrido real */
+  var REC = @@REC_JSON@@;
+  var caps = document.getElementById('rec-caps'), ri = document.getElementById('rec-img'), rg = document.getElementById('rec-gif');
+  var rt = document.getElementById('rec-t'), rd = document.getElementById('rec-d'), rp = document.getElementById('rec-pos');
+  var play = document.getElementById('rec-play'), gifb = document.getElementById('rec-gifbtn'), cur = 0, timer = null;
+  REC.forEach(function (c, i) {
+    var li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.textContent = c.t; b.addEventListener('click', function () { parar(); mostrar(i); });
+    li.appendChild(b); caps.appendChild(li);
+  });
+  function mostrar(i) {
+    cur = (i + REC.length) % REC.length;
+    ri.hidden = false; rg.hidden = true; gifb.setAttribute('aria-pressed', 'false');
+    ri.src = REC[cur].i; ri.alt = 'Captura real: ' + REC[cur].t; rt.textContent = REC[cur].t; rd.textContent = REC[cur].d;
+    rp.textContent = (cur + 1) + ' de ' + REC.length;
+    caps.querySelectorAll('button').forEach(function (b, k) { if (k === cur) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+  }
+  function parar() { if (timer) { clearInterval(timer); timer = null; } play.setAttribute('aria-pressed', 'false'); play.textContent = '▶ Reproducir'; }
+  play.addEventListener('click', function () {
+    if (timer) { parar(); return; }
+    play.setAttribute('aria-pressed', 'true'); play.textContent = '❚❚ Pausar';
+    timer = setInterval(function () { mostrar(cur + 1); }, 5000);
+  });
+  document.getElementById('rec-prev').addEventListener('click', function () { parar(); mostrar(cur - 1); });
+  document.getElementById('rec-next').addEventListener('click', function () { parar(); mostrar(cur + 1); });
+  gifb.addEventListener('click', function () {
+    parar();
+    var on = gifb.getAttribute('aria-pressed') !== 'true';
+    gifb.setAttribute('aria-pressed', on ? 'true' : 'false'); ri.hidden = on; rg.hidden = !on;
+    if (on) { rt.textContent = 'Recorrido animado'; rd.textContent = 'Admisión, turnos, pantalla de sala, consulta, inventario y farmacia, tal como se ejecutaron (50 cuadros).'; rp.textContent = ''; }
+    else mostrar(cur);
+  });
+  mostrar(0);
 })();
 </script>
 </body>
@@ -701,6 +775,26 @@ GALERIA = ''.join([
     fig('clerk-orgs', 'operacion', 'Clerk: organizaciones = IPS', 'En la instancia de desarrollo; cada organización es una IPS aislada.'),
 ])
 
+PASOS = [
+    ('rec-01-datos-ips', 'Datos de la IPS', 'La administración registra el NIT, el código de habilitación y el contacto de la institución. Esos datos salen luego en la fórmula médica.'),
+    ('rec-02-servicios', 'Servicios y consultorios', 'Se crea el servicio «Medicina general» con su prefijo de turno (MG) y el «Consultorio 301», donde se llamará a los pacientes.'),
+    ('rec-03-paciente-autorizado', 'Paciente con autorización de datos', 'Una sola ficha por paciente. Queda registrada la autorización de tratamiento de datos (Ley 1581 de 2012), con quién y cuándo, y el historial empieza a llenarse. La historia clínica solo la ven los médicos.'),
+    ('rec-04-paciente-sin-autorizacion', 'Paciente sin autorización: aviso', 'Si no se marcó la autorización al registrar, la ficha lo avisa y permite registrarla después con un botón. Editar al paciente nunca la borra.'),
+    ('rec-05-agenda-abierta', 'Abrir la agenda del día', 'Un profesional, un servicio y un consultorio: la agenda se divide en cupos de 20 minutos (16:00 a 18:00, seis cupos).'),
+    ('rec-06-cita-confirmada', 'Agendar y confirmar', 'Se elige un cupo libre, se busca al paciente por documento o nombre y se agenda. El panel de la cita permite confirmar, reprogramar, cancelar o abrir la consulta.'),
+    ('rec-07-agenda-ocupada', 'Agenda con citas', 'Los cupos ocupados muestran el paciente (2 de 6). No hay choques de horario: cada cupo tiene un solo paciente.'),
+    ('rec-08-admision-turno', 'Admisión: llegada y turno', 'Al llegar el paciente, admisión registra la llegada y el sistema le da un turno por servicio (MG 1) que queda «En espera».'),
+    ('rec-09-turnos-llamar', 'Turnos: llamar al paciente', 'Quien atiende llama al siguiente turno. El turno pasa a «Anunciado» y puede llamarse de nuevo, marcarse atendido o como no presentado.'),
+    ('rec-10-pantalla-sala', 'Pantalla de sala', 'El televisor muestra el turno, el consultorio y el nombre abreviado, con campanada y voz. Si el sonido está apagado avisa en grande: es el aviso nuevo de la historia IPS-148.'),
+    ('rec-11-consulta-firmada', 'Consulta firmada con fórmula', 'El médico registra motivo, signos vitales, examen, diagnóstico CIE-10, plan y fórmula, y firma. Desde ese momento la consulta es inmutable: solo admite notas aclaratorias.'),
+    ('rec-12-inventario', 'Inventario por lote', 'Farmacia recibe un lote con su vencimiento y su proveedor. Al entregar, sale primero lo que vence primero y no se dispensan lotes vencidos.'),
+    ('rec-13-farmacia-entregada', 'Farmacia: entrega parcial y completa', 'La fórmula se entregó en dos partes (10 y 5 unidades): el sistema impide entregar más de lo pendiente y deja la fórmula en «Entregada».'),
+    ('rec-14-historial', 'Todo queda trazado', 'En el historial del paciente: registro, autorización, cita, llegada, llamados, consulta firmada y las dos entregas, cada paso con quién y cuándo. Es el registro de auditoría que solo se agrega, nunca se edita.'),
+]
+REC_JSON = json.dumps([{'t': t, 'd': d, 'i': img(n)} for n, t, d in PASOS], ensure_ascii=False)
+with open(os.path.join(IMG, 'recorrido.gif'), 'rb') as _f:
+    GIF = 'data:image/gif;base64,' + base64.b64encode(_f.read()).decode()
+
 tot = sum(TESTS.values())
 primer = subprocess.run(['git', 'log', '--reverse', '--format=%ad', '--date=format:%d-%b-%Y'], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()[0]
 primer = '1 de octubre de 2026'
@@ -713,7 +807,7 @@ repl = {
     'T_UNIT': str(TESTS['unit']), 'T_E2E': str(TESTS['e2e']), 'T_WEB': str(TESTS['web']),
     'W_UNIT': str(round(TESTS['unit'] / max(TESTS.values()) * 100)), 'W_E2E': str(round(TESTS['e2e'] / max(TESTS.values()) * 100)),
     'W_WEB': str(round(TESTS['web'] / max(TESTS.values()) * 100)),
-    'GALERIA': GALERIA, 'CHART': CHART, 'TOTAL_COMMITS': str(TOTAL_COMMITS), 'PCT': str(PCT_LAST), 'PRIMER': primer,
+    'GALERIA': GALERIA, 'CHART': CHART, 'REC_JSON': REC_JSON, 'GIF': GIF, 'TOTAL_COMMITS': str(TOTAL_COMMITS), 'PCT': str(PCT_LAST), 'PRIMER': primer,
 }
 for k, v in repl.items():
     html = html.replace(f'@@{k}@@', v)
