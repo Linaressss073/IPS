@@ -455,9 +455,9 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
     <div class="hall" style="color:var(--ink)">
       <div><b>HTTP sin cifrar disponible</b><span>La API y la web respondían 200 por <code>http://</code>. Se activó «Always Use HTTPS» en Cloudflare; ahora responden 301.</span></div>
       <div><b>Un despliegue rompió el inicio de sesión (y la prueba no lo vio)</b><span>La web se reconstruyó con la clave de Clerk de desarrollo contra el secreto de producción: <code>/dashboard</code> daba 500. Se restauró la imagen anterior en minutos; ahora <code>deploy.sh</code> aborta con claves de desarrollo y la prueba exige la redirección a /sign-in y <code>pk_live</code>.</span></div>
-      <div><b>Latencias mal medidas en Grafana</b><span>El histograma usaba rangos pensados para milisegundos con valores en segundos: todos los percentiles salían 2,5 / 4,75 / 4,95 s. Se corrigieron los rangos (5 ms a 10 s) con una prueba. <span class="chip pend" style="margin-left:4px">pendiente de redespliegue de la API</span></span></div>
+      <div><b>Latencias mal medidas en Grafana</b><span>El histograma usaba rangos pensados para milisegundos con valores en segundos: todos los percentiles salían 2,5 / 4,75 / 4,95 s. Se corrigieron los rangos (5 ms a 10 s) con una prueba. <span class="chip ok" style="margin-left:4px">desplegado: el p50 pasó de 2,5 s a unos 88 ms</span></span></div>
       <div><b>Los errores del correo podían exponer la dirección de un paciente</b><span>Ahora se registran solo códigos de error, con tiempos máximos de 10 s y TLS obligatorio en producción.</span></div>
-      <div class="p"><b>La web pública decía «Próximamente» en módulos que ya funcionan</b><span>Admisión, consulta médica y farmacia. Corregido en el código; <span class="chip pend">pendiente de redespliegue de la web</span></span></div>
+      <div><b>La web pública decía «Próximamente» en módulos que ya funcionan</b><span>Admisión, consulta médica y farmacia. Corregido y desplegado: <span class="chip ok">ya figuran como disponibles</span></span></div>
     </div>
     <h3 style="margin-top:34px">Brechas que declaramos</h3>
     <div class="cards">
@@ -529,7 +529,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
     <h2>Qué está listo y qué falta</h2>
     <div class="cards">
       <div class="card"><span class="chip ok">Listo</span><ul><li>Flujo completo: registrar, agendar, admitir, llamar, consultar, firmar y dispensar</li><li>Roles, aislamiento por IPS y registro de lecturas</li><li>Autorización del titular y política de conservación (Res. 1995/1999)</li><li>Producción con Clerk de producción, HTTPS y Grafana</li><li>CI, Sonar y @@SMOKE@@ pruebas de seguridad</li></ul></div>
-      <div class="card"><span class="chip pend">Falta validar</span><ul><li>Sesiones de usabilidad con personas reales (herramienta lista arriba)</li><li>Pruebas automáticas de la interfaz de extremo a extremo (IPS-152)</li><li>Copias de seguridad de Atlas y primera restauración de prueba</li><li>Escaneo de penetración</li><li>Redespliegue de la web (módulos disponibles) y de la API (latencias)</li><li>Correo al paciente: el envío SMTP está listo; faltan las historias 2 y 3 de la épica 8</li></ul></div>
+      <div class="card"><span class="chip pend">Falta validar</span><ul><li>Sesiones de usabilidad con personas reales (herramienta lista arriba)</li><li>Pruebas automáticas de la interfaz de extremo a extremo (IPS-152)</li><li>Copias de seguridad de Atlas y primera restauración de prueba</li><li>Escaneo de penetración</li><li>Correo al paciente: el envío SMTP está listo; faltan las historias 2 y 3 de la épica 8</li></ul></div>
     </div>
   </div>
 </section>
@@ -689,6 +689,7 @@ def fig(name, grupo, titulo, desc):
 GALERIA = ''.join([
     fig('landing', 'producto', 'Página de inicio', 'Cada paciente, un solo registro y un recorrido sin filas; la pantalla de sala de ejemplo.'),
     fig('signin', 'producto', 'Inicio de sesión', 'Identidad con Clerk (instancia de producción), con Google o correo.'),
+    fig('modulos', 'producto', 'Módulos disponibles', 'Admisión y turnos, consulta médica y farmacia ya figuran como disponibles; solo la mesa de ayuda sigue como próxima.'),
     fig('roles', 'producto', 'Roles', 'Cada quien ve y hace solo lo que le corresponde; una persona puede tener varios roles.'),
     fig('seguridad', 'producto', 'Seguridad y privacidad', 'Datos aislados por IPS, datos mínimos del personal, trazabilidad y derecho al olvido.'),
     fig('swagger', 'producto', 'API documentada (Swagger)', 'Todas las rutas, por módulo y bajo la IPS, con autenticación por token.'),
@@ -696,6 +697,7 @@ GALERIA = ''.join([
     fig('sonar', 'calidad', 'SonarCloud', 'Quality gate aprobado, 0 incidencias abiertas y calificación A.'),
     fig('grafana', 'operacion', 'Grafana: estado general', 'Métricas recibidas de la API de la Raspberry Pi, tasa de éxito y última métrica.'),
     fig('grafana-rutas', 'operacion', 'Grafana: rutas como plantilla', 'Las rutas se agrupan por plantilla (<code>/teams/:teamId/...</code>), nunca con ids reales.'),
+    fig('grafana-latencia', 'operacion', 'Grafana: latencia corregida', 'Tras corregir los rangos del histograma el p50 pasó de 2,5 s a unos 88 ms; el panel de errores lista los 401 y 404 por ruta.'),
     fig('clerk-orgs', 'operacion', 'Clerk: organizaciones = IPS', 'En la instancia de desarrollo; cada organización es una IPS aislada.'),
 ])
 
