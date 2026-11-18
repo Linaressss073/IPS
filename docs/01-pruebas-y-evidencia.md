@@ -8,8 +8,8 @@ Qué se probó, cómo y con qué resultado. Las cifras salen de la ejecución re
 
 | Capa | Herramienta | Resultado |
 |---|---|---|
-| Unitarias (dominio y casos de uso de la API) | Vitest | **94** pruebas, 18 archivos, todas pasan |
-| Integración / extremo a extremo de la API (HTTP + MongoDB real) | Vitest + Supertest + Testcontainers (`mongo:8.0.4`, conjunto de réplicas) | **61** pruebas, 12 archivos, todas pasan |
+| Unitarias (dominio y casos de uso de la API) | Vitest | **97** pruebas, 18 archivos, todas pasan |
+| Integración / extremo a extremo de la API (HTTP + MongoDB real) | Vitest + Supertest + Testcontainers (`mongo:8.0.4`, conjunto de réplicas) | **65** pruebas, 12 archivos, todas pasan |
 | Frontend (PDF de la fórmula, cantidad en letras, cabeceras de seguridad) | Vitest | **34** pruebas, 3 archivos, todas pasan |
 | Análisis estático y calidad | oxlint, ESLint, `tsc`, SonarCloud | Gate **OK**: 0 bugs, 0 vulnerabilidades, 0 hotspots, 0 *code smells*, 0 % duplicación |
 | Cobertura (unitarias + e2e combinadas) | SonarCloud | **87,8 %** (umbral del proyecto: 80 %) sobre ~20 000 líneas de código |
@@ -27,14 +27,14 @@ Los e2e **no usan simulacros de base de datos**: cada ejecución levanta un Mong
 
 | Archivo | Pruebas | Qué demuestra |
 |---|---|---|
-| `patients.e2e-spec.ts` | 15 | Alta, edición con control de versión, documento único por IPS, historial de trazabilidad, **aislamiento entre IPS** |
+| `patients.e2e-spec.ts` | 17 | Alta, edición con control de versión, documento único por IPS, historial de trazabilidad, autorización del titular, **aislamiento entre IPS** |
 | `scheduling.e2e-spec.ts` | 6 | Agendas, cupos, citas, cruces de horario, reprogramación |
 | `staff.e2e-spec.ts` | 6 | Roles, permisos efectivos, anonimización de personal |
 | `admission.e2e-spec.ts` | 5 | Llegada, turnos, llamado y reanuncio |
 | `pharmacy.e2e-spec.ts` | 5 | Fórmulas, entregas parciales, existencias, lotes vencidos |
 | `organizations.e2e-spec.ts` | 4 | Alta, renombre y baja de IPS sincronizadas con Clerk |
 | `errors.e2e-spec.ts` | 4 | Formato único de error (401, 404, JSON roto, validación) |
-| `consultation.e2e-spec.ts` | 3 | Consulta, firma, notas aclaratorias |
+| `consultation.e2e-spec.ts` | 5 | Consulta, firma, notas aclaratorias, registro de accesos a la historia |
 | `docs.e2e-spec.ts` | 7 | Documento OpenAPI con todos los campos y esquemas de autenticación |
 | `health.e2e-spec.ts` | 3 | Salud con base arriba y caída (503) |
 | `security.e2e-spec.ts` | 2 | Cabeceras de seguridad y límite de peticiones (429) por cliente |
@@ -72,7 +72,9 @@ Método: guías de accesibilidad de ui-ux-pro-max, escáner estático de los 72 
 | Sin respeto a "reducir movimiento" | 0 usos, 7 animaciones | regla global |
 | Texto de 10-11 px | 6 casos | 12 px |
 
-**Pendiente** (Sprint 6): etiquetas visibles en vez de solo *placeholder* (IPS-147), aviso de voz apagada en la pantalla de sala (IPS-148), instancia de producción de Clerk (IPS-151), pruebas automáticas de accesibilidad y del flujo completo en la organización DEV (IPS-152).
+**Corregido después:** etiquetas visibles en vez de solo *placeholder* en los formularios de inventario, farmacia, CIE-10 y cancelación de citas, y sin autocompletado de datos de terceros (IPS-147); aviso grande de sonido apagado, de falta de voz en español y de más de un minuto sin conexión en la pantalla de sala (IPS-148).
+
+**Pendiente:** instancia de producción de Clerk (IPS-151) y pruebas automáticas de accesibilidad y del flujo completo en la organización DEV (IPS-152): requieren credenciales de pruebas de Clerk y un entorno de navegador que no están en el repositorio.
 
 Limitación declarada: la verificación con navegador y sesión iniciada (axe sobre las pantallas del tablero) no se pudo ejecutar en esa revisión; los contrastes son calculados sobre la paleta, no medidos en pantalla.
 
