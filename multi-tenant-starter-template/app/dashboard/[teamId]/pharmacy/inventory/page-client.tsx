@@ -315,16 +315,18 @@ function ReceiveForm(props: Readonly<{
   return (
     <div className="space-y-2 rounded-md border p-3">
       <div className="grid gap-2 sm:grid-cols-2">
-        <Input aria-label="Lote" placeholder="Lote (p. ej. A23-0912)" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} />
-        <Input
-          type="date"
-          aria-label="Vencimiento"
-          min={colombiaToday()}
-          value={expiresOn}
-          onChange={(e) => setExpiresOn(e.target.value)}
-        />
-        <Input aria-label="Unidades" type="number" min={1} placeholder="Unidades" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-        <Input aria-label="Proveedor" placeholder="Proveedor (opcional)" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+        <Field label="Lote" id="receive-lot"><Input id="receive-lot" placeholder="p. ej. A23-0912" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} /></Field>
+        <Field label="Vencimiento" id="receive-expires">
+          <Input
+            type="date"
+            id="receive-expires"
+            min={colombiaToday()}
+            value={expiresOn}
+            onChange={(e) => setExpiresOn(e.target.value)}
+          />
+        </Field>
+        <Field label="Unidades" id="receive-qty"><Input id="receive-qty" type="number" min={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} /></Field>
+        <Field label="Proveedor (opcional)" id="receive-supplier"><Input id="receive-supplier" value={supplier} onChange={(e) => setSupplier(e.target.value)} /></Field>
       </div>
       <Button
         size="sm"
@@ -352,25 +354,28 @@ function AdjustForm(props: Readonly<{
   return (
     <div className="space-y-2 rounded-md border p-3">
       <div className="grid gap-2 sm:grid-cols-3">
-        <Select aria-label="Lote" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)}>
+        <Field label="Lote" id="adjust-lot"><Select id="adjust-lot" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)}>
           {props.product.lots.map((lot) => (
             <option key={lot.lotNumber} value={lot.lotNumber}>
               {lot.lotNumber} ({lot.quantity})
             </option>
           ))}
-        </Select>
-        <Select aria-label="Tipo de ajuste" value={direction} onChange={(e) => setDirection(e.target.value as "baja" | "alta")}>
+        </Select></Field>
+        <Field label="Tipo de ajuste" id="adjust-type"><Select id="adjust-type" value={direction} onChange={(e) => setDirection(e.target.value as "baja" | "alta")}>
           <option value="baja">Dar de baja</option>
           <option value="alta">Sumar (conteo)</option>
-        </Select>
-        <Input aria-label="Unidades" type="number" min={1} placeholder="Unidades" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+        </Select></Field>
+        <Field label="Unidades" id="adjust-qty"><Input id="adjust-qty" type="number" min={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} /></Field>
       </div>
-      <Input aria-label="Motivo"
-        placeholder="Motivo (vencido, dañado, conteo físico…)"
-        maxLength={200}
-        value={reason}
-        onChange={(e) => setReason(e.target.value)}
-      />
+      <Field label="Motivo" id="adjust-reason">
+        <Input
+          id="adjust-reason"
+          placeholder="vencido, dañado, conteo físico…"
+          maxLength={200}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+      </Field>
       <Button
         size="sm"
         disabled={props.busy || Number(quantity) < 1 || reason.trim().length < 3}
