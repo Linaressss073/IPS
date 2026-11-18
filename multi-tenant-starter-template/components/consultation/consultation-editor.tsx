@@ -263,9 +263,9 @@ function DiagnosesCard(props: Readonly<{ diagnoses: Diagnosis[]; onChange: (d: D
         </div>
         <details className="text-sm">
           <summary className="cursor-pointer text-muted-foreground">Otro código CIE-10</summary>
-          <div className="mt-2 grid gap-2 sm:grid-cols-[8rem_1fr_auto]">
-            <Input aria-label="Código" placeholder="Código" value={custom.code} onChange={(e) => setCustom((c) => ({ ...c, code: e.target.value.toUpperCase() }))} />
-            <Input aria-label="Descripción" placeholder="Descripción" value={custom.description} onChange={(e) => setCustom((c) => ({ ...c, description: e.target.value }))} />
+          <div className="mt-2 grid items-end gap-2 sm:grid-cols-[8rem_1fr_auto]">
+            <Field label="Código" id="custom-code"><Input id="custom-code" value={custom.code} onChange={(e) => setCustom((c) => ({ ...c, code: e.target.value.toUpperCase() }))} /></Field>
+            <Field label="Descripción" id="custom-description"><Input id="custom-description" value={custom.description} onChange={(e) => setCustom((c) => ({ ...c, description: e.target.value }))} /></Field>
             <Button
               type="button"
               variant="outline"

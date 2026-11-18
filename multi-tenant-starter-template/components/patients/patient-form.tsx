@@ -106,7 +106,7 @@ export function PatientForm(props: Readonly<{
   const particular = state.regime === "particular";
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} autoComplete="off" className="space-y-6">
       <Section title="Identificación">
         <Field label="Tipo de documento" id="documentType">
           <Select id="documentType" value={state.documentType} onChange={set("documentType")} required>

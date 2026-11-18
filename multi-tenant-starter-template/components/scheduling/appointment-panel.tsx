@@ -5,6 +5,7 @@ import Link from "next/link";
 import { errorMessage } from "@/components/patients/error-message";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Field } from "@/components/patients/form-controls";
 import { Appointment, APPOINTMENT_STATUSES, formatDay } from "@/lib/api/scheduling";
 
 /** Details of an appointment and what can be done with it. */
@@ -94,15 +95,18 @@ export function AppointmentPanel(props: Readonly<{
             void run(() => props.onCancel(reason));
           }}
         >
-          <Input aria-label="Motivo"
-            autoFocus
-            placeholder="Motivo (p. ej. el paciente no puede asistir)"
-            value={reason}
-            minLength={3}
-            maxLength={200}
-            required
-            onChange={(e) => setReason(e.target.value)}
-          />
+          <Field label="Motivo de la cancelación" id="cancel-reason">
+            <Input
+              id="cancel-reason"
+              autoFocus
+              placeholder="p. ej. el paciente no puede asistir"
+              value={reason}
+              minLength={3}
+              maxLength={200}
+              required
+              onChange={(e) => setReason(e.target.value)}
+            />
+          </Field>
           <div className="flex gap-2">
             <Button size="sm" variant="destructive" type="submit" disabled={busy}>
               Cancelar la cita

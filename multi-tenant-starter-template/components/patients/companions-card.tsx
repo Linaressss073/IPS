@@ -84,7 +84,7 @@ export function CompanionsCard(props: Readonly<{
       </CardHeader>
       <CardContent className="space-y-4">
         {adding && (
-          <form onSubmit={save} className="space-y-4 rounded-md border p-4">
+          <form onSubmit={save} autoComplete="off" className="space-y-4 rounded-md border p-4">
             <CompanionFields state={form} onChange={setForm} idPrefix="new-companion" />
             <Field label="Solicitado por" id="companion-requestedBy">
               <Select

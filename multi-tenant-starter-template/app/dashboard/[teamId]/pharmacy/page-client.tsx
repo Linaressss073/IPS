@@ -8,7 +8,7 @@ import { NoPermission, useAccess } from "@/components/access/access-context";
 import { PageHeader, PageShell } from "@/components/page-header";
 import { errorMessage } from "@/components/patients/error-message";
 import { PharmacyTurns } from "@/components/pharmacy/pharmacy-turns";
-import { Select } from "@/components/patients/form-controls";
+import { Field, Select } from "@/components/patients/form-controls";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -287,7 +287,7 @@ function PrescriptionCard(props: Readonly<{
                     Elige de qué producto del inventario sale cada medicamento (o pon 0 si no lo entregas).
                   </p>
                 )}
-                <Input aria-label="Nota" placeholder="Nota (p. ej. faltan existencias)" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
+                <Field label="Nota" id="dispense-note"><Input id="dispense-note" placeholder="p. ej. faltan existencias" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
                 <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
