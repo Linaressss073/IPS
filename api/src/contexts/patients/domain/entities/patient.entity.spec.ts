@@ -141,6 +141,43 @@ describe('Patient', () => {
     expect(patient.registeredAt).toEqual(now);
   });
 
+  it('records the holder\'s data authorization once, keeping the first date and author', () => {
+    const patient = register();
+    expect(patient.dataConsent).toBeNull();
+
+    const later = new Date('2026-10-02T09:00:00Z');
+    expect(patient.recordDataConsent('user_alice', later)).toBe(true);
+    expect(patient.dataConsent).toEqual({ grantedAt: later, grantedBy: 'user_alice' });
+    expect(patient.version).toBe(2);
+
+    expect(patient.recordDataConsent('user_bob', new Date('2026-10-03T09:00:00Z'))).toBe(false);
+    expect(patient.dataConsent).toEqual({ grantedAt: later, grantedBy: 'user_alice' });
+    expect(patient.version).toBe(2);
+  });
+
+  it('is registered with the authorization when it was given at the desk', () => {
+    const patient = Patient.register({
+      teamId,
+      now,
+      dataConsentBy: 'user_alice',
+      document: IdentityDocument.of('CC', '1000123456'),
+      name: PersonName.of({ firstName: 'Andrés', firstLastName: 'Gómez' }),
+      birthDate: BirthDate.of('1990-05-20'),
+      sex: BiologicalSex.of('H'),
+      contact: ContactInfo.of({ email: 'andres@example.com' }),
+      affiliation: Affiliation.of({ eps: 'Sanitas', regime: 'contributivo' }),
+    });
+    expect(patient.dataConsent).toEqual({ grantedAt: now, grantedBy: 'user_alice' });
+    expect(patient.version).toBe(1);
+  });
+
+  it('keeps the authorization when other fields are edited', () => {
+    const patient = register();
+    patient.recordDataConsent('user_alice', now);
+    patient.update({ contact: ContactInfo.of({ email: 'otro@example.com' }) }, new Date('2026-10-05T09:00:00Z'));
+    expect(patient.dataConsent?.grantedBy).toBe('user_alice');
+  });
+
   it('rejects a birth date in the future or more than 130 years ago', () => {
     expect(() => register('2026-10-02')).toThrow(BirthDateOutOfRangeError);
     expect(() => register('1890-01-01')).toThrow(BirthDateOutOfRangeError);

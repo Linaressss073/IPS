@@ -15,6 +15,8 @@ export type PatientInput = {
   affiliation: Patient["affiliation"];
   /** Optional first companion, recorded as #1 (registration only). */
   companion?: CompanionInput | null;
+  /** The holder authorized the processing of their data (registration only). */
+  dataConsent?: boolean;
   /** User who asked for the change; the API defaults it to the caller. */
   requestedBy?: string;
 };
@@ -79,6 +81,7 @@ export const TIMELINE_EVENTS: Record<string, string> = {
   "patient.registered": "Paciente registrado",
   "patient.updated": "Datos actualizados",
   "patient.companion_recorded": "Acompañante registrado",
+  "patient.data_consent_recorded": "Autorización de datos registrada",
   "appointment.scheduled": "Cita agendada",
   "appointment.confirmed": "Cita confirmada",
   "appointment.rescheduled": "Cita reprogramada",
@@ -137,6 +140,13 @@ export function updatePatient(
   return apiFetch<Patient>(auth, `${base(teamId)}/${encodeURIComponent(patientId)}`, {
     method: "PATCH",
     body: JSON.stringify({ ...input, version }),
+  });
+}
+
+/** Records the holder's authorization to process their data; the first record is kept. */
+export function recordDataConsent(auth: TokenSource, teamId: string, patientId: string) {
+  return apiFetch<Patient>(auth, `${base(teamId)}/${encodeURIComponent(patientId)}/data-consent`, {
+    method: "POST",
   });
 }
 

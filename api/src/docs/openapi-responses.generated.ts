@@ -1272,6 +1272,24 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
         ],
         "additionalProperties": false
       },
+      "dataConsent": {
+        "description": "Null until the holder's authorization to process their data is recorded.",
+        "nullable": true,
+        "type": "object",
+        "properties": {
+          "grantedAt": {
+            "type": "string"
+          },
+          "grantedBy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "grantedAt",
+          "grantedBy"
+        ],
+        "additionalProperties": false
+      },
       "version": {
         "type": "number"
       },
@@ -1291,6 +1309,7 @@ export const COMPONENT_SCHEMAS: Record<string, object> = {
       "sex",
       "contact",
       "affiliation",
+      "dataConsent",
       "version",
       "registeredAt",
       "updatedAt"
@@ -2273,6 +2292,9 @@ export const RESPONSE_SCHEMAS: Record<string, object> = {
   },
   "PatientCommandsController_addCompanion": {
     "$ref": "#/components/schemas/CompanionView"
+  },
+  "PatientCommandsController_recordConsent": {
+    "$ref": "#/components/schemas/PatientView"
   },
   "PatientCommandsController_register": {
     "$ref": "#/components/schemas/PatientView"

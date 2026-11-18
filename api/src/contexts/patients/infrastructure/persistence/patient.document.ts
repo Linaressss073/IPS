@@ -19,6 +19,8 @@ export interface PatientDocument {
   sex: Sex;
   contact: { email: string; phone: string | null; address: string | null };
   affiliation: { eps: string | null; regime: string };
+  /** Authorization to process the data; absent in patients registered before it existed. */
+  dataConsent?: { grantedAt: Date; grantedBy: string } | null;
   /** Lower-case, accent-free document number and names, for searching. */
   searchText: string;
   /** Companions recorded so far; the next one gets this + 1. */

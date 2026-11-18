@@ -6,6 +6,7 @@ import {
 import { MAX_AGE_YEARS } from '../constants/patient.constants.js';
 import { BirthDateOutOfRangeError } from '../errors/patient.errors.js';
 import {
+  DataConsent,
   FieldChange,
   PatientData,
   PatientProps,
@@ -41,13 +42,14 @@ export class Patient extends Entity<PatientId> {
   }
 
   static register(
-    input: PatientData & { teamId: TeamId; now: Date },
+    input: PatientData & { teamId: TeamId; now: Date; dataConsentBy?: string },
   ): Patient {
-    const { teamId, now, ...data } = input;
+    const { teamId, now, dataConsentBy, ...data } = input;
     ensurePlausibleBirthDate(data.birthDate, now);
     return new Patient(PatientId.generate(), {
       ...data,
       teamId,
+      dataConsent: dataConsentBy ? { grantedAt: now, grantedBy: dataConsentBy } : null,
       version: 1,
       registeredAt: now,
       updatedAt: now,
@@ -76,6 +78,18 @@ export class Patient extends Entity<PatientId> {
       this.props.updatedAt = now;
     }
     return applied;
+  }
+
+  /**
+   * Records the holder's authorization once; a later call keeps the original
+   * date and author. Returns whether it was recorded now (and bumps the version).
+   */
+  recordDataConsent(by: string, now: Date): boolean {
+    if (this.props.dataConsent) return false;
+    this.props.dataConsent = { grantedAt: now, grantedBy: by };
+    this.props.version += 1;
+    this.props.updatedAt = now;
+    return true;
   }
 
   private apply<K extends keyof PatientData>(
@@ -126,6 +140,10 @@ export class Patient extends Entity<PatientId> {
 
   get affiliation(): Affiliation {
     return this.props.affiliation;
+  }
+
+  get dataConsent(): DataConsent | null {
+    return this.props.dataConsent;
   }
 
   get version(): number {

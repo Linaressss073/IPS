@@ -64,6 +64,7 @@ acompañante **#1** en la misma operación.
 | `contact.email` | Sí | E-mail válido; se guarda en minúsculas |
 | `contact.phone` | No | 7-15 dígitos, opcionalmente con `+`; se ignoran espacios, guiones y paréntesis |
 | `contact.address` | No | Hasta 200 caracteres |
+| `dataConsent` | No | `true` si el paciente autorizó el tratamiento de sus datos (Ley 1581 de 2012); guarda quién y cuándo. Si se omite, se registra después con `POST …/data-consent` |
 | `affiliation.regime` | Sí | `contributivo`, `subsidiado`, `especial`, `particular` |
 | `affiliation.eps` | No | EPS **del paciente** (su aseguradora, no la de la IPS). Opcional; en `particular` debe ir vacía |
 | `companion` | No | Ver [acompañante](#registrar-acompañante) |
@@ -185,6 +186,7 @@ Todo lo que ha pasado con el paciente, **del más antiguo al más reciente**, le
 | `patient.registered` | Datos completos del paciente al registrarlo |
 | `patient.updated` | `{ "changes": [{ "field", "from", "to" }] }` |
 | `patient.companion_recorded` | El acompañante y su `number` |
+| `patient.data_consent_recorded` | Quién registró la autorización de tratamiento de datos (`grantedBy`) |
 | `appointment.*` | Pasos de sus citas: ver [Agendamiento](06-scheduling.md#historial-del-paciente) |
 | `consultation.*` | Consulta iniciada, firmada o con nota aclaratoria, **sin contenido clínico**: ver [Consulta](08-consultation.md#historial-del-paciente) |
 | `pharmacy.dispensed` | Unidades entregadas y estado de la fórmula, sin nombres de medicamentos: ver [Farmacia](09-pharmacy.md#historial-del-paciente) |
@@ -194,6 +196,18 @@ Todo lo que ha pasado con el paciente, **del más antiguo al más reciente**, le
 `null` si aún no se conoce.
 
 ---
+
+## Autorización de tratamiento de datos
+
+```
+POST /api/v1/teams/:teamId/patients/:patientId/data-consent
+```
+
+Permiso `patients:write`, sin cuerpo. Deja constancia de que el paciente **autorizó el tratamiento de sus datos
+personales** (Ley 1581 de 2012). **Idempotente:** si ya estaba registrada se conservan la fecha y quien la registró
+originales, no cambia la `version` y no se agrega otro evento. Registrarla sube la `version` y agrega el evento
+`patient.data_consent_recorded` al historial; **editar otros campos nunca la modifica**. Los pacientes anteriores a este
+cambio figuran con `dataConsent: null`.
 
 ## Registrar acompañante
 
@@ -259,6 +273,7 @@ GET /api/v1/teams/:teamId/patients/:patientId/companions
   "sex": "H",
   "contact": { "email": "andres@example.com", "phone": "3001234567", "address": null },
   "affiliation": { "eps": "Sanitas", "regime": "contributivo" },
+  "dataConsent": { "grantedAt": "2026-11-17T21:05:12.431Z", "grantedBy": "user_2x…" },
   "version": 1,
   "registeredAt": "2026-10-02T07:09:33.596Z",
   "updatedAt": "2026-10-02T07:09:33.596Z"
