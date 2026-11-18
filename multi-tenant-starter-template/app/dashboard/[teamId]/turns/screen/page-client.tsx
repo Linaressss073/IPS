@@ -31,8 +31,9 @@ export function PageClient() {
     settings: { announceIntervalSeconds: 120, maxCalls: 3 },
   });
   const [loaded, setLoaded] = React.useState(false);
-  const [offline, setOffline] = React.useState(false);
+  const [offlineSince, setOfflineSince] = React.useState<number | null>(null);
   const [sound, setSound] = React.useState(false);
+  const [noVoice, setNoVoice] = React.useState(false);
   const [flash, setFlash] = React.useState(false);
   const [clock, setClock] = React.useState(() => new Date());
   const lastAnnounced = React.useRef("");
@@ -45,9 +46,9 @@ export function PageClient() {
           if (cancelled) return;
           setBoard(data);
           setLoaded(true);
-          setOffline(false);
+          setOfflineSince(null);
         })
-        .catch(() => !cancelled && setOffline(true));
+        .catch(() => !cancelled && setOfflineSince((since) => since ?? Date.now()));
     void load();
     const timers = [setInterval(load, REFRESH_MS), setInterval(() => setClock(new Date()), 1_000)];
     return () => {
@@ -67,11 +68,20 @@ export function PageClient() {
     if (first) return; // what was already on screen when it opened
     setFlash(true);
     setTimeout(() => setFlash(false), 2_500);
-    if (sound) announce(`Turno ${spoken(current.label)}, ${current.location}. ${current.patientName ?? ""}`);
+    if (sound && !announce(`Turno ${spoken(current.label)}, ${current.location}. ${current.patientName ?? ""}`)) {
+      setNoVoice(true);
+      console.warn("Pantalla de sala: este navegador no tiene voz en español; el llamado solo se muestra y suena.");
+    }
   }, [board, sound]);
 
   if (access && !can("room:view")) return <NoPermission what="abrir la pantalla de sala" />;
 
+  const toggleSound = () => {
+    setSound((on) => !on);
+    if (!sound) announce("Sonido activado");
+  };
+  const offline = offlineSince !== null;
+  const offlineLong = offlineSince !== null && clock.getTime() - offlineSince > 60_000;
   const current = board.current;
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background text-foreground">
@@ -84,10 +94,7 @@ export function PageClient() {
           <Button
             variant={sound ? "default" : "outline"}
             size="sm"
-            onClick={() => {
-              setSound((on) => !on);
-              if (!sound) announce("Sonido activado");
-            }}
+            onClick={toggleSound}
           >
             {sound ? <Volume2 className="mr-1.5 h-4 w-4" /> : <VolumeX className="mr-1.5 h-4 w-4" />}
             {sound ? "Sonido" : "Activar sonido"}
@@ -107,6 +114,27 @@ export function PageClient() {
           </Button>
         </div>
       </header>
+
+      {!sound && (
+        <button
+          type="button"
+          onClick={toggleSound}
+          className="flex w-full items-center justify-center gap-3 bg-destructive px-4 py-3 text-lg font-semibold text-destructive-foreground md:text-2xl"
+        >
+          <VolumeX className="h-6 w-6" aria-hidden />
+          Sonido apagado: toque aquí para activar la voz de los llamados
+        </button>
+      )}
+      {sound && noVoice && (
+        <p role="alert" className="bg-muted px-4 py-2 text-center font-medium">
+          Este navegador no tiene voz en español: los llamados se ven y suenan, pero no se dicen.
+        </p>
+      )}
+      {offlineLong && (
+        <p role="alert" className="bg-destructive px-4 py-3 text-center text-lg font-semibold text-destructive-foreground md:text-2xl">
+          Sin conexión hace más de un minuto: los llamados nuevos pueden no aparecer.
+        </p>
+      )}
 
       <main className="grid flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <section className="order-2 overflow-y-auto border-t lg:order-1 lg:border-r lg:border-t-0">
@@ -162,7 +190,7 @@ export function PageClient() {
               {loaded ? "Espera tu llamado" : "Cargando…"}
             </p>
           )}
-          {offline && (
+          {offline && !offlineLong && (
             <p role="alert" className="rounded-md bg-destructive/10 px-3 py-1 text-sm text-destructive">
               Sin conexión con el servidor; reintentando…
             </p>
@@ -173,8 +201,8 @@ export function PageClient() {
   );
 }
 
-/** A short chime and the spoken call (Spanish voice when available). */
-function announce(text: string) {
+/** A short chime and the spoken call (Spanish voice when available). Returns false when the browser has no Spanish voice. */
+function announce(text: string): boolean {
   try {
     const context = new AudioContext();
     for (const [frequency, start] of [
@@ -193,9 +221,13 @@ function announce(text: string) {
   } catch {
     // Audio is optional.
   }
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window)) return false;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "es-CO";
-  utterance.voice = speechSynthesis.getVoices().find((voice) => voice.lang.startsWith("es")) ?? utterance.voice;
+  const voices = speechSynthesis.getVoices();
+  const spanish = voices.find((voice) => voice.lang.startsWith("es"));
+  utterance.voice = spanish ?? utterance.voice;
   setTimeout(() => speechSynthesis.speak(utterance), 600);
+  // An empty list means the browser has not loaded its voices yet: not a verdict.
+  return voices.length === 0 || spanish !== undefined;
 }
