@@ -62,6 +62,7 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 
 | Brecha | Riesgo | Plan |
 |---|---|---|
+| **La API y la web también responden por `http://`** (sin redirigir a HTTPS) | Quien use esa URL enviaría el token sin cifrar; HSTS no protege la primera visita | Activar «Always Use HTTPS» en Cloudflare (SSL/TLS → Edge Certificates) y repetir `deploy/pi/smoke-test.sh` hasta que la comprobación pase |
 | La web desplegada usa la instancia de **desarrollo** de Clerk | Límites de uso y sin garantías de producción | IPS-151: instancia de producción antes de datos reales |
 | ~~No se registra quién lee una historia clínica~~ | — | **Resuelto** (IPS-170): ver 2.1 |
 | ~~No hay captura de la autorización del titular~~ | — | **Resuelto** (IPS-171): ver 2.3. Falta el texto legal de la autorización que la IPS lee al paciente, que debe redactar su asesor |
@@ -78,3 +79,27 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
    Y, como administración, el registro de accesos (`GET /clinical-access?patientId=`): quién abrió la historia y cuándo, sin contenido clínico.
 4. Mostrar en Grafana que los logs no contienen datos del paciente.
 5. Mostrar las cabeceras de seguridad de `/api/v1/health` en las herramientas del navegador.
+
+## 5. Pruebas de seguridad en producción (18-nov-2026)
+
+Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra `https://ips-api.devrojas.xyz` y `https://ips.devrojas.xyz` justo después de desplegar. Son de **solo lectura**, sin token y sin datos reales: **26 de 27 superadas**. El script se repite después de cada despliegue.
+
+| Qué se comprueba | Resultado |
+|---|---|
+| Cabeceras de la API: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, sin `X-Powered-By` | Superada |
+| Cabeceras de la web: `Content-Security-Policy`, `X-Frame-Options`, `nosniff`, sin `X-Powered-By` | Superada |
+| Sin sesión, las rutas protegidas responden **401** (pacientes, consultas, accesos clínicos, personal) y el tablero no se abre | Superada |
+| Token inválido: `INVALID_ACCESS_TOKEN`; ruta inexistente: `ROUTE_NOT_FOUND`; JSON roto: `BAD_REQUEST`; ninguna respuesta filtra trazas | Superada |
+| Webhook de Clerk sin firma válida: **400** (no se procesa) | Superada |
+| CORS: permite el origen de la web y **rechaza** un origen ajeno | Superada |
+| Límite de peticiones anunciado en las cabeceras `RateLimit` | Superada |
+| TLS 1.3 con certificado válido | Superada |
+| **HTTP sin cifrar redirige a HTTPS** | **Falla**: responde 200 por `http://` (ver brechas) |
+| Salud estable: 12 de 12 respuestas 200 (media ≈ 0,5 s) | Superada |
+
+**Lo que estas pruebas no cubren** (y dónde se cubre):
+- El **429** real no se provoca en producción para no saturarla; se verifica en las pruebas e2e (`security.e2e-spec.ts`).
+- El aislamiento entre IPS y los permisos por rol necesitan sesión; están en las pruebas e2e y unitarias (documento 01), no en esta batería.
+- No hay prueba de penetración (por ejemplo OWASP ZAP) ni de carga.
+
+**Observabilidad como control.** Grafana Cloud recibe las métricas y logs de la API de la Pi (se comprobó con el tráfico de estas pruebas: peticiones por ruta, éxito del 100 %, logs por nivel). Las rutas aparecen como **plantilla** (`/teams/:teamId/clinical-access`), nunca con ids reales. Al revisarlo se encontró un defecto: la latencia (p50/p95/p99) era inválida porque el histograma usaba rangos pensados para milisegundos con valores en segundos; se corrigió con rangos de 5 ms a 10 s y una prueba que lo verifica.

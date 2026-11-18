@@ -49,6 +49,7 @@ Nota: la base local arranca vacía; se crea el paciente en vivo. MongoDB en Dock
 | 5 | **Farmacia**: entrega parcial y luego completa | Inventario y fórmula |
 | 6 | Con **agendamiento**, intentar abrir una consulta → denegado; como **admin**, abrir *Registro de accesos* (`/api/v1/docs` → `clinical-access`) | Mínimo privilegio y trazabilidad de lecturas |
 | 7 | Swagger local con los dos esquemas de autenticación | API documentada |
+| 8 | `bash deploy/pi/smoke-test.sh` (≈ 40 s) | 27 pruebas de seguridad de solo lectura contra producción: cabeceras, 401 sin sesión, CORS, webhook, TLS |
 
 ## 4. Respuestas a las observaciones del docente
 
@@ -60,7 +61,9 @@ Nota: la base local arranca vacía; se crea el paciente en vivo. MongoDB en Dock
 
 **Seguridad y protección de datos de salud** — [03](03-proteccion-de-datos.md) y [04](04-conservacion-y-respaldos.md)
 - Aislamiento entre IPS, permisos por rol (la historia clínica solo para médicos), historial de eventos solo-agregar, **registro de quién lee cada historia**, autorización del titular, cabeceras de seguridad, límite de peticiones, logs sin datos de salud y política de conservación (20 años desde la última atención).
-- Brechas declaradas: Clerk de producción sin desplegar, copias de seguridad por confirmar en Atlas, sin pruebas de penetración.
+- **Pruebas en producción:** `deploy/pi/smoke-test.sh` (26 de 27 superadas el 18-nov-2026). El hallazgo se presenta tal cual: la API y la web también responden por `http://`; la acción es activar «Always Use HTTPS» en Cloudflare. Sirve de ejemplo de cómo se detectan y corrigen brechas.
+- **Observabilidad:** Grafana recibe métricas y logs de la Pi (rutas como plantilla, sin ids reales). Al revisarlo se corrigió la latencia, que usaba rangos de histograma en la escala equivocada.
+- Brechas declaradas: HTTP sin redirección (si no se activa antes de sustentar), Clerk de producción sin desplegar, copias de seguridad por confirmar en Atlas, sin pruebas de penetración.
 
 **Entregar con tiempo**
 - Backlog, sprints y trazabilidad commit-historia en Jira desde el primer commit; documentar el aprendizaje: la API se suspendió por no configurar la pausa del monitor y quedó registrado en el README.

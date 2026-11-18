@@ -1,7 +1,8 @@
 import { EventEmitter } from 'node:events';
 import type { Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { requestMetrics, startTelemetry, telemetryStatus } from './telemetry.js';
+import { AggregationTemporality, InMemoryMetricExporter, MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { DURATION_BUCKETS_S, requestDurationHistogram, requestMetrics, startTelemetry, telemetryStatus } from './telemetry.js';
 
 describe('startTelemetry', () => {
   it('stays off without an endpoint', () => {
@@ -78,5 +79,30 @@ describe('requestMetrics', () => {
       'http.route': 'unmatched',
       'http.response.status_code': 404,
     });
+  });
+});
+
+describe('request duration histogram', () => {
+  it('uses second-scale buckets, so a 120 ms request is not lost in a 0-5 s bucket', async () => {
+    const exporter = new InMemoryMetricExporter(AggregationTemporality.CUMULATIVE);
+    const reader = new PeriodicExportingMetricReader({ exporter, exportIntervalMillis: 60_000 });
+    const provider = new MeterProvider({ readers: [reader] });
+
+    requestDurationHistogram(provider.getMeter('test')).record(0.12);
+    await reader.forceFlush();
+
+    const point = exporter.getMetrics()[0].scopeMetrics[0].metrics[0].dataPoints[0].value as {
+      buckets: { boundaries: number[]; counts: number[] };
+    };
+    expect(point.buckets.boundaries).toEqual(DURATION_BUCKETS_S);
+    // 0.12 s falls in (0.1, 0.25]; with the default bounds it would sit in (0, 5].
+    expect(point.buckets.boundaries[point.buckets.counts.indexOf(1)]).toBe(0.25);
+    await provider.shutdown();
+  });
+
+  it('has sorted bounds that reach well below and above a typical request', () => {
+    expect([...DURATION_BUCKETS_S].sort((a, b) => a - b)).toEqual(DURATION_BUCKETS_S);
+    expect(DURATION_BUCKETS_S[0]).toBeLessThanOrEqual(0.01);
+    expect(DURATION_BUCKETS_S.at(-1)).toBeGreaterThanOrEqual(10);
   });
 });
