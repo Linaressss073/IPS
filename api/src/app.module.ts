@@ -18,6 +18,7 @@ import { StaffModule } from './contexts/staff/staff.module.js';
 import { ClerkIntegrationModule } from './integrations/clerk/clerk-integration.module.js';
 import { MongoModule } from './shared/infrastructure/persistence/mongo.module.js';
 import { DomainErrorFilter } from './shared/entrypoints/http/filters/domain-error.filter.js';
+import { HttpErrorFilter } from './shared/entrypoints/http/filters/http-error.filter.js';
 import { HealthController } from './shared/entrypoints/http/controllers/health.controller.js';
 
 @Module({
@@ -60,6 +61,7 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
   ],
   controllers: [HealthController],
   providers: [
+    { provide: APP_FILTER, useClass: HttpErrorFilter },
     { provide: APP_FILTER, useClass: DomainErrorFilter },
     {
       provide: APP_PIPE,
