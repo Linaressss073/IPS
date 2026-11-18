@@ -4,6 +4,8 @@
 
 Qué dejar listo esta noche, en qué orden mostrar el sistema y qué responder a las observaciones del docente.
 
+> **Material de apoyo:** la [demo interactiva](demo/IPS-proyecto.html) (un solo archivo, funciona sin internet) reúne las tres observaciones, las capturas, el explorador de roles y la herramienta para registrar la validación con usuarios.
+
 ## 1. Estado de producción (decirlo claro)
 
 Producción corre en una **Raspberry Pi con Docker Compose, publicada por un túnel de Cloudflare**: web <https://ips.devrojas.xyz> y API <https://ips-api.devrojas.xyz/api/v1> (salud comprobada el 18-nov-2026: `{"status":"ok","database":"up"}`). Guía en [`deploy/pi/`](../deploy/pi/README.md). Se pasó a la Pi porque Render **suspendió la API al agotar las 750 horas gratuitas** («Free usage limit reached») el 17-nov; la causa y la lección están en el [README](../README.md#solo-si-se-usa-render-que-la-api-no-se-duerma-plan-gratuito).
