@@ -10,16 +10,16 @@
 { "statusCode": 409, "code": "PATIENT_VERSION_CONFLICT", "message": "Patient … was modified by someone else; reload it and try again" }
 ```
 
-**Forma del cuerpo** (validación de tipos y campos): sin `code`; `message` lista los problemas.
+**Errores del framework** (sin token, ruta inexistente, JSON mal formado, cuerpo inválido): mismo formato, con `code` estable.
 
 ```json
-{ "statusCode": 400, "message": ["contact.email must be a string", "property extra should not exist"], "error": "Bad Request" }
+{ "statusCode": 401, "code": "UNAUTHORIZED", "message": "Sign in to continue" }
 ```
 
-**Autenticación**:
+La validación de campos agrega `errors` con la lista de problemas:
 
 ```json
-{ "statusCode": 401, "message": "Missing bearer token", "error": "Unauthorized" }
+{ "statusCode": 400, "code": "BAD_REQUEST", "message": "The request is not valid", "errors": ["contact.email must be a string", "property extra should not exist"] }
 ```
 
 `message` está en inglés y es para depuración; el frontend traduce por `code`
@@ -42,9 +42,12 @@
 | 400 | `RESCHEDULE_SERVICE_MISMATCH` | Se intentó mover la cita a una agenda de otro servicio |
 | 400 | `APPOINTMENT_NOT_TODAY` | Se intentó registrar la llegada de una cita de otro día |
 | 401 | `INVALID_ACCESS_TOKEN` | Token de sesión inválido o vencido |
-| 400 | *(sin code)* | Forma del cuerpo inválida o campo desconocido |
-| 400 | *(sin code)* | `Invalid webhook signature` |
-| 401 | — | Sin token, token inválido, vencido o emitido para otro origen |
+| 400 | `BAD_REQUEST` | Forma del cuerpo inválida, campo desconocido, JSON mal formado o firma de webhook inválida; la validación lista los campos en `errors` |
+| 401 | `UNAUTHORIZED` | Sin token (`Missing bearer token`) |
+| 404 | `ROUTE_NOT_FOUND` | La ruta no existe |
+| 413 | `PAYLOAD_TOO_LARGE` | Cuerpo demasiado grande |
+| 415 | `UNSUPPORTED_MEDIA_TYPE` | Formato de la solicitud no compatible |
+| 429 | `TOO_MANY_REQUESTS` | Se superó el límite de peticiones por minuto |
 | 403 | `NOT_A_TEAM_MEMBER` | Quien llama no pertenece a la IPS de la ruta |
 | 403 | `TEAM_ADMIN_REQUIRED` | La acción es solo para administradores de la IPS |
 | 403 | `PERMISSION_DENIED` | Los roles de quien llama en la IPS no incluyen el permiso que exige el endpoint |
