@@ -43,8 +43,8 @@ Completa: si el correo falla, la cita se agenda igual.
 - [ ] **Dado que** el paciente no autorizó o no respondió, **cuando** agendo, **entonces** no se envía nada.
 - [ ] **Dado que** el proveedor de correo falla, **cuando** agendo, **entonces** la cita queda agendada y el historial
       registra el envío fallido.
-- [ ] **Dado que** estoy en desarrollo, **cuando** se envía un correo, **entonces** llega a la bandeja de Mailtrap
-      Sandbox y nunca a un paciente real.
+- [ ] **Dado que** estoy en desarrollo, **cuando** se envía un correo, **entonces** llega a la bandeja de Mailpit
+      y nunca a un paciente real.
 - [ ] **Dado que** la configuración de desarrollo apunta por error a un servidor de correo real, **cuando** arranca la
       API, **entonces** se niega a arrancar y explica por qué.
 - [ ] **Dado que** el paciente abre el correo, **cuando** lo lee, **entonces** no encuentra ningún dato clínico.
@@ -88,9 +88,9 @@ Las reglas de agendamiento.
 ## Pasos de verificación
 
 1. Con un paciente autorizado, agendar, reprogramar y cancelar una cita.
-2. Revisar los tres correos en la bandeja de Mailtrap Sandbox.
+2. Revisar los tres correos en la bandeja de Mailpit (`http://192.168.1.40:8025`).
 3. Repetir con un paciente sin autorización y comprobar que no llega nada.
 
 ## Preguntas abiertas
 
-- Proveedor de correo de producción (en evaluación) y dirección remitente. Desarrollo: Mailtrap Sandbox.
+- Proveedor de correo de producción (en evaluación) y dirección remitente. Desarrollo: Mailpit.
