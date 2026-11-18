@@ -1,0 +1,35 @@
+# Raspberry Pi: copiar a ~/docker/b2b junto con .env (ver .env.example). Solo escucha en 127.0.0.1:
+# Tailscale Funnel lo publica (web 443, API 8443). 3000/3001 los usan Homepage y Uptime Kuma.
+services:
+  api:
+    container_name: b2b-api
+    image: b2b-api:latest
+    env_file: .env
+    environment:
+      ENV: prod
+      PORT: "3001"
+      TZ: America/Bogota
+    ports:
+      - "127.0.0.1:3101:3001"
+    restart: unless-stopped
+  web:
+    container_name: b2b-web
+    image: b2b-web:latest
+    environment:
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      TZ: America/Bogota
+    ports:
+      - "127.0.0.1:3100:3000"
+    restart: unless-stopped
+  # Tunel de Cloudflare: apagado hasta tener token. Activar con:
+  #   docker compose --profile tunnel up -d cloudflared
+  # Hostnames publicos (panel Zero Trust): ips.<dominio> -> http://web:3000, ips-api.<dominio> -> http://api:3001
+  cloudflared:
+    container_name: b2b-cloudflared
+    image: cloudflare/cloudflared:latest
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on: [api, web]
+    restart: unless-stopped
