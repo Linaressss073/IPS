@@ -71,4 +71,6 @@ web ─────────────────────────�
   rojo no llega a producción.
 - Las acciones de GitHub van fijadas por SHA de commit.
 
+Evidencia de calidad: [`docs/`](docs/README.md) (pruebas y cobertura, validación con usuarios, seguridad y protección de datos).
+
 Backlog y sprints: [`.epics/`](.epics/README.md) (tablero en Jira, proyecto IPS).
