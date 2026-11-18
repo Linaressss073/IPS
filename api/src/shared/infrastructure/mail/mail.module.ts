@@ -16,8 +16,8 @@ import { DisabledMailer, SmtpMailer } from './smtp-mailer.js';
       useFactory: (config: ConfigService<Env, true>): Mailer => {
         const mail = config.get('MAIL', { infer: true });
         if (!mail) return new DisabledMailer();
-        // NOSONAR S5332: plain SMTP only outside prod (Mailpit on the LAN); in prod it is TLS (465) or STARTTLS required (requireTls).
-        const transport = createTransport(smtpOptions(mail));
+        // Plain SMTP only outside prod (Mailpit on the LAN); in prod it is TLS (465) or STARTTLS required (requireTls).
+        const transport = createTransport(smtpOptions(mail)); // NOSONAR S5332: see above
         return new SmtpMailer(transport, mail.from, mail.devAllow);
       },
     },
