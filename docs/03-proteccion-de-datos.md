@@ -27,6 +27,7 @@ Los datos de una consulta externa (identidad del paciente, diagnósticos, fórmu
 | **Mínimo privilegio** | Matriz de permisos por rol (administración, agendamiento, admisión, médico, farmacia, soporte, TV): 12 permisos, cada endpoint exige uno | Prueba unitaria de la matriz; e2e de roles |
 | **Reserva de la historia clínica** | `clinical:read` y `clinical:write` solo para el rol médico: **ni los administradores leen la historia clínica**; solo el médico de la cita escribe la consulta (`NOT_THE_TREATING_PHYSICIAN`) | Prueba unitaria de la matriz |
 | La farmacia solo ve lo suyo | Llama solo turnos de origen «farmacia», con `pharmacy:dispense` | e2e de farmacia |
+| **Quién leyó la historia queda registrado** | Abrir una consulta, el historial de un paciente o una fórmula guarda quién y cuándo (`clinical_access`, sin contenido clínico); si el registro falla, la lectura falla. Solo administración (`audit:read`) lo consulta | e2e: «logs who opens clinical data…» y «leaves no trace when the access is denied» |
 | La TV de sala solo muestra | Rol `tv` con `room:view`, sin acceso a datos clínicos | Prueba unitaria de la matriz |
 
 ### 2.2 Integridad y trazabilidad
@@ -38,6 +39,7 @@ Los datos de una consulta externa (identidad del paciente, diagnósticos, fórmu
 
 ### 2.3 Minimización y derechos del titular
 
+- **Autorización del paciente:** al registrarlo (o después, desde su ficha) se guarda **quién y cuándo** registró que el paciente autorizó el tratamiento de sus datos; es idempotente, editar otros campos no la modifica y queda en el historial (`patient.data_consent_recorded`). Los pacientes anteriores figuran «sin autorización registrada» y la ficha lo avisa. Pruebas: unitarias del agregado y e2e de `patients`.
 - **Personal:** se guarda solo el id de Clerk, el nombre para mostrar y el correo **enmascarado** (`and****@cli***.c**`); contraseñas, teléfonos, fotos y el correo completo **nunca llegan a la base**.
 - **Derecho a la supresión del personal:** al eliminar un usuario en Clerk se **anonimiza** (nombre y correo a `null`, se borran sus membresías) y se conserva solo un id seudónimo para que la auditoría siga enlazada. Una actualización atrasada no revive los datos.
 - **Reconciliación** con Clerk al arrancar y cada 10 minutos, para que una baja que un webhook no trajo se aplique igual.
@@ -61,10 +63,9 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 | Brecha | Riesgo | Plan |
 |---|---|---|
 | La web desplegada usa la instancia de **desarrollo** de Clerk | Límites de uso y sin garantías de producción | IPS-151: instancia de producción antes de datos reales |
-| **No se registra quién lee** una historia clínica (la auditoría cubre escrituras) | La Resolución 1995 pide reserva y control de acceso; no habría rastro de consultas indebidas | Historia nueva: evento de lectura de historia clínica con actor y hora |
-| **No hay captura de la autorización del titular** para el tratamiento ni para comunicaciones | Ley 1581 exige autorización previa y probada | IPS-39 (autorización de comunicaciones) y un registro de la autorización al crear el paciente |
-| **Política de conservación y supresión de historias** no definida | La norma obliga a conservarlas por años; hoy no hay regla escrita ni purga | Documentar la política (conservación mínima legal y custodia) antes de producción |
-| **Copias de seguridad y recuperación** no documentadas | Pérdida de datos ante un fallo del proveedor | Documentar y probar la restauración en MongoDB Atlas |
+| ~~No se registra quién lee una historia clínica~~ | — | **Resuelto** (IPS-170): ver 2.1 |
+| ~~No hay captura de la autorización del titular~~ | — | **Resuelto** (IPS-171): ver 2.3. Falta el texto legal de la autorización que la IPS lee al paciente, que debe redactar su asesor |
+| ~~Política de conservación y supresión; respaldos~~ | — | **Documentada** (IPS-172): [04 · Conservación y respaldos](04-conservacion-y-respaldos.md). Falta confirmar las copias en Atlas y registrar la primera prueba de restauración |
 | **Cifrado en reposo** y **doble factor** dependen de los proveedores | Verificar que estén activos | Confirmar el cifrado del clúster en Atlas y exigir doble factor a los roles con acceso clínico en Clerk |
 | Sin pruebas de penetración ni de carga | Vulnerabilidades no detectadas por análisis estático | Ejecutar un escaneo (por ejemplo OWASP ZAP) sobre la API desplegada y registrar el resultado |
 | Sin interoperabilidad (Ley 2015 de 2020) | Fuera del alcance actual | Declarado como trabajo futuro |
@@ -74,5 +75,6 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 1. En DEV, con un usuario de agendamiento, intentar abrir una consulta: se rechaza (`PERMISSION_DENIED`).
 2. Con un token de otra IPS, pedir un paciente de la IPS DEV: no se ve.
 3. Mostrar el historial del paciente (`trace_events`) con quién hizo cada cambio.
+   Y, como administración, el registro de accesos (`GET /clinical-access?patientId=`): quién abrió la historia y cuándo, sin contenido clínico.
 4. Mostrar en Grafana que los logs no contienen datos del paciente.
 5. Mostrar las cabeceras de seguridad de `/api/v1/health` en las herramientas del navegador.
