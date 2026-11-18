@@ -224,8 +224,8 @@ pnpm start:dev                      # ENV=dev por defecto
 ENV=prod pnpm clerk:sync            # bash; en PowerShell: $env:ENV="prod"; pnpm clerk:sync
 ```
 
-`ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y Render corre con
-`ENV=prod`. Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
+`ENV=test` lo usan los e2e (su base `his_test` viene de `vitest.config.e2e.ts`) y producción corre con
+`ENV=prod` (en la Pi lo fija el `docker-compose`). Variables: `PORT`, `CORS_ORIGIN`, `MONGO_URL`, `MONGO_DB_NAME` (base dentro de `MONGO_URL`: en dev y prod
 `his_consulta_externa`; si falta, la de la ruta de la URL, y si tampoco hay, la API no arranca),
 `CLERK_SECRET_KEY`, `CLERK_JWT_KEY`, `CLERK_AUTHORIZED_PARTIES`, `CLERK_WEBHOOK_SIGNING_SECRET`, `CLERK_SYNC_INTERVAL_MS`, `TURN_ANNOUNCER_INTERVAL_MS`, `LOG_LEVEL` (pino: `info` por defecto, `silent` en test; ver `src/config/env.ts`), `RATE_LIMIT_PER_MINUTE` (peticiones por minuto por cliente, 600 por defecto).
 
@@ -251,7 +251,7 @@ La API publica su documentación OpenAPI 3.0, con todas las rutas y todos los ca
 
 | Qué | Dónde |
 |---|---|
-| Interfaz (probar rutas) | `/api/v1/docs` · local: <http://localhost:3001/api/v1/docs> · producción: <https://ips-api-3404.onrender.com/api/v1/docs> |
+| Interfaz (probar rutas) | `/api/v1/docs` · local: <http://localhost:3001/api/v1/docs> · producción: <https://ips-api.devrojas.xyz/api/v1/docs> |
 | Documento JSON (importable en Postman, generadores de clientes…) | `/api/v1/docs-json` |
 
 - Las rutas se agrupan por módulo (pacientes, citas, turnos, consultas, farmacia…). En **Authorize** hay dos campos:
@@ -282,8 +282,8 @@ El mismo `ci.yml` de la raíz los corre en cadena (lint → build y unitarias �
 `src/config/http-security.ts`:
 
 - **Cabeceras** con `helmet`: `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`… y sin `X-Powered-By`. La política de contenido (CSP) se deja fuera: la API devuelve JSON y Swagger UI necesita scripts en línea que la política por defecto bloquea.
-- **Límite de peticiones:** `RATE_LIMIT_PER_MINUTE` por cliente (600 por defecto, a propósito generoso: una clínica entera puede compartir una dirección y cada pantalla abierta consulta cada pocos segundos). Al pasarlo responde `429` con `{ statusCode, code: "TOO_MANY_REQUESTS", message }` y las cabeceras `RateLimit`. `/health` nunca se limita (UptimeRobot y Render lo consultan).
-- **Quién es el cliente:** detrás de Render todas las peticiones llegan desde el proxy, así que se usa `CF-Connecting-IP` (la dirección real, que Cloudflare pone y sobrescribe) y, si no viene (desarrollo, pruebas), la del socket.
+- **Límite de peticiones:** `RATE_LIMIT_PER_MINUTE` por cliente (600 por defecto, a propósito generoso: una clínica entera puede compartir una dirección y cada pantalla abierta consulta cada pocos segundos). Al pasarlo responde `429` con `{ statusCode, code: "TOO_MANY_REQUESTS", message }` y las cabeceras `RateLimit`. `/health` nunca se limita (los monitores lo consultan).
+- **Quién es el cliente:** detrás de Cloudflare (el túnel de la Pi, o Render) todas las peticiones llegan desde el proxy, así que se usa `CF-Connecting-IP` (la dirección real, que Cloudflare pone y sobrescribe) y, si no viene (desarrollo, pruebas), la del socket.
 
 La web envía sus propias cabeceras desde `multi-tenant-starter-template/next.config.mjs` (`lib/security-headers.mjs`): CSP con la API y Clerk (tomados de `NEXT_PUBLIC_API_URL` y de la clave de Clerk), `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`, y sin `X-Powered-By`. La CSP **se aplica** (`enforce: true`) desde que la consola de la web desplegada no mostró ninguna violación en las 11 pantallas del tablero; si alguna vez bloquea algo, se pasa a `enforce: false` (Report-Only) y se lee la consola para ver qué dominio falta. La ruta del PDF de la fórmula queda fuera de la CSP y del bloqueo de marcos, para no romper el visor de PDF del navegador.
 

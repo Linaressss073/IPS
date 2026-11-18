@@ -4,7 +4,7 @@
 #            CLERK_PK (si no, se lee de multi-tenant-starter-template/.env.local)
 set -euo pipefail
 PI="${PI:-pi@192.168.1.40}"
-PUBLIC_API_URL="${PUBLIC_API_URL:-https://servidor.tailf41173.ts.net:8443}"
+PUBLIC_API_URL="${PUBLIC_API_URL:-https://ips-api.devrojas.xyz}"
 WHAT="${1:-all}"
 CLERK_PK="${CLERK_PK:-$(grep -E '^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=' multi-tenant-starter-template/.env.local | cut -d= -f2- | tr -d '"\r')}"
 

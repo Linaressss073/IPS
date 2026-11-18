@@ -6,9 +6,21 @@ Qué dejar listo esta noche, en qué orden mostrar el sistema y qué responder a
 
 ## 1. Estado de producción (decirlo claro)
 
-La API de Render quedó **suspendida por agotar las 750 horas gratuitas del mes** («Free usage limit reached»; ver [README](../README.md#que-la-api-no-se-duerma-plan-gratuito)). Se reanuda al próximo ciclo o subiendo el plan. Por eso la demo se hace **en local**, con el mismo código, y la evidencia de producción se muestra con capturas y con el CI/Sonar, que no dependen de Render.
+Producción corre en una **Raspberry Pi con Docker Compose, publicada por un túnel de Cloudflare**: web <https://ips.devrojas.xyz> y API <https://ips-api.devrojas.xyz/api/v1> (salud comprobada el 18-nov-2026: `{"status":"ok","database":"up"}`). Guía en [`deploy/pi/`](../deploy/pi/README.md). Se pasó a la Pi porque Render **suspendió la API al agotar las 750 horas gratuitas** («Free usage limit reached») el 17-nov; la causa y la lección están en el [README](../README.md#solo-si-se-usa-render-que-la-api-no-se-duerma-plan-gratuito).
 
-## 2. Dejar la demo local lista (30 min, esta noche)
+Dos cosas que decir si preguntan: la web sigue con la instancia **Development** de Clerk (se verá el aviso de claves de desarrollo; IPS-151 está abierta) y la Pi es un solo equipo, sin réplicas. La demo local de abajo queda como **respaldo** si cae la Pi, el túnel o internet.
+
+## 2. Dejar la demo lista (esta noche)
+
+### Opción A: producción (Pi)
+
+1. Abrir `https://ips-api.devrojas.xyz/api/v1/health` y comprobar `database: up`.
+2. Entrar a `https://ips.devrojas.xyz`, iniciar sesión y elegir la organización **DEV**.
+3. En **Personal** asignar roles a los miembros de DEV: uno **médico**, uno de **agendamiento/admisión**, uno de **farmacia** y la administración (rol admin de Clerk).
+4. Ensayar una vez el recorrido de la sección 3 y dejar abiertas: Swagger (`/api/v1/docs`), GitHub Actions, SonarCloud y las capturas de Clerk.
+5. Mostrar Grafana solo si ya tiene datos (la API de la Pi envía métricas si su `.env` tiene las variables `OTEL_*`).
+
+### Opción B: demo local (respaldo, 30 min)
 
 Requisitos: Docker Desktop abierto y sesión en Clerk.
 
@@ -60,4 +72,5 @@ Nota: la base local arranca vacía; se crea el paciente en vivo. MongoDB en Dock
 | La web local no inicia sesión | Revisar `CLERK_SECRET_KEY` en `.env.local` y reiniciar `pnpm dev` |
 | La API no arranca | `pnpm db:up` (Docker abierto) y revisar `secrets.dev.json` |
 | Sin internet | La demo necesita Clerk (sesión); tener las capturas de Clerk, el CI y Sonar como respaldo |
-| Piden ver producción | Mostrar capturas y explicar la suspensión por cuota; no insistir con la URL de Render |
+| Cae la Pi, el túnel o el internet de la sala | Pasar a la demo local (opción B); la API de Render sigue suspendida, no usarla |
+| Piden ver producción y no responde | Mostrar `/health`, el CI y Sonar, y explicar el despliegue (`deploy/pi/`) |

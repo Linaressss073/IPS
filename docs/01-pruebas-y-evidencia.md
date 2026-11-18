@@ -97,5 +97,5 @@ Capturas que respaldan este documento (las toma quien sustenta; no se generan de
 ## 8. Brechas conocidas
 
 - No hay pruebas automáticas de la interfaz de extremo a extremo (IPS-152).
-- No se ha medido carga ni rendimiento bajo concurrencia; el plan gratuito de Render se duerme tras 15 minutos sin tráfico (mitigado con el monitor).
+- No se ha medido carga ni rendimiento bajo concurrencia; la producción es una sola Raspberry Pi (sin réplicas ni conmutación por fallo) y el plan gratuito de Render, que se usó antes, se agotó el 17-nov-2026.
 - La validación con usuarios reales está **diseñada pero no ejecutada** hasta que se registren resultados en el documento 02.
