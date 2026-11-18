@@ -25,6 +25,19 @@ export interface Env {
   LOG_LEVEL: string;
   /** Requests per minute allowed to each client before the API answers 429. */
   RATE_LIMIT_PER_MINUTE: number;
+  /** SMTP server (Spacemail); undefined when MAIL_HOST is not set: nothing is sent. */
+  MAIL?: MailEnv;
+}
+
+export interface MailEnv {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  pass: string;
+  from: string;
+  /** null in prod (any recipient); elsewhere the only addresses that get mail. */
+  devAllow: string[] | null;
 }
 
 const REQUIRED = ['MONGO_URL', 'CLERK_SECRET_KEY'] as const;
@@ -61,6 +74,28 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     LOG_LEVEL: raw.LOG_LEVEL || (raw.ENV === 'test' ? 'silent' : 'info'),
     // Generous on purpose: a whole clinic can share one address, and each open screen polls (turns every 5 s, the room board every 3 s).
     RATE_LIMIT_PER_MINUTE: Number(raw.RATE_LIMIT_PER_MINUTE ?? 600),
+    MAIL: mailEnv(raw),
+  };
+}
+
+function mailEnv(raw: Record<string, string | undefined>): MailEnv | undefined {
+  if (!raw.MAIL_HOST) return undefined;
+  const missing = ['MAIL_USER', 'MAIL_PASS', 'MAIL_FROM'].filter((key) => !raw[key]);
+  if (missing.length > 0) {
+    throw new Error(`MAIL_HOST is set, so also set: ${missing.join(', ')}`);
+  }
+  const port = Number(raw.MAIL_PORT ?? 465);
+  return {
+    host: raw.MAIL_HOST,
+    port,
+    secure: raw.MAIL_SECURE ? raw.MAIL_SECURE === 'true' : port === 465,
+    user: raw.MAIL_USER!,
+    pass: raw.MAIL_PASS!,
+    from: raw.MAIL_FROM!,
+    devAllow:
+      raw.ENV === 'prod'
+        ? null
+        : (raw.MAIL_DEV_ALLOW ?? '').split(',').map((a) => a.trim().toLowerCase()).filter(Boolean),
   };
 }
 

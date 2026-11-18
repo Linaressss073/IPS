@@ -82,7 +82,7 @@ Agendamiento y admisión.
 
 1. Agendar dos citas para mañana (una de un paciente sin autorización) y cancelar una tercera.
 2. Adelantar la hora del envío en desarrollo.
-3. Comprobar en la bandeja de Mailtrap Sandbox que solo llegó un recordatorio.
+3. Comprobar en la bandeja de Mailpit que solo llegó un recordatorio.
 
 ## Preguntas abiertas
 

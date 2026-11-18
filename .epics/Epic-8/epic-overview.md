@@ -22,8 +22,8 @@ los recordatorios buscan reducir.
 | Autorización | Sin autorización registrada no se envía nada; la autorización y su retiro quedan en el historial. |
 | Contenido | Fecha, hora, servicio, lugar y nombre de la IPS; nunca diagnósticos ni datos clínicos. |
 | Fallos de envío | No bloquean la operación (agendar sigue funcionando aunque el correo falle); el fallo queda registrado. |
-| Desarrollo y pruebas | **Mailtrap Email Sandbox** (recomendado el 21-oct-2026): atrapa todos los correos en una bandeja de pruebas y nunca los entrega a pacientes reales. Las pruebas automáticas no envían nada: verifican el mensaje generado sin red. |
-| Producción | Proveedor por definir; el envío queda detrás de un adaptador para cambiar de proveedor sin tocar las historias. |
+| Desarrollo y pruebas | **Mailpit** autoalojado en la Pi (SMTP `192.168.1.40:1025`, web `:8025`, sin cuenta ni límites; reemplaza a Mailtrap, decisión 18-nov-2026): atrapa todos los correos y nunca los entrega a pacientes reales. Las pruebas automáticas no envían nada: verifican el mensaje generado sin red. |
+| Producción | Proveedor por definir; el envío queda detrás de un adaptador para cambiar de proveedor sin tocar las historias. Candidato: SMTP del buzón `contacto@devrojas.xyz` (Spacemail); verificar límites de envío. La API corre en la Pi, no en Render: el SMTP saliente no está bloqueado. |
 
 ## Orden de las historias
 
@@ -55,11 +55,11 @@ El sistema envía cada día los recordatorios de las citas del día siguiente.
 - **Tareas periódicas existentes (patrón a seguir):** el reanuncio de turnos en `api/src/contexts/admission/` y la
   reconciliación en `api/src/integrations/clerk/clerk-reconciler.ts`.
 - **Configuración:** `api/deployment/config.json`, `api/src/config/env.ts`, `render.yaml` (secretos con `sync: false`).
-- **Skill disponible:** `node-mail-module` (Nodemailer + plantillas + guarda de Mailtrap Sandbox).
+- **Skill disponible:** `node-mail-module` (Nodemailer + plantillas + guarda de sandbox; adaptar de Mailtrap a Mailpit).
 
 ## Preguntas abiertas
 
 1. ¿Qué proveedor de correo se usa en producción? En evaluación; no bloquea las historias, que se construyen y prueban
-   con Mailtrap Sandbox.
+   con Mailpit.
 2. ¿Los pacientes ya registrados se consideran sin autorización hasta que se les pregunte? (Propuesta: sí.)
 3. ¿A qué hora se envían los recordatorios? (Propuesta: 08:00 hora de Colombia.)
