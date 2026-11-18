@@ -53,7 +53,7 @@ Cada *push* a `main` ejecuta en GitHub Actions una cadena de trabajos con depend
 - Solo los administradores asignan roles, y los roles habilitan los endpoints que les corresponden (`staff.e2e-spec.ts`).
 - La matriz de permisos se verifica en una prueba unitaria: la historia clínica solo es de los médicos (`clinical:read`/`clinical:write`); ni los administradores la leen.
 
-- En producción se ejecuta `deploy/pi/smoke-test.sh` tras cada despliegue: 27 comprobaciones de solo lectura (cabeceras, 401 sin sesión, formato de errores, CORS, webhook sin firma, TLS). El 18-nov-2026: 26 superadas y 1 hallazgo (HTTP sin redirección a HTTPS), corregido el mismo día: 27 de 27. Detalle en [03 · Protección de datos](03-proteccion-de-datos.md#5-pruebas-de-seguridad-en-producción-18-nov-2026).
+- En producción se ejecuta `deploy/pi/smoke-test.sh` tras cada despliegue: 28 comprobaciones de solo lectura (cabeceras, 401 sin sesión, formato de errores, CORS, webhook sin firma, TLS). El 18-nov-2026: 26 superadas y 1 hallazgo (HTTP sin redirección a HTTPS), corregido el mismo día: 27 de 27. Detalle en [03 · Protección de datos](03-proteccion-de-datos.md#5-pruebas-de-seguridad-en-producción-18-nov-2026).
 
 Detalle de los controles: [Protección de datos](03-proteccion-de-datos.md).
 
@@ -76,13 +76,13 @@ Método: guías de accesibilidad de ui-ux-pro-max, escáner estático de los 72 
 
 **Corregido después:** etiquetas visibles en vez de solo *placeholder* en los formularios de inventario, farmacia, CIE-10 y cancelación de citas, y sin autocompletado de datos de terceros (IPS-147); aviso grande de sonido apagado, de falta de voz en español y de más de un minuto sin conexión en la pantalla de sala (IPS-148).
 
-**Pendiente:** instancia de producción de Clerk (IPS-151) y pruebas automáticas de accesibilidad y del flujo completo en la organización DEV (IPS-152): requieren credenciales de pruebas de Clerk y un entorno de navegador que no están en el repositorio.
+**Pendiente:** pruebas automáticas de accesibilidad y del flujo completo en una organización de prueba (IPS-152): requieren credenciales de pruebas de Clerk y un entorno de navegador que no están en el repositorio.
 
 Limitación declarada: la verificación con navegador y sesión iniciada (axe sobre las pantallas del tablero) no se pudo ejecutar en esa revisión; los contrastes son calculados sobre la paleta, no medidos en pantalla.
 
 ## 6. Observabilidad como evidencia
 
-Los logs de la API se envían a Grafana Cloud (Loki) con el identificador de cada petición y la IPS (`teamId`); no incluyen cuerpos, cabeceras ni valores de consulta (una búsqueda puede ser el nombre o documento de un paciente). Hay un tablero público de rendimiento sin variables ni líneas de log. Un monitor de UptimeRobot consulta `/api/v1/health` cada 5 minutos.
+Los logs de la API se envían a Grafana Cloud (Loki) con el identificador de cada petición y la IPS (`teamId`); no incluyen cuerpos, cabeceras ni valores de consulta (una búsqueda puede ser el nombre o documento de un paciente). Hay un tablero público de rendimiento sin variables ni líneas de log. El estado se mide desde la propia Raspberry Pi (`/api/v1/health` y `deploy/pi/smoke-test.sh`); no se usa un monitor externo.
 
 Al verificar el tablero con tráfico real se halló y corrigió un defecto: la latencia usaba rangos de histograma pensados para milisegundos con valores en segundos (todas las peticiones caían en el rango de 0 a 5 s). Ahora los rangos van de 5 ms a 10 s y una prueba lo comprueba.
 

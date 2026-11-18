@@ -53,7 +53,14 @@ echo "$W" | has '^content-security-policy:'; ok "Content-Security-Policy" $?
 echo "$W" | has '^x-frame-options: \(DENY\|SAMEORIGIN\)'; ok "X-Frame-Options" $?
 echo "$W" | has '^x-content-type-options: nosniff'; ok "X-Content-Type-Options: nosniff" $?
 echo "$W" | has '^x-powered-by:'; [ $? -ne 0 ]; ok "sin X-Powered-By" $?
-[ "$(status "$WEB/dashboard")" != 200 ]; ok "el tablero no se abre sin sesion" $?
+D=$(headers -H 'Accept: text/html' "$WEB/dashboard")
+echo "$D" | head -1 | has ' 307'; a=$?
+echo "$D" | has '^location: .*/sign-in'; b=$?
+ok "sin sesion, el tablero redirige a /sign-in (un 500 aqui rompe el inicio de sesion)" $((a + b))
+SIGNIN=$(curl -s -m 20 "$WEB/sign-in")
+echo "$SIGNIN" | has 'pk_live_'; a=$?
+echo "$SIGNIN" | has 'pk_test_'; [ $? -ne 0 ]; b=$?
+ok "la web usa la clave de Clerk de produccion (pk_live), no la de desarrollo" $((a + b))
 
 echo "== Trafico para Grafana (12 peticiones a /health, 1 por segundo)"
 all=0; total=0; max=0

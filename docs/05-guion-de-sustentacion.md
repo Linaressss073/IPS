@@ -8,14 +8,14 @@ Qué dejar listo esta noche, en qué orden mostrar el sistema y qué responder a
 
 Producción corre en una **Raspberry Pi con Docker Compose, publicada por un túnel de Cloudflare**: web <https://ips.devrojas.xyz> y API <https://ips-api.devrojas.xyz/api/v1> (salud comprobada el 18-nov-2026: `{"status":"ok","database":"up"}`). Guía en [`deploy/pi/`](../deploy/pi/README.md). Se pasó a la Pi porque Render **suspendió la API al agotar las 750 horas gratuitas** («Free usage limit reached») el 17-nov; la causa y la lección están en el [README](../README.md#solo-si-se-usa-render-que-la-api-no-se-duerma-plan-gratuito).
 
-Dos cosas que decir si preguntan: la web sigue con la instancia **Development** de Clerk (se verá el aviso de claves de desarrollo; IPS-151 está abierta) y la Pi es un solo equipo, sin réplicas. La demo local de abajo queda como **respaldo** si cae la Pi, el túnel o internet.
+Dos cosas que decir si preguntan: la web usa la instancia de **producción** de Clerk (`clerk.devrojas.xyz`; la organización DEV vive en la instancia de desarrollo, que es solo para local) y la Pi es un solo equipo, sin réplicas. La demo local de abajo queda como **respaldo** si cae la Pi, el túnel o internet.
 
 ## 2. Dejar la demo lista (esta noche)
 
 ### Opción A: producción (Pi)
 
 1. Abrir `https://ips-api.devrojas.xyz/api/v1/health` y comprobar `database: up`.
-2. Entrar a `https://ips.devrojas.xyz`, iniciar sesión y elegir la organización **DEV**.
+2. Entrar a `https://ips.devrojas.xyz` e iniciar sesión (Google o correo). La instancia de producción de Clerk es **aparte** de la de desarrollo: ahí no existe la organización DEV; crear una organización de demostración con datos ficticios y elegirla.
 3. En **Personal** asignar roles a los miembros de DEV: uno **médico**, uno de **agendamiento/admisión**, uno de **farmacia** y la administración (rol admin de Clerk).
 4. Ensayar una vez el recorrido de la sección 3 y dejar abiertas: Swagger (`/api/v1/docs`), GitHub Actions, SonarCloud y las capturas de Clerk.
 5. Mostrar Grafana solo si ya tiene datos (la API de la Pi envía métricas si su `.env` tiene las variables `OTEL_*`).
@@ -49,7 +49,7 @@ Nota: la base local arranca vacía; se crea el paciente en vivo. MongoDB en Dock
 | 5 | **Farmacia**: entrega parcial y luego completa | Inventario y fórmula |
 | 6 | Con **agendamiento**, intentar abrir una consulta → denegado; como **admin**, abrir *Registro de accesos* (`/api/v1/docs` → `clinical-access`) | Mínimo privilegio y trazabilidad de lecturas |
 | 7 | Swagger local con los dos esquemas de autenticación | API documentada |
-| 8 | `bash deploy/pi/smoke-test.sh` (≈ 40 s) | 27 pruebas de seguridad de solo lectura contra producción: cabeceras, 401 sin sesión, CORS, webhook, HTTPS y TLS |
+| 8 | `bash deploy/pi/smoke-test.sh` (≈ 40 s) | 28 pruebas de seguridad de solo lectura contra producción: cabeceras, 401 sin sesión, redirección del tablero, clave de Clerk de producción, CORS, webhook, HTTPS y TLS |
 
 ## 4. Respuestas a las observaciones del docente
 
@@ -61,7 +61,7 @@ Nota: la base local arranca vacía; se crea el paciente en vivo. MongoDB en Dock
 
 **Seguridad y protección de datos de salud** — [03](03-proteccion-de-datos.md) y [04](04-conservacion-y-respaldos.md)
 - Aislamiento entre IPS, permisos por rol (la historia clínica solo para médicos), historial de eventos solo-agregar, **registro de quién lee cada historia**, autorización del titular, cabeceras de seguridad, límite de peticiones, logs sin datos de salud y política de conservación (20 años desde la última atención).
-- **Pruebas en producción:** `deploy/pi/smoke-test.sh`: 26 de 27 en la primera ejecución del 18-nov-2026; el hallazgo (la API y la web también respondían por `http://`) se corrigió el mismo día activando «Always Use HTTPS» en Cloudflare y la repetición dio 27 de 27. Sirve de ejemplo de cómo se detectan, corrigen y verifican brechas.
+- **Pruebas en producción:** `deploy/pi/smoke-test.sh`: 26 de 27 en la primera ejecución del 18-nov-2026; el hallazgo (la API y la web también respondían por `http://`) se corrigió el mismo día activando «Always Use HTTPS» en Cloudflare y la repetición dio 27 de 27. Ese mismo día un despliegue rompió el inicio de sesión (clave de Clerk de desarrollo en producción); se detectó en la revisión, se restauró la imagen anterior y se añadieron comprobaciones para que no se repita (hoy 28 de 28). Sirve de ejemplo de cómo se detectan, corrigen y previenen fallos.
 - **Observabilidad:** Grafana recibe métricas y logs de la Pi (rutas como plantilla, sin ids reales). Al revisarlo se corrigió la latencia, que usaba rangos de histograma en la escala equivocada.
 - Brechas declaradas: Clerk de producción sin desplegar, copias de seguridad por confirmar en Atlas, sin pruebas de penetración.
 
