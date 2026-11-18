@@ -37,7 +37,7 @@ deploy/pi/deploy.sh api        # solo la API
 deploy/pi/deploy.sh web        # solo la web
 ```
 
-Variables opcionales: `PI` (usuario@host de la Pi), `PUBLIC_API_URL` (URL pública de la API; se hornea en la web al construirla) y `CLERK_PK` (clave pública de Clerk; si no, se lee de `multi-tenant-starter-template/.env.local`).
+Variables opcionales: `PI` (usuario@host de la Pi), `PUBLIC_API_URL` (URL pública de la API; se hornea en la web al construirla) y `CLERK_PK` (clave pública de Clerk de **producción**, `pk_live_…`; nunca la de `.env.local`).
 
 El script empaqueta el código sin secretos (`.env*`, `secrets.*.json`, `node_modules`), lo copia a `~/b2b-src` en la Pi, construye las imágenes `b2b-api` y `b2b-web` allí, copia el compose y recrea los contenedores.
 
@@ -51,7 +51,7 @@ El script empaqueta el código sin secretos (`.env*`, `secrets.*.json`, `node_mo
 
 - Orígenes autorizados (`CLERK_AUTHORIZED_PARTIES`) con el de la web.
 - Webhook: `https://ips-api.devrojas.xyz/api/v1/webhooks/clerk`, con su *signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`.
-- La web sigue usando la instancia **Development** de Clerk hasta completar IPS-151 (instancia de producción).
+- La web usa la instancia de **producción** de Clerk (`clerk.devrojas.xyz`, clave pública `pk_live_…`, que `deploy.sh` trae por defecto), y el secreto del `.env` de la Pi es el de **esa misma instancia**. Si la clave pública y el secreto fueran de instancias distintas, el inicio de sesión da 500 (pasó el 18-nov-2026 al desplegar con la clave de desarrollo; `deploy.sh` ya aborta si recibe una `pk_test_…`). La instancia Development, donde está la organización DEV, es solo para trabajo local.
 
 ## Pruebas después de desplegar
 
@@ -59,7 +59,7 @@ El script empaqueta el código sin secretos (`.env*`, `secrets.*.json`, `node_mo
 bash deploy/pi/smoke-test.sh [API_URL] [WEB_URL]   # por defecto, los dominios de producción
 ```
 
-27 comprobaciones de **solo lectura** (sin token ni datos reales): salud, cabeceras de seguridad de la API y de la web, 401 sin sesión en rutas protegidas, formato de errores sin trazas, webhook de Clerk sin firma, CORS (origen propio sí, ajeno no), redirección a HTTPS y TLS. Además envía 12 peticiones a `/health` (una por segundo) para que Grafana tenga datos. Termina con código 1 si algo falla. Necesita `curl` y `openssl`. No provoca el 429 (eso lo cubren las pruebas e2e).
+28 comprobaciones de **solo lectura** (sin token ni datos reales): salud, cabeceras de seguridad de la API y de la web, 401 sin sesión en rutas protegidas, formato de errores sin trazas, webhook de Clerk sin firma, CORS (origen propio sí, ajeno no), redirección del tablero a `/sign-in` sin sesión, clave de Clerk de producción en la web, redirección a HTTPS y TLS. Además envía 12 peticiones a `/health` (una por segundo) para que Grafana tenga datos. Termina con código 1 si algo falla. Necesita `curl` y `openssl`. No provoca el 429 (eso lo cubren las pruebas e2e).
 
 ## Comprobar y operar
 

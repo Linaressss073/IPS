@@ -63,7 +63,7 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 | Brecha | Riesgo | Plan |
 |---|---|---|
 | ~~La API y la web también respondían por `http://`~~ | — | **Resuelto** el 18-nov-2026: «Always Use HTTPS» en Cloudflare; ambos hostnames responden 301 a HTTPS. Solo afecta a los dominios públicos, no al acceso por IP y puerto dentro de la red local |
-| La web desplegada usa la instancia de **desarrollo** de Clerk | Límites de uso y sin garantías de producción | IPS-151: instancia de producción antes de datos reales |
+| ~~La web desplegada usaba la instancia de desarrollo de Clerk~~ | — | **Resuelto** (IPS-151): la web usa la instancia de producción (`clerk.devrojas.xyz`, clave `pk_live_…`); la de desarrollo queda solo para trabajo local |
 | ~~No se registra quién lee una historia clínica~~ | — | **Resuelto** (IPS-170): ver 2.1 |
 | ~~No hay captura de la autorización del titular~~ | — | **Resuelto** (IPS-171): ver 2.3. Falta el texto legal de la autorización que la IPS lee al paciente, que debe redactar su asesor |
 | ~~Política de conservación y supresión; respaldos~~ | — | **Documentada** (IPS-172): [04 · Conservación y respaldos](04-conservacion-y-respaldos.md). Falta confirmar las copias en Atlas y registrar la primera prueba de restauración |
@@ -82,7 +82,7 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 
 ## 5. Pruebas de seguridad en producción (18-nov-2026)
 
-Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra `https://ips-api.devrojas.xyz` y `https://ips.devrojas.xyz` justo después de desplegar. Son de **solo lectura**, sin token y sin datos reales: **26 de 27 superadas** en la primera ejecución y **27 de 27** tras corregir el hallazgo. El script se repite después de cada despliegue.
+Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra `https://ips-api.devrojas.xyz` y `https://ips.devrojas.xyz` justo después de desplegar. Son de **solo lectura**, sin token y sin datos reales: **26 de 27 superadas** en la primera ejecución y **27 de 27** tras corregir el hallazgo; después se añadió una comprobación más (ver la lección de abajo) y hoy son **28 de 28**. El script se repite después de cada despliegue.
 
 | Qué se comprueba | Resultado |
 |---|---|
@@ -103,3 +103,7 @@ Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra
 - No hay prueba de penetración (por ejemplo OWASP ZAP) ni de carga.
 
 **Observabilidad como control.** Grafana Cloud recibe las métricas y logs de la API de la Pi (se comprobó con el tráfico de estas pruebas: peticiones por ruta, éxito del 100 %, logs por nivel). Las rutas aparecen como **plantilla** (`/teams/:teamId/clinical-access`), nunca con ids reales. Al revisarlo se encontró un defecto: la latencia (p50/p95/p99) era inválida porque el histograma usaba rangos pensados para milisegundos con valores en segundos; se corrigió con rangos de 5 ms a 10 s y una prueba que lo verifica.
+
+**Lección del 18-nov-2026: un despliegue rompió el inicio de sesión y la prueba no lo vio.** Al redesplegar, la web se reconstruyó con la clave pública de Clerk de **desarrollo** (tomada de un `.env.local`), mientras que el secreto del servidor era el de **producción**: Clerk no pudo verificar el inicio de sesión y `/dashboard` respondía 500. Se detectó al revisar la web en el navegador (la prueba de humo aceptaba cualquier código distinto de 200, así que dio un falso positivo). Se restauró en minutos la imagen anterior (`b2b-web:live`) y se corrigió de raíz:
+- `deploy.sh` ya no lee `.env.local`: usa la clave `pk_live_…` de producción y **aborta** si recibe una de desarrollo.
+- La prueba de humo ahora exige que, sin sesión, el tablero **redirija (307) a `/sign-in`** y que la web use `pk_live` y no `pk_test`.

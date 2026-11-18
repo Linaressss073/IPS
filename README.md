@@ -44,19 +44,13 @@ La única base es MongoDB Atlas (`MONGO_URL`), así que la Pi no guarda datos. G
 `ips-api` y `ips-web`). El plan gratuito se agotó y suspendió la API el 17-nov-2026 (ver abajo); por eso la producción pasó a la Pi.
 Detalles de la API en [`api/README.md`](api/README.md#documentación-interactiva-swagger--openapi).
 
-### Solo si se usa Render: que la API no se duerma (plan gratuito)
+### Solo si se usa Render: el plan gratuito
 
-Render duerme los servicios gratuitos tras 15 minutos sin tráfico (la primera petición tarda 30-60 s). Un monitor de
-[UptimeRobot](https://uptimerobot.com) (plan gratuito) mantiene despierta la API:
-
-- **URL:** `https://ips-api-3404.onrender.com/api/v1/health` (responde 200 y comprueba MongoDB; la raíz responde 404). No se registra en los logs.
-- **Intervalo:** 5 minutos (el mínimo del plan gratuito), siempre por debajo de los 15 en que Render duerme el servicio.
-- **Horario:** Render da ~750 horas gratuitas al mes compartidas entre todos los servicios gratuitos; la API encendida las 24 h consume casi todas
-  y suspendería `ips-web`. Programar en el monitor una ventana de mantenimiento (pausa) de 19:00 a 07:00 hora de Colombia y los domingos
-  (~312 h/mes). Revisar el consumo en Render → Billing.
-- **Si no se configura la ventana, la cuota se agota:** el 17-nov-2026 Render suspendió la API («Free usage limit reached») hasta el
-  siguiente ciclo de facturación; solo se reanuda antes cambiando el plan. Con la ventana puesta, la cuota alcanza para el mes.
-- El monitor también avisa por correo si la API se cae. La solución definitiva es un plan de pago (Starter).
+Render duerme los servicios gratuitos tras 15 minutos sin tráfico (la primera petición tarda 30-60 s) y da ~750 horas gratuitas al mes
+compartidas entre todos los servicios gratuitos. Mantener la API despierta las 24 h con un monitor externo consume casi todas y suspende
+`ips-web`; el 17-nov-2026 Render suspendió la API («Free usage limit reached») hasta el siguiente ciclo de facturación, y solo se reanuda
+antes cambiando el plan. Por eso producción corre en la Raspberry Pi, que siempre está encendida, y **no se usa un monitor externo**: el
+estado se mide desde la propia Pi (`/api/v1/health`, `deploy/pi/smoke-test.sh`) y en Grafana Cloud (métricas y logs).
 
 ## Calidad y CI
 

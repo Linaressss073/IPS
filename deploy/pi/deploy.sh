@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 # Uso: deploy/pi/deploy.sh [api|web|all]   (desde la raiz del repo)
 # Variables: PI (pi@192.168.1.40), PUBLIC_API_URL (URL publica de la API, se hornea en la web),
-#            CLERK_PK (si no, se lee de multi-tenant-starter-template/.env.local)
+#            CLERK_PK (clave PUBLICA de Clerk de produccion, pk_live_...; por defecto la de clerk.devrojas.xyz).
+#            Nunca se lee de .env.local: ahi va la de desarrollo y rompe el inicio de sesion en produccion.
 set -euo pipefail
 PI="${PI:-pi@192.168.1.40}"
 PUBLIC_API_URL="${PUBLIC_API_URL:-https://ips-api.devrojas.xyz}"
 WHAT="${1:-all}"
-CLERK_PK="${CLERK_PK:-$(grep -E '^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=' multi-tenant-starter-template/.env.local | cut -d= -f2- | tr -d '"\r')}"
+CLERK_PK="${CLERK_PK:-pk_live_Y2xlcmsuZGV2cm9qYXMueHl6JA}"
+if [[ "$CLERK_PK" != pk_live_* && -z "${ALLOW_DEV_KEY:-}" ]]; then
+  echo "CLERK_PK no es de produccion (pk_live_...): la web no podria iniciar sesion con el secreto de la Pi. Abortado." >&2
+  exit 1
+fi
 
 tar czf - --exclude=node_modules --exclude=.next --exclude=dist --exclude=coverage \
   --exclude='.env*' --exclude='secrets.*.json' --exclude=tsconfig.tsbuildinfo \
