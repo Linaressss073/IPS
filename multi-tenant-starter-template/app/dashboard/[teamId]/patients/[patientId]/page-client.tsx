@@ -112,10 +112,7 @@ export function PageClient() {
               {new Date(patient.dataConsent.grantedAt).toLocaleDateString("es-CO")}.
             </p>
           ) : (
-            <div
-              role="status"
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm"
-            >
+            <output className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm">
               <span>Sin autorización de tratamiento de datos registrada (Ley 1581 de 2012).</span>
               {canWrite && (
                 <Button
@@ -133,7 +130,7 @@ export function PageClient() {
                   Registrar autorización
                 </Button>
               )}
-            </div>
+            </output>
           )}
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
