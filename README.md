@@ -51,6 +51,8 @@ Render duerme los servicios gratuitos tras 15 minutos sin tráfico (la primera p
 - **Horario:** Render da ~750 horas gratuitas al mes compartidas entre todos los servicios gratuitos; la API encendida las 24 h consume casi todas
   y suspendería `ips-web`. Programar en el monitor una ventana de mantenimiento (pausa) de 19:00 a 07:00 hora de Colombia y los domingos
   (~312 h/mes). Revisar el consumo en Render → Billing.
+- **Si no se configura la ventana, la cuota se agota:** el 17-nov-2026 Render suspendió la API («Free usage limit reached») hasta el
+  siguiente ciclo de facturación; solo se reanuda antes cambiando el plan. Con la ventana puesta, la cuota alcanza para el mes.
 - El monitor también avisa por correo si la API se cae. La solución definitiva es un plan de pago (Starter).
 
 ## Calidad y CI
