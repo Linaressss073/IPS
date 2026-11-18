@@ -62,7 +62,7 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 
 | Brecha | Riesgo | Plan |
 |---|---|---|
-| **La API y la web también responden por `http://`** (sin redirigir a HTTPS) | Quien use esa URL enviaría el token sin cifrar; HSTS no protege la primera visita | Activar «Always Use HTTPS» en Cloudflare (SSL/TLS → Edge Certificates) y repetir `deploy/pi/smoke-test.sh` hasta que la comprobación pase |
+| ~~La API y la web también respondían por `http://`~~ | — | **Resuelto** el 18-nov-2026: «Always Use HTTPS» en Cloudflare; ambos hostnames responden 301 a HTTPS. Solo afecta a los dominios públicos, no al acceso por IP y puerto dentro de la red local |
 | La web desplegada usa la instancia de **desarrollo** de Clerk | Límites de uso y sin garantías de producción | IPS-151: instancia de producción antes de datos reales |
 | ~~No se registra quién lee una historia clínica~~ | — | **Resuelto** (IPS-170): ver 2.1 |
 | ~~No hay captura de la autorización del titular~~ | — | **Resuelto** (IPS-171): ver 2.3. Falta el texto legal de la autorización que la IPS lee al paciente, que debe redactar su asesor |
@@ -82,7 +82,7 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 
 ## 5. Pruebas de seguridad en producción (18-nov-2026)
 
-Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra `https://ips-api.devrojas.xyz` y `https://ips.devrojas.xyz` justo después de desplegar. Son de **solo lectura**, sin token y sin datos reales: **26 de 27 superadas**. El script se repite después de cada despliegue.
+Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra `https://ips-api.devrojas.xyz` y `https://ips.devrojas.xyz` justo después de desplegar. Son de **solo lectura**, sin token y sin datos reales: **26 de 27 superadas** en la primera ejecución y **27 de 27** tras corregir el hallazgo. El script se repite después de cada despliegue.
 
 | Qué se comprueba | Resultado |
 |---|---|
@@ -94,7 +94,7 @@ Se ejecutaron con [`deploy/pi/smoke-test.sh`](../deploy/pi/smoke-test.sh) contra
 | CORS: permite el origen de la web y **rechaza** un origen ajeno | Superada |
 | Límite de peticiones anunciado en las cabeceras `RateLimit` | Superada |
 | TLS 1.3 con certificado válido | Superada |
-| **HTTP sin cifrar redirige a HTTPS** | **Falla**: responde 200 por `http://` (ver brechas) |
+| HTTP sin cifrar redirige a HTTPS | **Hallazgo corregido**: respondía 200 por `http://`; se activó «Always Use HTTPS» en Cloudflare y ahora responde 301 (repetida: superada) |
 | Salud estable: 12 de 12 respuestas 200 (media ≈ 0,5 s) | Superada |
 
 **Lo que estas pruebas no cubren** (y dónde se cubre):

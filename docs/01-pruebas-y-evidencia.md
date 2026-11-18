@@ -53,7 +53,7 @@ Cada *push* a `main` ejecuta en GitHub Actions una cadena de trabajos con depend
 - Solo los administradores asignan roles, y los roles habilitan los endpoints que les corresponden (`staff.e2e-spec.ts`).
 - La matriz de permisos se verifica en una prueba unitaria: la historia clínica solo es de los médicos (`clinical:read`/`clinical:write`); ni los administradores la leen.
 
-- En producción se ejecuta `deploy/pi/smoke-test.sh` tras cada despliegue: 27 comprobaciones de solo lectura (cabeceras, 401 sin sesión, formato de errores, CORS, webhook sin firma, TLS). El 18-nov-2026: 26 superadas y 1 hallazgo (HTTP sin redirección a HTTPS). Detalle en [03 · Protección de datos](03-proteccion-de-datos.md#5-pruebas-de-seguridad-en-producción-18-nov-2026).
+- En producción se ejecuta `deploy/pi/smoke-test.sh` tras cada despliegue: 27 comprobaciones de solo lectura (cabeceras, 401 sin sesión, formato de errores, CORS, webhook sin firma, TLS). El 18-nov-2026: 26 superadas y 1 hallazgo (HTTP sin redirección a HTTPS), corregido el mismo día: 27 de 27. Detalle en [03 · Protección de datos](03-proteccion-de-datos.md#5-pruebas-de-seguridad-en-producción-18-nov-2026).
 
 Detalle de los controles: [Protección de datos](03-proteccion-de-datos.md).
 
