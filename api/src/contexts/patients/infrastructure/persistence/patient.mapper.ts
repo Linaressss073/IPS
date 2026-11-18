@@ -24,6 +24,7 @@ export const PatientMapper = {
       sex: BiologicalSex.of(doc.sex),
       contact: ContactInfo.of(doc.contact),
       affiliation: Affiliation.of(doc.affiliation),
+      dataConsent: doc.dataConsent ?? null,
       version: doc.version,
       registeredAt: doc.registeredAt,
       updatedAt: doc.updatedAt,
@@ -53,6 +54,7 @@ export const PatientMapper = {
         eps: patient.affiliation.eps,
         regime: patient.affiliation.regime,
       },
+      dataConsent: patient.dataConsent,
       searchText: normalizeForSearch(
         `${patient.document.number} ${name.fullName}`,
       ),
@@ -74,6 +76,9 @@ export const PatientMapper = {
       sex: doc.sex,
       contact: { ...doc.contact },
       affiliation: { ...doc.affiliation },
+      dataConsent: doc.dataConsent
+        ? { grantedAt: doc.dataConsent.grantedAt.toISOString(), grantedBy: doc.dataConsent.grantedBy }
+        : null,
       version: doc.version,
       registeredAt: doc.registeredAt.toISOString(),
       updatedAt: doc.updatedAt.toISOString(),

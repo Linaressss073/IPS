@@ -12,6 +12,9 @@ export function toPatientView(patient: Patient): PatientView {
     sex: patient.sex.value,
     contact: { ...patient.contact.value },
     affiliation: { ...patient.affiliation.value },
+    dataConsent: patient.dataConsent
+      ? { grantedAt: patient.dataConsent.grantedAt.toISOString(), grantedBy: patient.dataConsent.grantedBy }
+      : null,
     version: patient.version,
     registeredAt: patient.registeredAt.toISOString(),
     updatedAt: patient.updatedAt.toISOString(),

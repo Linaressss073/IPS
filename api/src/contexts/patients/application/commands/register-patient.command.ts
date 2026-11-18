@@ -2,6 +2,7 @@ import { ActorResolver, Clock, newTraceEvent } from '../../../../shared/applicat
 import { Companion } from '../../domain/entities/companion.vo.js';
 import { Patient } from '../../domain/entities/patient.entity.js';
 import { PATIENT_REGISTERED } from '../constants/trace-event-types.js';
+import { dataConsentEvent } from './record-data-consent.command.js';
 import { DocumentAlreadyRegisteredError } from '../errors/patient.errors.js';
 import { companionRecordedEvent } from '../mappings/companion.mapper.js';
 import { PatientInputMapper } from '../mappings/patient-input.mapper.js';
@@ -31,7 +32,12 @@ export class RegisterPatient {
     const companion = command.companion ? Companion.of(command.companion) : null;
 
     const now = this.clock.now();
-    const patient = Patient.register({ ...data, teamId: command.teamId, now });
+    const patient = Patient.register({
+      ...data,
+      teamId: command.teamId,
+      now,
+      dataConsentBy: command.dataConsent ? actor.executedBy.value : undefined,
+    });
     const events = [
       newTraceEvent({
         teamId: command.teamId,
@@ -42,6 +48,9 @@ export class RegisterPatient {
         data: patient.snapshot(),
       }),
     ];
+    if (command.dataConsent) {
+      events.push(dataConsentEvent({ teamId: command.teamId, patientId: patient.id.value, actor, at: now }));
+    }
     // A new patient has no companions yet, so this one is #1.
     if (companion) {
       events.push(

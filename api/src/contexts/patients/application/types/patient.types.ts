@@ -40,6 +40,12 @@ export interface RegisterPatientCommand extends PatientInput {
   actor: ActorInput;
   /** Optional first companion, recorded as #1 in the same transaction. */
   companion?: CompanionInput | null;
+  /** The holder authorized the processing of their data at registration. */
+  dataConsent?: boolean;
+}
+
+export interface RecordDataConsentCommand extends PatientRef {
+  actor: ActorInput;
 }
 
 export interface RecordCompanionCommand extends PatientRef {
@@ -84,6 +90,8 @@ export interface PatientView {
   sex: Sex;
   contact: { email: string; phone: string | null; address: string | null };
   affiliation: { eps: string | null; regime: string };
+  /** Null until the holder's authorization to process their data is recorded. */
+  dataConsent: { grantedAt: string; grantedBy: string } | null;
   version: number;
   registeredAt: string;
   updatedAt: string;

@@ -41,8 +41,16 @@ export interface PatientData {
   affiliation: Affiliation;
 }
 
+/** The holder's authorization to process their data (Ley 1581 de 2012): who recorded it and when. */
+export interface DataConsent {
+  grantedAt: Date;
+  grantedBy: string;
+}
+
 export interface PatientProps extends PatientData {
   teamId: TeamId;
+  /** Null until the authorization is recorded; never part of an edit. */
+  dataConsent: DataConsent | null;
   /** Increases on every change; used for optimistic locking. */
   version: number;
   registeredAt: Date;

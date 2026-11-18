@@ -84,6 +84,44 @@ describe('Patients API (e2e)', () => {
     expect(res.body.affiliation).toEqual({ eps: null, regime: 'subsidiado' });
   });
 
+  it('records the holder\'s data authorization, once, and edits never touch it', async () => {
+    const withoutConsent = (await registerAs('alice').expect(201)).body;
+    expect(withoutConsent.dataConsent).toBeNull();
+
+    const url = `${patientsA}/${withoutConsent.id}`;
+    const recorded = (await api('alice').post(`${url}/data-consent`).expect(200)).body;
+    expect(recorded.dataConsent).toMatchObject({ grantedBy: 'alice' });
+    expect(recorded.version).toBe(withoutConsent.version + 1);
+
+    // Again: the first date, author and version are kept.
+    const again = (await api('alice').post(`${url}/data-consent`).expect(200)).body;
+    expect(again.dataConsent).toEqual(recorded.dataConsent);
+    expect(again.version).toBe(recorded.version);
+
+    // Editing other fields leaves it as it was, and reading shows it.
+    await api('alice').patch(url, { version: recorded.version, contact: { email: 'nuevo@example.com' } }).expect(200);
+    const read = (await api('alice').get(url).expect(200)).body;
+    expect(read.dataConsent).toEqual(recorded.dataConsent);
+
+    const types = (await api('alice').get(`${url}/timeline`).expect(200)).body.map((e: { type: string }) => e.type);
+    expect(types).toEqual(['patient.registered', 'patient.data_consent_recorded', 'patient.updated']);
+
+    // Roles that cannot write patients cannot record it; neither can another IPS.
+    await api('carol').post(`${url}/data-consent`).expect(403);
+    await api('bob').post(`${url}/data-consent`).expect(403);
+  });
+
+  it('can record the authorization at registration', async () => {
+    const res = (await registerAs('alice', { ...patient, dataConsent: true }).expect(201)).body;
+    expect(res.dataConsent).toMatchObject({ grantedBy: 'alice' });
+    expect(res.version).toBe(1);
+
+    const types = (await api('alice').get(`${patientsA}/${res.id}/timeline`).expect(200)).body.map(
+      (e: { type: string }) => e.type,
+    );
+    expect(types).toEqual(['patient.registered', 'patient.data_consent_recorded']);
+  });
+
   it('registers each document once per team', async () => {
     await registerAs('alice').expect(201);
     const res = await registerAs('alice', {

@@ -52,6 +52,22 @@ export interface paths {
         patch: operations["PatientCommandsController_update"];
         trace?: never;
     };
+    "/api/v1/teams/{teamId}/patients/{patientId}/data-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PatientCommandsController_recordConsent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/teams/{teamId}/patients/{patientId}/companions": {
         parameters: {
             query?: never;
@@ -1026,6 +1042,11 @@ export interface components {
                 eps: string | null;
                 regime: string;
             };
+            /** @description Null until the holder's authorization to process their data is recorded. */
+            dataConsent: {
+                grantedAt: string;
+                grantedBy: string;
+            } | null;
             version: number;
             registeredAt: string;
             updatedAt: string;
@@ -1395,6 +1416,41 @@ export interface operations {
                 "application/json": components["schemas"]["UpdatePatientDto"];
             };
         };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatientView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    PatientCommandsController_recordConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Id de la IPS (organización de Clerk). Con el auth "team" de Authorize se rellena solo.
+                 * @example org_2abc…
+                 */
+                teamId: string;
+                patientId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             200: {
                 headers: {

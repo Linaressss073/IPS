@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -118,6 +119,11 @@ export class RegisterPatientDto {
   @ValidateNested()
   @Type(() => CompanionDto)
   companion?: CompanionDto | null;
+
+  /** The holder authorized the processing of their data (Ley 1581 de 2012). */
+  @IsOptional()
+  @IsBoolean()
+  dataConsent?: boolean;
 
   /** User who asked for the registration; defaults to the caller. */
   @IsOptional()

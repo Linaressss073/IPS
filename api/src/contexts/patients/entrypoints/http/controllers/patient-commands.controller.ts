@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, Patch, Post } from '@nestjs/common';
 import { TeamId } from '../../../../../shared/domain/index.js';
 import { AuthenticatedUser } from '../../../../identity-access/domain/entities/authenticated-user.entity.js';
 import {
@@ -7,6 +7,7 @@ import {
 } from '../../../../identity-access/entrypoints/http/decorators/auth.decorators.js';
 import { RequirePermission } from '../../../../staff/entrypoints/http/guards/permission.guard.js';
 import { RecordCompanion } from '../../../application/commands/record-companion.command.js';
+import { RecordDataConsent } from '../../../application/commands/record-data-consent.command.js';
 import { RegisterPatient } from '../../../application/commands/register-patient.command.js';
 import { UpdatePatient } from '../../../application/commands/update-patient.command.js';
 import {
@@ -31,6 +32,7 @@ export class PatientCommandsController {
     private readonly registerPatient: RegisterPatient,
     private readonly updatePatient: UpdatePatient,
     private readonly recordCompanion: RecordCompanion,
+    private readonly recordDataConsent: RecordDataConsent,
   ) {}
 
   @Post()
@@ -54,6 +56,17 @@ export class PatientCommandsController {
     return this.updatePatient.execute(
       PatientCommandMapper.toUpdate(teamId, patientId, user.userId, dto),
     );
+  }
+
+  /** The holder authorized the processing of their data. Idempotent: the first record is kept. */
+  @Post(':patientId/data-consent')
+  @HttpCode(200)
+  recordConsent(
+    @CurrentTeam() teamId: TeamId,
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('patientId') patientId: string,
+  ): Promise<PatientView> {
+    return this.recordDataConsent.execute({ teamId, patientId, actor: { executedBy: user.userId } });
   }
 
   @Post(':patientId/companions')

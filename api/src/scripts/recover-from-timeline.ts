@@ -8,6 +8,7 @@ import {
 } from '../shared/infrastructure/persistence/mongo.js';
 import {
   PATIENT_COMPANION_RECORDED,
+  PATIENT_DATA_CONSENT_RECORDED,
   PATIENT_REGISTERED,
   PATIENT_UPDATED,
 } from '../contexts/patients/application/constants/trace-event-types.js';
@@ -126,6 +127,16 @@ function replay(patientId: string, history: TraceEventDocument[]): PatientDocume
     updatedAt = event.occurredAt;
   }
 
+  // The authorization recorded with the registration does not bump the version; a later one does.
+  const consent = history.find((event) => event.type === PATIENT_DATA_CONSENT_RECORDED);
+  const dataConsent = consent
+    ? { grantedAt: consent.occurredAt, grantedBy: consent.data.grantedBy as string }
+    : null;
+  if (consent && consent.occurredAt.getTime() > registered.occurredAt.getTime()) {
+    version += 1;
+    if (consent.occurredAt > updatedAt) updatedAt = consent.occurredAt;
+  }
+
   const document = data.document as { type: string; number: string };
   const patient = Patient.restore(PatientId.of(patientId), {
     teamId: TeamId.of(registered.teamId),
@@ -135,6 +146,7 @@ function replay(patientId: string, history: TraceEventDocument[]): PatientDocume
     sex: BiologicalSex.of(data.sex as string),
     contact: ContactInfo.of(data.contact as Parameters<typeof ContactInfo.of>[0]),
     affiliation: Affiliation.of(data.affiliation as Parameters<typeof Affiliation.of>[0]),
+    dataConsent,
     version,
     registeredAt: registered.occurredAt,
     updatedAt,

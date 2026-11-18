@@ -80,6 +80,7 @@ export function PatientForm(props: Readonly<{
 }>) {
   const [state, setState] = React.useState(() => toState(props.patient));
   const [hasCompanion, setHasCompanion] = React.useState(false);
+  const [dataConsent, setDataConsent] = React.useState(false);
   const [companion, setCompanion] = React.useState<CompanionState>(emptyCompanion);
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -95,6 +96,7 @@ export function PatientForm(props: Readonly<{
     try {
       const input = toInput(state);
       if (props.withCompanion && hasCompanion) input.companion = toCompanionInput(companion);
+      if (!props.patient && dataConsent) input.dataConsent = true;
       await props.onSubmit(input);
     } catch (err) {
       setError(errorMessage(err));
@@ -205,6 +207,21 @@ export function PatientForm(props: Readonly<{
             <CompanionFields state={companion} onChange={setCompanion} idPrefix="companion" />
           )}
         </div>
+      )}
+
+      {!props.patient && (
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={dataConsent}
+            onChange={(e) => setDataConsent(e.target.checked)}
+          />
+          <span>
+            El paciente autoriza el tratamiento de sus datos personales (Ley 1581 de 2012). Queda registrado quién y
+            cuándo; si no se marca, se puede registrar después desde su ficha.
+          </span>
+        </label>
       )}
 
       <Section title="Trazabilidad">

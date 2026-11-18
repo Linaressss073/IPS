@@ -21,6 +21,7 @@ import {
   getPatient,
   getPatientTimeline,
   Patient,
+  recordDataConsent,
   REGIMES,
   RELATIONSHIPS,
   SEXES,
@@ -104,6 +105,36 @@ export function PageClient() {
               </Button>
             )}
           </div>
+
+          {patient.dataConsent ? (
+            <p className="text-sm text-muted-foreground">
+              Autorización de tratamiento de datos registrada el{" "}
+              {new Date(patient.dataConsent.grantedAt).toLocaleDateString("es-CO")}.
+            </p>
+          ) : (
+            <div
+              role="status"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm"
+            >
+              <span>Sin autorización de tratamiento de datos registrada (Ley 1581 de 2012).</span>
+              {canWrite && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      setPatient(await recordDataConsent(auth, teamId, patientId));
+                      setTimeout(loadTimeline, TIMELINE_REFRESH_DELAY_MS);
+                    } catch (err) {
+                      setError(errorMessage(err));
+                    }
+                  }}
+                >
+                  Registrar autorización
+                </Button>
+              )}
+            </div>
+          )}
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             <div className="space-y-4">

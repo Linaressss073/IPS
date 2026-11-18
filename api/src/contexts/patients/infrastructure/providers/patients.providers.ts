@@ -13,6 +13,7 @@ import {
 import { systemClock } from '../../../../shared/infrastructure/providers/system-clock.js';
 import { TEAM_MEMBERSHIP_CHECKER } from '../../../identity-access/application/constants/injection-tokens.js';
 import { RecordCompanion } from '../../application/commands/record-companion.command.js';
+import { RecordDataConsent } from '../../application/commands/record-data-consent.command.js';
 import { RegisterPatient } from '../../application/commands/register-patient.command.js';
 import { UpdatePatient } from '../../application/commands/update-patient.command.js';
 import {
@@ -82,6 +83,13 @@ export const patientsProviders: Provider[] = [
     inject: [PATIENT_REPOSITORY, ActorResolver, CLOCK],
     useFactory: (repo: PatientRepository, actors: ActorResolver, clock: Clock) =>
       new RecordCompanion(repo, actors, clock),
+  },
+
+  {
+    provide: RecordDataConsent,
+    inject: [PATIENT_REPOSITORY, ActorResolver, CLOCK],
+    useFactory: (repo: PatientRepository, actors: ActorResolver, clock: Clock) =>
+      new RecordDataConsent(repo, actors, clock),
   },
 
   // Read side
