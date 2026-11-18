@@ -1,4 +1,4 @@
-import { diag, DiagConsoleLogger, DiagLogLevel, type Histogram, metrics } from '@opentelemetry/api';
+import { diag, DiagConsoleLogger, DiagLogLevel, type Histogram, type Meter, metrics } from '@opentelemetry/api';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
@@ -49,11 +49,21 @@ export function telemetryStatus(env: NodeJS.ProcessEnv = process.env): { level: 
 
 type Recorder = Pick<Histogram, 'record'>;
 
-const requestDuration = (): Recorder =>
-  metrics.getMeter('ips-api').createHistogram('http.server.request.duration', {
+/**
+ * Bucket bounds in SECONDS (5 ms to 10 s). Without them the SDK uses its defaults, which are
+ * written for milliseconds (0, 5, 10, 25 ... 10000): every request under 5 s then lands in the
+ * first bucket and p50/p95/p99 become meaningless interpolations of 0-5 s.
+ */
+export const DURATION_BUCKETS_S = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
+
+export const requestDurationHistogram = (meter: Meter = metrics.getMeter('ips-api')): Histogram =>
+  meter.createHistogram('http.server.request.duration', {
     unit: 's',
     description: 'Duration of HTTP requests, by route template, status code and IPS',
+    advice: { explicitBucketBoundaries: DURATION_BUCKETS_S },
   });
+
+const requestDuration = (): Recorder => requestDurationHistogram();
 
 /**
  * Records every request's duration by route TEMPLATE (never the real URL, so no

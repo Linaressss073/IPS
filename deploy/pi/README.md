@@ -53,6 +53,14 @@ El script empaqueta el código sin secretos (`.env*`, `secrets.*.json`, `node_mo
 - Webhook: `https://ips-api.devrojas.xyz/api/v1/webhooks/clerk`, con su *signing secret* en `CLERK_WEBHOOK_SIGNING_SECRET`.
 - La web sigue usando la instancia **Development** de Clerk hasta completar IPS-151 (instancia de producción).
 
+## Pruebas después de desplegar
+
+```bash
+bash deploy/pi/smoke-test.sh [API_URL] [WEB_URL]   # por defecto, los dominios de producción
+```
+
+27 comprobaciones de **solo lectura** (sin token ni datos reales): salud, cabeceras de seguridad de la API y de la web, 401 sin sesión en rutas protegidas, formato de errores sin trazas, webhook de Clerk sin firma, CORS (origen propio sí, ajeno no), redirección a HTTPS y TLS. Además envía 12 peticiones a `/health` (una por segundo) para que Grafana tenga datos. Termina con código 1 si algo falla. Necesita `curl` y `openssl`. No provoca el 429 (eso lo cubren las pruebas e2e).
+
 ## Comprobar y operar
 
 ```bash
