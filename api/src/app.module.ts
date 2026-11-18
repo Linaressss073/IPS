@@ -16,6 +16,7 @@ import { SchedulingModule } from './contexts/scheduling/scheduling.module.js';
 import { OrganizationsModule } from './contexts/organizations/organizations.module.js';
 import { StaffModule } from './contexts/staff/staff.module.js';
 import { ClerkIntegrationModule } from './integrations/clerk/clerk-integration.module.js';
+import { MailModule } from './shared/infrastructure/mail/mail.module.js';
 import { MongoModule } from './shared/infrastructure/persistence/mongo.module.js';
 import { DomainErrorFilter } from './shared/entrypoints/http/filters/domain-error.filter.js';
 import { HttpErrorFilter } from './shared/entrypoints/http/filters/http-error.filter.js';
@@ -49,6 +50,7 @@ import { HealthController } from './shared/entrypoints/http/controllers/health.c
       }),
     }),
     MongoModule,
+    MailModule,
     IdentityAccessModule,
     PatientsModule,
     SchedulingModule,
