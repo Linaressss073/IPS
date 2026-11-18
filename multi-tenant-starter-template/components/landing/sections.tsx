@@ -125,19 +125,19 @@ const MODULES: { icon: Icon; title: string; description: string; ready: boolean 
     icon: MonitorSpeaker,
     title: "Admisión y turnos",
     description: "Llegada a sala, turno por servicio (RTH 4) y pantalla de llamado con reanuncio automático.",
-    ready: false,
+    ready: true,
   },
   {
     icon: Stethoscope,
     title: "Consulta médica",
     description: "El profesional llama al paciente, registra la atención y deja las órdenes.",
-    ready: false,
+    ready: true,
   },
   {
     icon: Pill,
     title: "Farmacia",
     description: "Dispensación de lo formulado en la consulta, con su propio llamado de turno.",
-    ready: false,
+    ready: true,
   },
   {
     icon: UserCog,
