@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -120,4 +121,10 @@ export class ListConsultationsQueryDto {
   @IsOptional()
   @IsString()
   appointmentId?: string;
+}
+
+export class ClinicalAccessQueryDto {
+  @IsString()
+  @IsNotEmpty()
+  patientId!: string;
 }

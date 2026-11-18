@@ -13,6 +13,7 @@ import {
   StartConsultation,
   UpdateConsultation,
 } from '../../../application/commands/consultation.commands.js';
+import { ClinicalAccessAudit } from '../../../application/queries/clinical-access.audit.js';
 import { ConsultationQueries } from '../../../application/queries/consultation.queries.js';
 import { GetFormula } from '../../../application/queries/formula.query.js';
 import { ConsultationView, FormulaView } from '../../../application/types/consultation.types.js';
@@ -42,28 +43,49 @@ export class ConsultationsController {
     private readonly signConsultation: SignConsultation,
     private readonly addAddendum: AddAddendum,
     private readonly getFormula: GetFormula,
+    private readonly audit: ClinicalAccessAudit,
   ) {}
 
   @RequirePermission('clinical:read')
   @Get()
-  list(@CurrentTeam() teamId: TeamId, @Query() query: ListConsultationsQueryDto): Promise<ConsultationView[]> {
+  async list(
+    @CurrentTeam() teamId: TeamId,
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListConsultationsQueryDto,
+  ): Promise<ConsultationView[]> {
     if (!query.patientId && !query.appointmentId) {
       throw new InvalidValueError('Filter by patientId or appointmentId');
     }
-    return this.queries.list(teamId, { patientId: query.patientId, appointmentId: query.appointmentId });
+    const views = await this.queries.list(teamId, { patientId: query.patientId, appointmentId: query.appointmentId });
+    // A patient's history is one access; an appointment's consultation is another.
+    if (query.patientId) await this.audit.history(teamId, user.userId.value, query.patientId);
+    else await this.audit.consultations(teamId, user.userId.value, views);
+    return views;
   }
 
   @RequirePermission('clinical:read')
   @Get(':consultationId')
-  get(@CurrentTeam() teamId: TeamId, @Param('consultationId') id: string): Promise<ConsultationView> {
-    return this.queries.get(teamId, id);
+  async get(
+    @CurrentTeam() teamId: TeamId,
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('consultationId') id: string,
+  ): Promise<ConsultationView> {
+    const view = await this.queries.get(teamId, id);
+    await this.audit.consultations(teamId, user.userId.value, [view]);
+    return view;
   }
 
   /** The signed prescription's printable data: for the physician and for the pharmacy. */
   @RequirePermission('clinical:read', 'pharmacy:dispense')
   @Get(':consultationId/formula')
-  formula(@CurrentTeam() teamId: TeamId, @Param('consultationId') id: string): Promise<FormulaView> {
-    return this.getFormula.execute(teamId, id);
+  async formula(
+    @CurrentTeam() teamId: TeamId,
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('consultationId') id: string,
+  ): Promise<FormulaView> {
+    const view = await this.getFormula.execute(teamId, id);
+    await this.audit.formula(teamId, user.userId.value, id);
+    return view;
   }
 
   /** Opens the consultation of the appointment (or returns the one already open). */

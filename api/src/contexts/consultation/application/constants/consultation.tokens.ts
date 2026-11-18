@@ -3,6 +3,7 @@ export const CONSULTATION_READ_MODEL = Symbol('ConsultationReadModel');
 export const CONSULTATION_APPOINTMENTS = Symbol('ConsultationAppointments');
 export const CONSULTATION_NAMES = Symbol('ConsultationNames');
 export const CONSULTATION_TEAM_MEMBERS = Symbol('ConsultationTeamMembers');
+export const CLINICAL_ACCESS_LOG = Symbol('ClinicalAccessLog');
 
 /**
  * Patient timeline events. They carry no clinical content (the timeline is

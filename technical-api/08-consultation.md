@@ -128,3 +128,21 @@ qué cita, servicio y lugar.
 | `consultation.addendum_added` | Se agregó una nota aclaratoria |
 
 Colección: `consultations` (índice único por `appointment.id`).
+
+## Registro de accesos (quién abrió la historia)
+
+Toda **lectura** de datos clínicos deja rastro (la reserva de la historia clínica exige saber quién la consultó): abrir
+una consulta (`GET /consultations/:id` o por cita), pedir el historial de un paciente (`GET /consultations?patientId=`) y
+abrir una fórmula (`GET /consultations/:id/formula`, el médico o la farmacia). Si el registro falla, la lectura falla:
+no hay acceso sin rastro. Un acceso denegado (403) no deja registro.
+
+| Método | Ruta | Permiso | Qué hace |
+|---|---|---|---|
+| GET | `/teams/:teamId/clinical-access?patientId=` | `audit:read` (solo administración) | Quién abrió datos clínicos del paciente, más reciente primero (hasta 200) |
+
+```json
+[{ "userId": "user_2x…", "displayName": "Dra. Carol Ruiz", "kind": "consulta", "consultationId": "…", "at": "2026-11-17T21:05:12.431Z" }]
+```
+
+`kind` es `consulta`, `historia` o `formula`. **Nunca contiene contenido clínico**. Colección: `clinical_access`
+(índice `teamId + patientId + at`). El médico no lee este registro y ninguna otra IPS lo ve.

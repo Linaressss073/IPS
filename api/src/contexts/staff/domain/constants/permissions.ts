@@ -13,6 +13,7 @@ export const PERMISSIONS = [
   'pharmacy:dispense',
   'settings:manage',
   'staff:manage',
+  'audit:read',
   'room:view',
 ] as const;
 
@@ -39,6 +40,7 @@ export const ADMIN_PERMISSIONS: readonly Permission[] = [
   'admission:manage',
   'settings:manage',
   'staff:manage',
+  'audit:read',
   'room:view',
 ];
 

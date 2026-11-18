@@ -1,3 +1,4 @@
+import { CLINICAL_ACCESS_COLLECTION } from '../src/contexts/consultation/infrastructure/persistence/mongo-clinical-access.js';
 import { CONSULTATIONS_COLLECTION } from '../src/contexts/consultation/infrastructure/persistence/mongo-consultation.js';
 import { ORGANIZATIONS_COLLECTION } from '../src/contexts/organizations/infrastructure/persistence/mongo-organization.repository.js';
 import { PATIENTS_COLLECTION } from '../src/contexts/patients/infrastructure/persistence/patient.document.js';
@@ -21,6 +22,7 @@ describe('Consultation / clinical record (e2e)', () => {
   beforeEach(async () => {
     // The IPS is re-imported from the provider: another file may have renamed or deleted it.
     await t.wipe(
+      CLINICAL_ACCESS_COLLECTION,
       CONSULTATIONS_COLLECTION,
       APPOINTMENTS_COLLECTION,
       PATIENTS_COLLECTION,
@@ -196,5 +198,46 @@ describe('Consultation / clinical record (e2e)', () => {
     ]);
     const shared = JSON.stringify(timeline);
     expect(shared).not.toMatch(/Fiebre|J06\.9|Acetaminof/);
+  });
+
+  it('logs who opens clinical data and lets only administrators read that log', async () => {
+    const { patientId, appointmentId } = await setUp();
+    const started = (await api('carol').post(consultations, { appointmentId }).expect(200)).body;
+    const url = `${consultations}/${started.id}`;
+    const log = () => api('alice').get(`${team}/clinical-access?patientId=${patientId}`);
+
+    // Writing is not reading: nothing logged yet.
+    expect((await log().expect(200)).body).toEqual([]);
+
+    await api('carol').get(url).expect(200);
+    await api('carol').patch(url, { version: 1, ...draft }).expect(200);
+    await api('carol').post(`${url}/sign`, { version: 2 }).expect(200);
+    await api('carol').get(`${consultations}?patientId=${patientId}`).expect(200);
+    await api('carol').get(`${url}/formula`).expect(200);
+
+    const entries = (await log().expect(200)).body as { userId: string; kind: string; consultationId: string | null; at: string }[];
+    expect(entries.map((e) => e.kind).sort()).toEqual(['consulta', 'formula', 'historia']);
+    expect(entries.every((e) => e.userId === 'carol')).toBe(true);
+    expect(entries.find((e) => e.kind === 'historia')?.consultationId).toBeNull();
+    expect(entries.find((e) => e.kind === 'consulta')?.consultationId).toBe(started.id);
+    // Who and when, never what: no clinical content in the log.
+    expect(JSON.stringify(entries)).not.toMatch(/Fiebre|J06\.9|Acetaminof/);
+
+    // The physician reads the record, not the log; another IPS sees nothing of this one.
+    await api('carol').get(`${team}/clinical-access?patientId=${patientId}`).expect(403);
+    await api('bob').get(`${team}/clinical-access?patientId=${patientId}`).expect(403);
+    await api('alice').get(`${team}/clinical-access`).expect(400);
+  });
+
+  it('leaves no trace when the access is denied', async () => {
+    const { patientId, appointmentId } = await setUp();
+    const started = (await api('carol').post(consultations, { appointmentId }).expect(200)).body;
+
+    // alice administers the IPS but has no clinical:read.
+    await api('alice').get(`${consultations}/${started.id}`).expect(403);
+    await api('alice').get(`${consultations}?patientId=${patientId}`).expect(403);
+
+    const entries = (await api('alice').get(`${team}/clinical-access?patientId=${patientId}`).expect(200)).body;
+    expect(entries).toEqual([]);
   });
 });
