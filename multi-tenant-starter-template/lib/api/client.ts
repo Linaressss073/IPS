@@ -42,10 +42,9 @@ export async function apiFetch<T>(
 
   const body = await response.json().catch(() => null);
   if (!response.ok) {
-    // NestJS returns `message` as a string, or a list of strings for validation errors.
-    const message = Array.isArray(body?.message)
-      ? body.message.join(", ")
-      : body?.message ?? response.statusText;
+    // `message` is a string; validation failures also list the fields in `errors`.
+    const detail = body?.errors ?? body?.message;
+    const message = Array.isArray(detail) ? detail.join(", ") : detail ?? response.statusText;
     throw new ApiError(response.status, body?.code, message);
   }
   return body as T;
