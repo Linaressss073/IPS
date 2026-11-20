@@ -51,7 +51,7 @@ Los datos de una consulta externa (identidad del paciente, diagnósticos, fórmu
 - **Límite de peticiones** por cliente (429) contra abuso y fuerza bruta.
 - **CORS** restringido a los orígenes del frontend configurados.
 - **Webhooks de Clerk:** se rechazan si la firma sobre el cuerpo crudo no es válida; el cuerpo no se registra.
-- **Sin secretos en el repositorio:** no hay archivos `.env`; los valores vienen del `.env` de la Pi (permisos 600, fuera del repositorio) o del entorno. SonarCloud: 0 vulnerabilidades y 0 *security hotspots*; las acciones de CI están fijadas por SHA.
+- **Sin secretos en el repositorio:** viven en OpenBao (el Vault de código abierto, que solo escucha en `127.0.0.1` de la Pi); `up.sh` los trae al arrancar con un token de solo lectura y genera el `.env` con permisos 600, y si el vault está sellado o falla no toca el `.env` actual. SonarCloud: 0 vulnerabilidades y 0 *security hotspots*; las acciones de CI están fijadas por SHA.
 - **Errores uniformes:** el cliente recibe `code` y mensaje sin trazas internas ni detalles de la base.
 
 ### 2.5 Registros (logs) sin datos de salud
@@ -67,6 +67,7 @@ Los logs de la API (Grafana Cloud/Loki) llevan método, ruta, estado, id de peti
 | ~~No se registra quién lee una historia clínica~~ | — | **Resuelto** (IPS-170): ver 2.1 |
 | ~~No hay captura de la autorización del titular~~ | — | **Resuelto** (IPS-171): ver 2.3. Falta el texto legal de la autorización que la IPS lee al paciente, que debe redactar su asesor |
 | ~~Política de conservación y supresión; respaldos~~ | — | **Documentada** (IPS-172): [04 · Conservación y respaldos](04-conservacion-y-respaldos.md). Falta confirmar las copias en Atlas y registrar la primera prueba de restauración |
+| Respaldo de las llaves de desellado y de la instantánea del vault | Sin ellas, perder la Pi es perder los secretos | Guardarlas fuera de la Pi (gestor de contraseñas y copia de la instantánea Raft) y probar la recuperación |
 | **Cifrado en reposo** y **doble factor** dependen de los proveedores | Verificar que estén activos | Confirmar el cifrado del clúster en Atlas y exigir doble factor a los roles con acceso clínico en Clerk |
 | Sin pruebas de penetración ni de carga | Vulnerabilidades no detectadas por análisis estático | Ejecutar un escaneo (por ejemplo OWASP ZAP) sobre la API desplegada y registrar el resultado |
 | Sin interoperabilidad (Ley 2015 de 2020) | Fuera del alcance actual | Declarado como trabajo futuro |

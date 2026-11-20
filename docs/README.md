@@ -8,5 +8,6 @@
 | [04 · Conservación y respaldos](04-conservacion-y-respaldos.md) | Plazos de conservación, solicitudes del titular y plan de recuperación |
 | [Demo interactiva](demo/IPS-proyecto.html) | Página de un solo archivo (sin internet) con las tres observaciones del docente, capturas, explorador de roles y registro de validación con usuarios; se regenera con `python docs/demo/build-demo.py` |
 | [05 · Guion de sustentación](05-guion-de-sustentacion.md) | Preparación de la demo, recorrido y respuestas a las observaciones |
+| [06 · Guion por secciones](06-guion-por-secciones.md) | Qué decir y mostrar en cada sección de la demo, con tiempos y preguntas probables |
 
 La referencia técnica de la API está en [`technical-api/`](../technical-api/README.md).

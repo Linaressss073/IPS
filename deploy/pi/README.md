@@ -6,17 +6,17 @@ Producción actual: la API y la web corren en una Raspberry Pi con Docker Compos
 |---|---|---|---|
 | Web | `https://ips.devrojas.xyz` | `b2b-web` | `127.0.0.1:3100` |
 | API | `https://ips-api.devrojas.xyz/api/v1` (salud: `/health`, Swagger: `/docs`) | `b2b-api` | `127.0.0.1:3101` |
-| Túnel | — | `b2b-cloudflared` (perfil `tunnel`) | sin puertos |
+| Túnel | — | `cloudflared` (compose propio en `~/docker/cloudflared`) | sin puertos |
 
 Los puertos solo escuchan en `127.0.0.1`: nada se expone a la red local ni a internet salvo por el túnel.
 
 ## Requisitos en la Pi
 
 - Docker y Docker Compose, y acceso por SSH desde el equipo que despliega.
-- Carpeta `~/docker/b2b` con el `.env` (copiar de [`.env.example`](.env.example), `chmod 600`). **Nunca va al repositorio.**
+- Carpeta `~/docker/b2b` con `up.sh` y el compose. El `.env` **no se escribe a mano**: lo genera `up.sh` desde OpenBao (ver abajo) y nunca va al repositorio.
 - MongoDB Atlas con acceso de red permitido a la IP pública de la Pi.
 
-## Variables del `.env`
+## Variables (se guardan en OpenBao)
 
 | Variable | Qué es |
 |---|---|
@@ -25,7 +25,6 @@ Los puertos solo escuchan en `127.0.0.1`: nada se expone a la red local ni a int
 | `MONGO_URL`, `MONGO_DB_NAME` | Conexión a Atlas |
 | `CORS_ORIGIN`, `CLERK_AUTHORIZED_PARTIES` | Origen de la web: `https://ips.devrojas.xyz` |
 | `MAIL_*` | Correo (Spacemail). En producción `ENV=prod` (lo fija el compose) permite cualquier destinatario; fuera de producción solo los de `MAIL_DEV_ALLOW`. El puerto 587 exige TLS en producción |
-| `CLOUDFLARE_TUNNEL_TOKEN` | Token del túnel (solo con `--profile tunnel`) |
 
 ## Desplegar
 
@@ -39,13 +38,20 @@ deploy/pi/deploy.sh web        # solo la web
 
 Variables opcionales: `PI` (usuario@host de la Pi), `PUBLIC_API_URL` (URL pública de la API; se hornea en la web al construirla) y `CLERK_PK` (clave pública de Clerk de **producción**, `pk_live_…`; nunca la de `.env.local`).
 
-El script empaqueta el código sin secretos (`.env*`, `secrets.*.json`, `node_modules`), lo copia a `~/b2b-src` en la Pi, construye las imágenes `b2b-api` y `b2b-web` allí, copia el compose y recrea los contenedores.
+El script empaqueta el código sin secretos (`.env*`, `secrets.*.json`, `node_modules`), lo copia a `~/b2b-src` en la Pi, construye las imágenes `b2b-api` y `b2b-web` allí, copia el compose y recrea los contenedores con el `.env` vigente (si cambiaste un secreto, ejecuta antes `./up.sh` en la Pi).
+
+## Secretos con OpenBao (Vault)
+
+Los secretos no están en el repositorio ni se editan a mano en la Pi. Viven en **OpenBao** (el fork de código abierto de HashiCorp Vault, con la misma API), que corre en la propia Pi como contenedor, con almacenamiento Raft, y solo escucha en `127.0.0.1:8200`. Los de esta app están en `projects/data/b2b/prod` (KV v2).
+
+- **Arrancar o cambiar un secreto:** editarlo en el vault y ejecutar `./up.sh` en `~/docker/b2b` (copia de [`up.sh`](up.sh)). Trae el secreto con un token de solo lectura (`.vault-token`, permisos 600, fuera del repositorio), regenera el `.env` (permisos 600) y levanta los contenedores. `./up.sh --env-only` solo regenera el `.env`.
+- **Si el vault está sellado o falla**, `up.sh` aborta y **no toca el `.env` actual**: la app sigue con los secretos que ya tenía.
+- **Tras reiniciar la Pi**, el vault arranca sellado: hay que desellarlo (script en `~/docker/vault`) antes de `./up.sh`.
+- **Respaldo:** las llaves de desellado y una instantánea Raft deben guardarse fuera de la Pi (por confirmar).
 
 ## Túnel de Cloudflare
 
-1. En Cloudflare Zero Trust → Networks → Tunnels, crear el túnel y copiar su token a `CLOUDFLARE_TUNNEL_TOKEN` del `.env`.
-2. Añadir los hostnames públicos: `ips.devrojas.xyz` → `http://web:3000` y `ips-api.devrojas.xyz` → `http://api:3001`.
-3. Arrancarlo: `docker compose --profile tunnel up -d cloudflared` (desde `~/docker/b2b`).
+El túnel vive aparte, en `~/docker/cloudflared` (su propio compose y su propio token), y llega a la app por la red `b2b_default`: `ips.devrojas.xyz` → `http://web:3000` e `ips-api.devrojas.xyz` → `http://api:3001`. Los hostnames se administran en Cloudflare Zero Trust → Networks → Tunnels.
 
 ## Configuración en Clerk (cada vez que cambia el dominio)
 
@@ -70,5 +76,5 @@ docker logs --tail 100 b2b-api
 ```
 
 - **Volver atrás:** las imágenes llevan la etiqueta `latest`; para revertir se hace `git checkout <commit bueno>` y se vuelve a ejecutar `deploy.sh`.
-- **Copias de seguridad:** los datos están en Atlas (ver [política de respaldos](../../docs/04-conservacion-y-respaldos.md)). Del `.env` de la Pi se guarda una copia en un gestor de contraseñas.
-- **Logs y métricas:** si `OTEL_EXPORTER_OTLP_ENDPOINT` y `OTEL_EXPORTER_OTLP_HEADERS` están en el `.env`, la API los envía a Grafana Cloud; el token de Grafana es un secreto igual que los demás.
+- **Copias de seguridad:** los datos están en Atlas (ver [política de respaldos](../../docs/04-conservacion-y-respaldos.md)). Los secretos viven en OpenBao: respalda sus llaves de desellado y una instantánea Raft (`bao operator raft snapshot save`) **fuera de la Pi**; sin ellas, perder la Pi es perder los secretos.
+- **Logs y métricas:** si `OTEL_EXPORTER_OTLP_ENDPOINT` y `OTEL_EXPORTER_OTLP_HEADERS` están en el secreto del vault, la API los envía a Grafana Cloud; el token de Grafana es un secreto igual que los demás.

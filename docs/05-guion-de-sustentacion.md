@@ -8,7 +8,7 @@ Qué dejar listo esta noche, en qué orden mostrar el sistema y qué responder a
 
 ## 1. Estado de producción (decirlo claro)
 
-Producción corre en una **Raspberry Pi con Docker Compose, publicada por un túnel de Cloudflare**: web <https://ips.devrojas.xyz> y API <https://ips-api.devrojas.xyz/api/v1> (salud comprobada el 18-nov-2026: `{"status":"ok","database":"up"}`). Guía en [`deploy/pi/`](../deploy/pi/README.md). Se pasó a la Pi porque Render **suspendió la API al agotar las 750 horas gratuitas** («Free usage limit reached») el 17-nov; la causa y la lección están en el [README](../README.md#solo-si-se-usa-render-que-la-api-no-se-duerma-plan-gratuito).
+Producción corre en una **Raspberry Pi con Docker Compose, publicada por un túnel de Cloudflare y con los secretos en OpenBao (el Vault de código abierto)**: web <https://ips.devrojas.xyz> y API <https://ips-api.devrojas.xyz/api/v1> (salud comprobada el 18-nov-2026: `{"status":"ok","database":"up"}`). Guía en [`deploy/pi/`](../deploy/pi/README.md). Se pasó a la Pi porque Render **suspendió la API al agotar las 750 horas gratuitas** («Free usage limit reached») el 17-nov; la causa y la lección están en el [README](../README.md#solo-si-se-usa-render-que-la-api-no-se-duerma-plan-gratuito).
 
 Dos cosas que decir si preguntan: la web usa la instancia de **producción** de Clerk (`clerk.devrojas.xyz`; la organización DEV vive en la instancia de desarrollo, que es solo para local) y la Pi es un solo equipo, sin réplicas. La demo local de abajo queda como **respaldo** si cae la Pi, el túnel o internet.
 

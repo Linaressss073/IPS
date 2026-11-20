@@ -188,20 +188,6 @@ dialog button { position: absolute; top: 8px; right: 8px; font: inherit; font-we
 .barra div { height: 14px; border-radius: 7px; background: var(--green); }
 .barra span:last-child { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
 
-/* Validacion */
-.val { display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; align-items: start; }
-.val label { display: block; font-weight: 700; font-size: 14px; margin: 10px 0 4px; }
-.val select, .val input[type=number] { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid #8696A8; background: #fff; color: var(--ink); width: 100%; }
-.tarea { display: grid; grid-template-columns: 1fr 150px 90px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
-.tarea span { font-size: 14.5px; }
-.sus { display: grid; gap: 4px; }
-.sus div { display: grid; grid-template-columns: 1fr 74px; gap: 8px; align-items: center; font-size: 14px; padding: 4px 0; border-bottom: 1px solid var(--line); }
-.btn { font: inherit; font-weight: 800; padding: 10px 16px; border-radius: 10px; border: 0; background: var(--green); color: #fff; cursor: pointer; }
-.btn.sec { background: #fff; color: var(--ink); border: 1px solid #8696A8; }
-.btn.peligro { background: var(--red); }
-.acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-.resumen { font-size: 15px; margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #EEF6F2; border: 1px solid #BFE0CF; }
-
 /* Pruebas de seguridad */
 .grupos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 14px; }
 .grupo { background: var(--ink2); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 16px 18px; }
@@ -233,6 +219,33 @@ pre { font-family: var(--mono); font-size: 13.5px; background: #0B1622; color: #
 .capa ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 14.5px; color: #E2E9F0; }
 .capa li::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--blue); border-radius: 2px; margin-right: 8px; vertical-align: 2px; }
 
+/* Problema */
+.flujos { display: grid; gap: 12px; margin: 26px 0 8px; }
+.flujo { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; }
+.flujo > b { font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.pf { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pf .e { background: var(--white); border: 2px solid var(--line); border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: 14.5px; }
+.pf .r, .pf .o { font-size: 12px; font-weight: 800; border-radius: 99px; padding: 3px 9px; }
+.pf .r { color: #7A5200; background: #FFF1CC; }
+.pf .o { color: #0C5A38; background: #DDF4E8; }
+.flujo.hoy .e { border-color: var(--amber); }
+.flujo.con .e { border-color: var(--green); }
+@media (max-width: 760px) { .flujo { grid-template-columns: 1fr; } }
+
+/* Stack tecnologico */
+.stk { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); gap: 18px; margin-top: 8px; }
+.stk .card { padding: 20px 22px; }
+.stk h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.stk h3 i { font-style: normal; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: #E3F3EA; color: var(--green); font-size: 15px; font-weight: 800; }
+.stk ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.stk li { font-size: 14.5px; color: var(--muted); padding-left: 14px; position: relative; }
+.stk li::before { content: ''; position: absolute; left: 0; top: .62em; width: 6px; height: 6px; border-radius: 2px; background: var(--blue); }
+.stk li b { color: var(--ink); }
+.stk li code { white-space: nowrap; }
+.porque { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 14px; margin-top: 20px; }
+.porque div { border-left: 4px solid var(--green); padding: 4px 0 4px 14px; font-size: 14.5px; color: var(--muted); }
+.porque div b { display: block; color: var(--ink); font-size: 15.5px; margin-bottom: 2px; }
+
 /* Visor del recorrido */
 .rec { display: grid; grid-template-columns: 290px 1fr; gap: 22px; background: var(--ink); color: #fff; border-radius: 18px; padding: 20px; margin-top: 22px; }
 .caps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; align-content: start; counter-reset: c; }
@@ -253,7 +266,7 @@ pre { font-family: var(--mono); font-size: 13.5px; background: #0B1622; color: #
 footer { background: var(--ink); color: #A9B8C8; padding: 26px 0; font-size: 14px; }
 code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding: 1px 6px; border-radius: 5px; }
 .dark code { background: rgba(255,255,255,.1); }
-@media (max-width: 860px) { .val { grid-template-columns: 1fr; } .tarea { grid-template-columns: 1fr 1fr; } .tarea span { grid-column: 1 / -1; } .barra { grid-template-columns: 110px 1fr 40px; } }
+@media (max-width: 860px) { .barra { grid-template-columns: 110px 1fr 40px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
 </style>
 </head>
@@ -262,8 +275,8 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
 <nav class="nav" aria-label="Secciones">
   <div class="wrap">
     <b>IPS <i>Consulta Externa</i></b>
-    <a href="#docente">Observaciones</a><a href="#demo">Demo</a><a href="#recorrido">Recorrido</a><a href="#pruebas">Pruebas</a><a href="#validacion">Validación</a>
-    <a href="#seguridad">Seguridad</a><a href="#entrega">Entrega</a><a href="#arquitectura">Arquitectura</a><a href="#estado">Estado</a>
+    <a href="#problema">Problema</a><a href="#demo">Demo</a><a href="#recorrido">Recorrido</a><a href="#pruebas">Pruebas</a>
+    <a href="#seguridad">Seguridad</a><a href="#arquitectura">Arquitectura</a><a href="#stack">Stack</a><a href="#estado">Estado</a>
   </div>
 </nav>
 
@@ -271,7 +284,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
   <div class="wrap">
     <span class="eti" style="color:var(--greenl)">El proyecto completo · demo</span>
     <h1>Sistema de información hospitalaria para la consulta externa: <em>un registro por paciente, todo trazado, probado y protegido</em></h1>
-    <p class="lead">Agendamiento, admisión con turnos y pantalla de sala, consulta médica con firma y fórmula, y farmacia con inventario. Cada IPS ve solo lo suyo, cada persona solo lo que su rol permite, y cada cambio (y cada lectura de una historia clínica) deja rastro. En producción en <a href="https://ips.devrojas.xyz" style="color:var(--bluel)">ips.devrojas.xyz</a>.</p>
+    <p class="lead">Agendamiento, admisión con turnos y pantalla de sala, consulta médica con firma y fórmula, y farmacia con inventario. Cada IPS ve solo lo suyo, cada persona solo lo que su rol permite, y cada cambio (y cada lectura de una historia clínica) deja rastro. En producción en <a href="https://ips.devrojas.xyz" style="color:var(--bluel)">ips.devrojas.xyz</a>, sobre una Raspberry Pi propia con los secretos en Vault (OpenBao) y publicada por Cloudflare Tunnel.</p>
     <div class="cifras">
       <div class="cifra"><b>@@TOTAL_TESTS@@</b><span>pruebas automáticas (unitarias, e2e y web)</span></div>
       <div class="cifra"><b>@@COVERAGE@@ %</b><span>cobertura medida por SonarCloud</span></div>
@@ -286,45 +299,49 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
 
 <main id="contenido">
 
-<section id="docente">
+<section id="problema">
   <div class="wrap">
-    <span class="eti">Lo primero</span>
-    <h2>Las tres observaciones del docente, una por una</h2>
-    <p class="cita">«Reforzar la evidencia de pruebas y validación con usuarios, profundizar en la seguridad y protección de los datos de salud, y evitar dejar la entrega para el último día.» · Calificación 4,2 / 5,0</p>
-    <div class="cards">
-      <article class="card">
-        <span class="chip ok">Pruebas: hecho</span><span class="chip pend">Usuarios: por realizar</span>
-        <h3>Evidencia de pruebas y validación con usuarios</h3>
-        <ul>
-          <li>@@TOTAL_TESTS@@ pruebas automáticas; la API se prueba con una base MongoDB real en contenedor.</li>
-          <li>Cadena de CI que bloquea el despliegue si algo falla, y SonarCloud con el <i>quality gate</i> aprobado.</li>
-          <li>Revisión de accesibilidad con 8 hallazgos corregidos.</li>
-          <li>Protocolo de usabilidad por rol y una herramienta para registrar tareas y el cuestionario SUS. <b>Los resultados con personas reales aún no existen.</b></li>
-        </ul>
-        <p style="margin-top:12px"><a href="#pruebas">Ver pruebas</a> · <a href="#validacion">Registrar validación</a></p>
-      </article>
-      <article class="card">
-        <span class="chip ok">Hecho</span><span class="chip pend">2 brechas declaradas</span>
-        <h3>Seguridad y protección de los datos de salud</h3>
-        <ul>
-          <li>Aislamiento por IPS, permisos por rol y la historia clínica solo para médicos.</li>
-          <li><b>Registro de quién lee cada historia</b> y autorización del titular (Ley 1581 de 2012).</li>
-          <li>HTTPS forzado, cabeceras de seguridad, límite de peticiones y logs sin datos de salud.</li>
-          <li>@@SMOKE@@ pruebas de seguridad en producción, y los fallos encontrados por el camino, corregidos.</li>
-        </ul>
-        <p style="margin-top:12px"><a href="#seguridad">Ver seguridad</a></p>
-      </article>
-      <article class="card">
-        <span class="chip pend">Parcial</span><span class="chip ok">Medidas en marcha</span>
-        <h3>No dejar la entrega para el último día</h3>
-        <ul>
-          <li>Sprints semanales en Jira desde el primer commit (1 de octubre).</li>
-          <li>El historial real muestra ráfagas de trabajo, no un ritmo parejo: se muestra tal cual.</li>
-          <li>Lo que cambió: CI obligatorio, pruebas de humo tras cada despliegue y una definición de terminado.</li>
-        </ul>
-        <p style="margin-top:12px"><a href="#entrega">Ver ritmo y cierre</a></p>
-      </article>
+    <span class="eti">Por qué existe</span>
+    <h2>El problema: cada etapa de la consulta externa guarda su propio registro</h2>
+    <p class="lead">En una IPS de mediana complejidad, agendar, tomar turno, admitir, consultar y dispensar funcionan como procesos separados. El mismo dato se vuelve a escribir, el paciente retrocede y espera sin saber cuánto falta, y nadie puede reconstruir qué pasó. <b>El software existe para resolver eso.</b></p>
+    <div class="flujos" aria-label="Recorrido del paciente, antes y con el sistema">
+      <div class="flujo hoy"><b>Hoy</b><div class="pf">
+        <span class="e">Agendamiento</span><span class="r">↻ vuelve a digitar</span>
+        <span class="e">Turno</span><span class="r">↻ vuelve a digitar</span>
+        <span class="e">Admisión</span><span class="r">↻ vuelve a digitar</span>
+        <span class="e">Consulta</span><span class="r">fórmula en papel</span>
+        <span class="e">Farmacia</span>
+      </div></div>
+      <div class="flujo con"><b>Con el sistema</b><div class="pf">
+        <span class="e">Agendamiento</span><span class="o">mismo registro</span>
+        <span class="e">Turno</span><span class="o">mismo registro</span>
+        <span class="e">Admisión</span><span class="o">mismo registro</span>
+        <span class="e">Consulta</span><span class="o">fórmula digital firmada</span>
+        <span class="e">Farmacia</span>
+      </div></div>
     </div>
+    <div class="cards" style="margin-top:22px">
+      <article class="card"><span class="chip info">Lo que se observó</span><h3>Datos repetidos y fórmula transcrita</h3>
+        <p>En el recorrido de un paciente, el documento de identidad se digita entre tres y cuatro veces, y la fórmula médica se transcribe a mano para que farmacia pueda atenderla. Es la observación directa del equipo en una IPS de mediana complejidad.</p></article>
+      <article class="card"><span class="chip info">Lo que dice la literatura</span><h3>Un problema del proceso, no de las personas</h3>
+        <p>En la E.S.E. Antonio Nariño (Burbano y Montenegro, 2010), el 57 % del personal reportó incumplimiento de la calidad esperada por exceso de trámites y papeleo, y solo entre el 21 % y el 25 % de los usuarios calificó como excelente la asignación de citas. Personal y usuarios señalan el mismo obstáculo.</p></article>
+      <article class="card"><span class="chip info">Por qué sigue pasando</span><h3>Informatizado, pero a pedazos</h3>
+        <p>Persiste aun con historia clínica electrónica: se digitalizó módulo por módulo, sin un flujo continuo. La Ley 2015 de 2020 exige una historia clínica electrónica interoperable; el desafío de fondo es la continuidad de la información entre etapas.</p></article>
+    </div>
+    <p class="cita" style="margin-top:22px">La pregunta que resolvemos: ¿qué características debe tener un sistema de información para que, en la consulta externa de una IPS de mediana complejidad, cada dato del paciente se capture una sola vez, su atención avance sin retrocesos ni esperas evitables, y su recorrido quede trazado de principio a fin?</p>
+    <div class="tabla"><table>
+      <caption>Cada dificultad, y cómo la resuelve el sistema</caption>
+      <thead><tr><th>Dificultad</th><th>Cómo la resuelve el sistema</th><th>Dónde se ve</th></tr></thead>
+      <tbody>
+        <tr><td><b>Datos repetidos</b> en cada etapa</td><td>Un solo registro por paciente en cada IPS (documento único); lo que se captura en una etapa está disponible en la siguiente según el rol.</td><td><a href="#recorrido">Recorrido, caps. 3 y 4</a></td></tr>
+        <tr><td><b>Fórmula transcrita</b> a mano</td><td>La fórmula se firma en la consulta y llega a farmacia, que entrega contra ella sin volver a digitarla.</td><td><a href="#recorrido">Caps. 11 y 13</a></td></tr>
+        <tr><td><b>Retrocesos</b>: el dato no está donde se necesita</td><td>Agenda, admisión, consulta y farmacia comparten la misma ficha; la historia clínica solo la ven los médicos.</td><td><a href="#roles">Explorador de roles</a></td></tr>
+        <tr><td><b>Esperas</b> sin visibilidad del turno</td><td>Turno por servicio, llamado en la pantalla de sala con voz y reanuncio automático antes de marcarse «no se presentó».</td><td><a href="#recorrido">Caps. 8 a 10</a></td></tr>
+        <tr><td><b>Inventario desconectado</b> de la fórmula</td><td>Inventario por lote ligado a la entrega: sale primero lo que vence primero, no se entrega más de lo pendiente ni lotes vencidos, y hay filtros de stock bajo y por vencer.</td><td><a href="#recorrido">Caps. 12 y 13</a></td></tr>
+        <tr><td><b>Sin trazabilidad</b> del recorrido</td><td>Historial de eventos que solo se agrega (quién, qué y cuándo) y registro de quién lee cada historia clínica.</td><td><a href="#recorrido">Cap. 14</a> y <a href="#seguridad">Seguridad</a></td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px; font-size:14.5px; color:var(--muted)">Honestidad sobre la evidencia: el sistema elimina la recaptura por diseño, pero todavía no medimos en una IPS real cuánto se reducen las esperas y los retrocesos; esa medición es el siguiente paso.</p>
   </div>
 </section>
 
@@ -348,7 +365,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
 <section>
   <div class="wrap">
     <span class="eti">Guion de la demo</span>
-    <h2>Recorrido en 8 pasos (≈ 10 minutos)</h2>
+    <h2>Recorrido en 8 pasos</h2>
     <p class="lead">El mismo orden de un paciente real, cambiando de rol en cada paso. Se hace con datos ficticios en una organización de demostración.</p>
     <ol class="pasos">
       <li><span class="chip rol">Agendamiento</span><b>Registrar un paciente marcando la autorización de datos</b><span>Un solo registro por documento y por IPS; queda quién autorizó y cuándo (Ley 1581 de 2012).</span></li>
@@ -400,7 +417,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
 <section id="pruebas">
   <div class="wrap">
     <span class="eti">Observación 1 · pruebas</span>
-    <h2>Verificado con pruebas, no con promesas</h2>
+    <h2>Verificado con pruebas</h2>
     <p class="lead">Las pruebas corren en cada <i>push</i>. La API se prueba de extremo a extremo con <b>MongoDB real</b> (un contenedor por ejecución, con transacciones) y solo se simula a Clerk.</p>
     <div class="barras" aria-label="Pruebas por capa">
       <div class="barra"><span>Unitarias (API)</span><div style="width:@@W_UNIT@@%"></div><span>@@T_UNIT@@</span></div>
@@ -416,38 +433,6 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
       <div class="card"><h3>SonarCloud</h3><p><span class="chip ok">Gate aprobado</span></p><ul><li>@@COVERAGE@@ % de cobertura (mínimo del proyecto: 80 %)</li><li>0 bugs, 0 vulnerabilidades, 0 <i>hotspots</i>, 0 <i>code smells</i></li><li>Calificación A en seguridad, fiabilidad y mantenibilidad</li></ul></div>
       <div class="card"><h3>Accesibilidad</h3><p><span class="chip ok">Corregido</span></p><ul><li>Contraste de bordes: de 1,3:1 a 3,9:1</li><li>34 mensajes de error anunciados a lectores de pantalla</li><li>21 campos con nombre accesible, tablas con título, «Saltar al contenido»</li></ul></div>
       <div class="card"><h3>Lo que aún no cubre</h3><p><span class="chip pend">Honesto</span></p><ul><li>Pruebas automáticas de la interfaz de extremo a extremo (IPS-152)</li><li>Pruebas de carga y de penetración</li></ul></div>
-    </div>
-  </div>
-</section>
-
-<section class="dark" id="validacion">
-  <div class="wrap">
-    <span class="eti">Observación 1 · usuarios</span>
-    <h2>Validación con usuarios: protocolo y registro</h2>
-    <p class="lead">El protocolo define 7 tareas por rol y el cuestionario SUS. <b>Aún no se han hecho las sesiones</b>: esta herramienta sirve para registrarlas en el momento, y los resultados quedan solo en este navegador (se pueden exportar a CSV). Meta: ≥ 80 % de tareas sin ayuda y SUS ≥ 68.</p>
-    <div class="val card" style="color:var(--ink); background:#fff">
-      <form id="val-form" novalidate>
-        <h3>Sesión con un participante</h3>
-        <label for="v-part">Participante</label>
-        <select id="v-part"><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option></select>
-        <label for="v-rol">Rol</label>
-        <select id="v-rol"><option>Administración</option><option>Agendamiento / admisión</option><option>Médico</option><option>Farmacia</option><option>Uso de teclado o lector de pantalla</option></select>
-        <h3 style="margin-top:18px">Tareas</h3>
-        <div id="v-tareas"></div>
-        <h3 style="margin-top:18px">Cuestionario SUS <small style="font-weight:400">(1 = muy en desacuerdo, 5 = muy de acuerdo)</small></h3>
-        <div class="sus" id="v-sus"></div>
-        <div class="acciones">
-          <button class="btn" type="submit">Guardar participante</button>
-          <button class="btn sec" type="button" id="v-csv">Exportar CSV</button>
-          <button class="btn sec peligro" type="button" id="v-borrar">Borrar todo</button>
-        </div>
-        <p id="v-msg" role="status" style="margin:10px 0 0; font-size:14px; color:var(--muted)"></p>
-      </form>
-      <div>
-        <h3>Resultados guardados</h3>
-        <div class="tabla"><table><thead><tr><th>Part.</th><th>Rol</th><th class="n">Sin ayuda</th><th class="n">SUS</th></tr></thead><tbody id="v-tabla"><tr><td colspan="4" style="color:var(--muted)">Aún no hay sesiones registradas.</td></tr></tbody></table></div>
-        <div class="resumen" id="v-resumen">Sin datos todavía.</div>
-      </div>
     </div>
   </div>
 </section>
@@ -471,6 +456,7 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
         <tr><td>Autorización del titular</td><td>Se guarda quién y cuándo se registró; editar al paciente no la modifica</td><td>Pruebas del agregado y e2e</td></tr>
         <tr><td>Historia inmutable</td><td>Una consulta firmada solo admite notas aclaratorias; los eventos de auditoría solo se agregan</td><td>e2e de consulta</td></tr>
         <tr><td>Datos mínimos del personal</td><td>Correo enmascarado, anonimización al eliminar a la persona (derecho al olvido)</td><td>Pruebas de staff</td></tr>
+        <tr><td>Gestión de secretos</td><td>Los secretos viven en <b>OpenBao</b> (el Vault de código abierto, con almacenamiento Raft, solo en 127.0.0.1 de la Pi). <code>up.sh</code> los trae con un token de solo lectura y genera el <code>.env</code> con permisos 600; si el vault está sellado o falla, no toca el <code>.env</code> actual</td><td>Revisado en la Pi (<code>deploy/pi/up.sh</code>); SonarCloud sin <i>hotspots</i></td></tr>
         <tr><td>Transporte y perímetro</td><td>HTTPS forzado, TLS 1.3, cabeceras (HSTS, CSP, nosniff), CORS solo para la web, límite de peticiones</td><td>@@SMOKE@@ pruebas en producción</td></tr>
         <tr><td>Logs sin datos de salud</td><td>Rutas como plantilla, sin cuerpos, cabeceras ni valores de consulta; los errores registran solo códigos</td><td>Pruebas del registro de logs y del correo</td></tr>
       </tbody>
@@ -502,49 +488,10 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
     <h3 style="margin-top:34px">Brechas que declaramos</h3>
     <div class="cards">
       <div class="card"><span class="chip pend">Pendiente</span><h3>Copias de seguridad</h3><p>Confirmar que el clúster de Atlas las incluya y registrar la primera prueba de restauración.</p></div>
+      <div class="card"><span class="chip pend">Pendiente</span><h3>Respaldo del vault</h3><p>Guardar fuera de la Pi las llaves de desellado y una instantánea Raft de OpenBao; sin ellas, perder la Pi es perder los secretos.</p></div>
       <div class="card"><span class="chip pend">Pendiente</span><h3>Pruebas de penetración</h3><p>Un escaneo (por ejemplo OWASP ZAP) sobre la API desplegada. El 429 real se prueba en e2e, no en producción.</p></div>
       <div class="card"><span class="chip pend">Pendiente</span><h3>Texto legal de la autorización</h3><p>El sistema registra la autorización; el texto que se lee al paciente lo redacta un asesor jurídico.</p></div>
     </div>
-  </div>
-</section>
-
-<section id="entrega">
-  <div class="wrap">
-    <span class="eti">Observación 3 · entrega</span>
-    <h2>Ritmo de trabajo y cierre</h2>
-    <p class="lead">Estos son los commits reales por semana del repositorio, de @@PRIMER@@ al día de hoy (@@TOTAL_COMMITS@@ en total). Se muestra completo, con las semanas sin actividad.</p>
-    @@CHART@@
-    <div class="espacio" aria-hidden="true"></div>
-    <div class="cards">
-      <div class="card">
-        <span class="chip pend">Lo que muestra</span>
-        <h3>Cuatro ráfagas, no un ritmo parejo</h3>
-        <p>Hubo trabajo del 1 al 3 de octubre, del 20 al 22, el 4 y 5 de noviembre y de nuevo desde el 15. La última semana concentra el @@PCT@@ % de todos los commits. Es justo el patrón que señaló el docente y no lo escondemos.</p>
-      </div>
-      <div class="card">
-        <span class="chip ok">Lo que cambió</span>
-        <h3>Para que no se repita</h3>
-        <ul>
-          <li>Tablero de Jira con épicas, historias con criterios de aceptación y <b>sprints semanales</b>, con cada commit enlazado a su historia.</li>
-          <li>CI obligatorio: nada se despliega si falla; ya no se «prueba al final».</li>
-          <li>Definición de terminado: CI y Sonar en verde, QA, documentación y Jira al día.</li>
-          <li>Pruebas de humo después de cada despliegue.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="tabla" style="margin-top:22px"><table>
-      <caption>Sprints semanales en Jira (proyecto IPS)</caption>
-      <thead><tr><th>Sprint</th><th>Fechas</th><th>Objetivo</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>1 – 8 oct</td><td>—</td></tr>
-        <tr><td>2</td><td>8 – 15 oct</td><td>—</td></tr>
-        <tr><td>3</td><td>15 – 22 oct</td><td>Corrección de farmacia, limpieza del repositorio y backlog del proyecto</td></tr>
-        <tr><td>4</td><td>22 – 29 oct</td><td>Épica 7: calidad continua y operación</td></tr>
-        <tr><td>5</td><td>29 oct – 5 nov</td><td>Épica 8: comunicación con el paciente</td></tr>
-        <tr><td>6</td><td>5 – 12 nov</td><td>Épica 9: indicadores de la consulta externa; calidad, accesibilidad y seguridad (épica QA)</td></tr>
-      </tbody>
-    </table></div>
-    <p style="margin-top:12px; font-size:14.5px; color:var(--muted)">Pendiente en el tablero: cerrar los sprints 4 a 6 y mover lo que no se terminó.</p>
   </div>
 </section>
 
@@ -557,8 +504,96 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
       <div class="capa"><h3>Clientes</h3><ul><li>Web Next.js 15 (escritorio y celular)</li><li>Pantalla de sala con voz</li><li>Swagger (OpenAPI) de la API</li></ul></div>
       <div class="capa"><h3>Plataforma</h3><ul><li>NestJS 12, DDD y CQRS</li><li>Pacientes, agendamiento, admisión, consulta, farmacia, personal, organizaciones, identidad</li><li>Permisos por rol, optimista contra conflictos</li></ul></div>
       <div class="capa"><h3>Datos</h3><ul><li>MongoDB Atlas (conjunto de réplicas, transacciones)</li><li><code>trace_events</code>: auditoría que solo se agrega</li><li><code>clinical_access</code>: quién leyó qué</li></ul></div>
-      <div class="capa"><h3>Servicios</h3><ul><li>Clerk (identidad y organizaciones = IPS)</li><li>Correo SMTP (Spacemail)</li><li>Grafana Cloud: métricas y logs por OTLP</li></ul></div>
-      <div class="capa"><h3>Operación</h3><ul><li>Raspberry Pi con Docker Compose</li><li>Cloudflare Tunnel (HTTPS, sin puertos abiertos)</li><li>GitHub Actions y SonarCloud</li></ul></div>
+      <div class="capa"><h3>Servicios</h3><ul><li>Clerk (identidad y organizaciones = IPS)</li><li>Correo SMTP (Spacemail)</li><li>Grafana Cloud: métricas y logs por OTLP</li><li><b>OpenBao (Vault):</b> los secretos, fuera del código y del repositorio</li></ul></div>
+      <div class="capa"><h3>Operación</h3><ul><li>Raspberry Pi con Docker Compose</li><li><code>up.sh</code>: trae los secretos del vault y genera el <code>.env</code></li><li>Cloudflare Tunnel en su propio compose (HTTPS, sin puertos abiertos)</li><li>GitHub Actions y SonarCloud</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <span class="eti">Con qué está hecho</span>
+    <h2>Stack tecnológico</h2>
+    <p class="lead">Primero el modelo de negocio y después las piezas técnicas. Las versiones son las del repositorio.</p>
+    <h3 style="margin:26px 0 4px">Stack de negocio: SaaS multi-tenant</h3>
+    <p class="lead" style="font-size:16px">Una sola instalación del sistema atiende a muchas IPS. Cada IPS es un <b>tenant</b>: una organización aislada, con su personal, sus roles, su configuración y sus datos.</p>
+    <div class="stk">
+      <article class="card"><h3><i aria-hidden="true">M</i>Modelo SaaS</h3><ul>
+        <li><b>Software como servicio</b>: una instalación, muchas instituciones, desde el navegador y sin instalar nada en la IPS</li>
+        <li>Dirigido a IPS de <b>mediana complejidad</b>, que rara vez tienen un equipo propio de tecnología</li>
+        <li>Planes y cobro por suscripción: <b>no implementados</b></li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">T</i>Multi-tenant</h3><ul>
+        <li><b>Tenant = IPS</b> = una organización de Clerk, identificada por <code>teamId</code> en cada ruta, consulta y colección</li>
+        <li>Una IPS nueva se crea desde el inicio de sesión; su administrador asigna los roles</li>
+        <li>El <code>teamId</code> de la ruta debe coincidir con la membresía de quien llama</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">A</i>Aislamiento y permisos por IPS</h3><ul>
+        <li>Cada IPS ve solo sus pacientes, su personal y sus agendas; lo comprueba una prueba e2e entre dos IPS</li>
+        <li>Una persona puede estar en varias IPS, con roles distintos en cada una</li>
+        <li>7 roles y 13 permisos, asignados por la administración de cada IPS</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">C</i>Configuración y trazabilidad por IPS</h3><ul>
+        <li>Cada IPS define sus datos (NIT y habilitación), sus servicios con prefijo de turno, sus consultorios y el llamado de turnos</li>
+        <li>Auditoría y registro de lecturas separados por IPS</li>
+        <li>Derecho al olvido del personal sin romper el historial</li>
+      </ul></article>
+    </div>
+    <h3 style="margin:34px 0 4px">Stack técnico</h3>
+    <p class="lead" style="font-size:16px">TypeScript de punta a punta, un solo gestor de paquetes y un contenedor por servicio.</p>
+    <div class="stk">
+      <article class="card"><h3><i aria-hidden="true">W</i>Interfaz web</h3><ul>
+        <li><b>Next.js 15</b> (App Router, renderizado en servidor) y <b>React 19</b></li>
+        <li><b>TypeScript 5</b></li>
+        <li><b>Tailwind CSS 3.4</b> con componentes tipo shadcn/ui sobre <b>Radix UI</b></li>
+        <li><b>Clerk para Next.js 7</b>: inicio de sesión y organizaciones (cada IPS)</li>
+        <li><b>pdf-lib</b>: la fórmula médica en PDF</li>
+        <li><b>openapi-typescript</b>: los tipos de la web se generan desde la API</li>
+        <li><b>next-themes</b> y <b>lucide-react</b>: modo claro y oscuro, e iconos</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">A</i>Servidor (API)</h3><ul>
+        <li><b>NestJS 12</b> sobre <b>Node 24</b>, con <b>TypeScript 6</b></li>
+        <li><b>DDD</b>: 8 contextos de negocio, con comandos y consultas separados (CQRS escrito a mano, sin librería)</li>
+        <li><b>class-validator</b>: validación de cada petición</li>
+        <li><b>OpenAPI / Swagger</b>: documentación interactiva con todos los campos</li>
+        <li><b>helmet</b> y <b>express-rate-limit</b>: cabeceras de seguridad y límite de peticiones</li>
+        <li><b>pino</b> (nestjs-pino): logs estructurados, sin datos de salud</li>
+        <li><b>nodemailer</b>: correo por SMTP, con tiempos máximos y TLS en producción</li>
+        <li><b>@clerk/backend</b>: verificación de tokens y membresías</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">D</i>Datos</h3><ul>
+        <li><b>MongoDB</b> (controlador 7.7): <b>Atlas</b> en producción, con réplica y transacciones</li>
+        <li>Bloqueo optimista por versión: dos personas no se pisan los datos</li>
+        <li><code>trace_events</code>: auditoría que solo se agrega; <code>clinical_access</code>: quién leyó cada historia</li>
+        <li><b>MongoDB 8</b> en Docker para desarrollo y pruebas</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">S</i>Identidad, secretos y observabilidad</h3><ul>
+        <li><b>Clerk</b>: identidad (Google o correo), organizaciones = IPS, webhooks con firma</li>
+        <li><b>OpenBao</b> (fork de código abierto de HashiCorp Vault): los secretos</li>
+        <li><b>Spacemail</b>: correo SMTP</li>
+        <li><b>OpenTelemetry</b> hacia <b>Grafana Cloud</b>: métricas (Prometheus) y logs (Loki)</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">Q</i>Calidad y pruebas</h3><ul>
+        <li><b>Vitest</b> (API 4, web 5) y <b>Supertest</b></li>
+        <li><b>Testcontainers 12</b>: una base MongoDB real en cada ejecución e2e</li>
+        <li><b>oxlint</b> (API) y <b>ESLint</b> (web)</li>
+        <li><b>SonarCloud</b>: calidad, cobertura (@@COVERAGE@@ %) y seguridad</li>
+        <li><b>GitHub Actions</b>: CI encadenado, con las acciones fijadas por SHA</li>
+        <li><b>Lighthouse</b>: revisión de accesibilidad</li>
+      </ul></article>
+      <article class="card"><h3><i aria-hidden="true">I</i>Infraestructura y despliegue</h3><ul>
+        <li><b>Raspberry Pi</b> con <b>Docker</b> y <b>Docker Compose</b> (imágenes <code>node:24-slim</code>)</li>
+        <li><b>Cloudflare Tunnel</b> y DNS: HTTPS forzado, TLS 1.3 y sin puertos abiertos</li>
+        <li><b>pnpm 12</b>: un solo gestor de paquetes para la API y la web</li>
+        <li><code>deploy.sh</code>, <code>up.sh</code> y <code>smoke-test.sh</code> (@@SMOKE@@ pruebas de seguridad)</li>
+        <li>Render quedó como alternativa (el plan gratuito se agotó)</li>
+      </ul></article>
+    </div>
+    <div class="porque">
+      <div><b>Un solo lenguaje</b>TypeScript en la web y en la API, con los tipos de la web generados desde la especificación de la API.</div>
+      <div><b>Historia consistente</b>Transacciones en MongoDB: el dato y su evento de auditoría se guardan juntos o no se guarda ninguno.</div>
+      <div><b>Sin contraseñas propias</b>La identidad la gestiona Clerk; la base nunca guarda contraseñas.</div>
+      <div><b>Secretos fuera del código</b>OpenBao los guarda y <code>up.sh</code> los trae al arrancar.</div>
     </div>
   </div>
 </section>
@@ -568,8 +603,8 @@ code { font-family: var(--mono); font-size: .92em; background: #E8EDF2; padding:
     <span class="eti">Sin adornos</span>
     <h2>Qué está listo y qué falta</h2>
     <div class="cards">
-      <div class="card"><span class="chip ok">Listo</span><ul><li>Flujo completo ejecutado en producción el 18-nov-2026 con datos ficticios: registrar, agendar, admitir, llamar, consultar, firmar y dispensar</li><li>Roles, aislamiento por IPS y registro de lecturas</li><li>Autorización del titular y política de conservación (Res. 1995/1999)</li><li>Producción con Clerk de producción, HTTPS y Grafana</li><li>CI, Sonar y @@SMOKE@@ pruebas de seguridad</li></ul></div>
-      <div class="card"><span class="chip pend">Falta validar</span><ul><li>Sesiones de usabilidad con personas reales (herramienta lista arriba)</li><li>Pruebas automáticas de la interfaz de extremo a extremo (IPS-152)</li><li>Copias de seguridad de Atlas y primera restauración de prueba</li><li>Escaneo de penetración</li><li>Correo al paciente: el envío SMTP está listo; faltan las historias 2 y 3 de la épica 8</li></ul></div>
+      <div class="card"><span class="chip ok">Listo</span><ul><li>Flujo completo ejecutado en producción el 18-nov-2026 con datos ficticios: registrar, agendar, admitir, llamar, consultar, firmar y dispensar</li><li>Roles, aislamiento por IPS y registro de lecturas</li><li>Autorización del titular y política de conservación (Res. 1995/1999)</li><li>Producción con Clerk de producción, HTTPS, Grafana y los secretos en OpenBao (Vault)</li><li>CI, Sonar y @@SMOKE@@ pruebas de seguridad</li></ul></div>
+      <div class="card"><span class="chip pend">Falta validar</span><ul><li>Pruebas automáticas de la interfaz de extremo a extremo (IPS-152)</li><li>Copias de seguridad de Atlas y primera restauración de prueba</li><li>Respaldo de las llaves y de la instantánea del vault</li><li>Escaneo de penetración</li><li>Correo al paciente: el envío SMTP está listo; faltan las historias 2 y 3 de la épica 8</li></ul></div>
     </div>
   </div>
 </section>
@@ -656,63 +691,6 @@ bash deploy/pi/smoke-test.sh                                   # pruebas de segu
     b.addEventListener('click', function () { pintar(r.id); }); rb.appendChild(b);
   });
   pintar('medico');
-
-  /* ---- Validación con usuarios: tareas, SUS y registro local */
-  var TAREAS = [
-    'T1 · Agendamiento: registrar un paciente y agendarle una cita', 'T2 · Admisión: registrar la llegada y ver el turno en la sala',
-    'T3 · Médico: llamar, escribir la consulta y firmarla con fórmula', 'T4 · Farmacia: entrega parcial y luego completa',
-    'T5 · Administración: dar el rol Médico y abrir su agenda', 'T6 · Todos: entender y corregir un error a propósito', 'T7 · Sala: identificar su turno en menos de 10 s'
-  ];
-  var SUS = ['Me gustaría usar este sistema con frecuencia.', 'Lo encontré innecesariamente complejo.', 'Fue fácil de usar.', 'Necesitaría ayuda de una persona técnica.', 'Las funciones están bien integradas.', 'Hay demasiada inconsistencia.', 'La mayoría aprendería a usarlo muy rápido.', 'Fue muy incómodo de usar.', 'Me sentí muy seguro/a usándolo.', 'Necesité aprender muchas cosas antes de usarlo.'];
-  var KEY = 'ips-validacion-usuarios';
-  var tareasEl = document.getElementById('v-tareas'), susEl = document.getElementById('v-sus');
-  tareasEl.innerHTML = TAREAS.map(function (t, i) {
-    return '<div class="tarea"><span id="tl' + i + '">' + t + '</span><select aria-labelledby="tl' + i + '" id="t' + i + '"><option value="">No se hizo</option><option value="S">Sin ayuda</option><option value="A">Con ayuda</option><option value="N">No completó</option></select><input type="number" min="0" max="3600" id="ts' + i + '" placeholder="seg" aria-label="Segundos de la tarea ' + (i + 1) + '"></div>';
-  }).join('');
-  susEl.innerHTML = SUS.map(function (t, i) {
-    return '<div><label for="s' + i + '">' + (i + 1) + '. ' + t + '</label><select id="s' + i + '"><option value="">–</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>';
-  }).join('');
-  function cargar() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
-  function guardar(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch (e) { return false; } }
-  function sus(vals) {
-    if (vals.some(function (v) { return v === ''; })) return null;
-    var s = 0; vals.forEach(function (v, i) { v = +v; s += (i % 2 === 0) ? v - 1 : 5 - v; }); return s * 2.5;
-  }
-  function pintarTabla() {
-    var d = cargar(), tb = document.getElementById('v-tabla'), rs = document.getElementById('v-resumen');
-    if (!d.length) { tb.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Aún no hay sesiones registradas.</td></tr>'; rs.textContent = 'Sin datos todavía.'; return; }
-    tb.innerHTML = d.map(function (r) { return '<tr><td>' + r.p + '</td><td>' + r.rol + '</td><td class="n">' + r.s + '/' + r.n + '</td><td class="n">' + (r.sus === null ? '–' : r.sus) + '</td></tr>'; }).join('');
-    var tn = 0, ts = 0, ss = 0, sc = 0;
-    d.forEach(function (r) { tn += r.n; ts += r.s; if (r.sus !== null) { ss += r.sus; sc++; } });
-    var pct = tn ? Math.round(ts / tn * 100) : 0, media = sc ? (ss / sc).toFixed(1) : null;
-    rs.innerHTML = '<b>' + d.length + ' de 5 participantes.</b> Tareas sin ayuda: <b>' + pct + ' %</b> (meta ≥ 80 %). SUS medio: <b>' + (media === null ? '–' : media) + '</b> (meta ≥ 68).';
-  }
-  document.getElementById('val-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var tareas = TAREAS.map(function (_, i) { return { e: document.getElementById('t' + i).value, s: document.getElementById('ts' + i).value }; });
-    var hechas = tareas.filter(function (t) { return t.e !== ''; });
-    var msg = document.getElementById('v-msg');
-    if (!hechas.length) { msg.textContent = 'Marca el resultado de al menos una tarea.'; return; }
-    var vals = SUS.map(function (_, i) { return document.getElementById('s' + i).value; });
-    var reg = { p: document.getElementById('v-part').value, rol: document.getElementById('v-rol').value, n: hechas.length, s: hechas.filter(function (t) { return t.e === 'S'; }).length, tareas: tareas, sus: sus(vals), at: new Date().toISOString() };
-    var d = cargar().filter(function (r) { return r.p !== reg.p; }); d.push(reg); d.sort(function (a, b) { return a.p < b.p ? -1 : 1; });
-    msg.textContent = guardar(d) ? 'Guardado: ' + reg.p + (reg.sus === null ? ' (sin SUS completo)' : ' · SUS ' + reg.sus) + '.' : 'No se pudo guardar en este navegador.';
-    pintarTabla();
-  });
-  document.getElementById('v-csv').addEventListener('click', function () {
-    var d = cargar(), msg = document.getElementById('v-msg');
-    if (!d.length) { msg.textContent = 'No hay nada que exportar.'; return; }
-    var filas = [['participante', 'rol', 'tareas_hechas', 'sin_ayuda', 'sus', 'fecha'].concat(TAREAS.map(function (_, i) { return 'T' + (i + 1); }))];
-    d.forEach(function (r) { filas.push([r.p, r.rol, r.n, r.s, r.sus === null ? '' : r.sus, r.at].concat(r.tareas.map(function (t) { return t.e + (t.s ? ':' + t.s + 's' : ''); }))); });
-    var csv = filas.map(function (f) { return f.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
-    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'validacion-usuarios-ips.csv'; a.click(); URL.revokeObjectURL(a.href);
-  });
-  var borrar = document.getElementById('v-borrar'), armado = false;
-  borrar.addEventListener('click', function () {
-    if (!armado) { armado = true; borrar.textContent = 'Confirmar: borrar todo'; setTimeout(function () { armado = false; borrar.textContent = 'Borrar todo'; }, 4000); return; }
-    guardar([]); armado = false; borrar.textContent = 'Borrar todo'; document.getElementById('v-msg').textContent = 'Registros borrados.'; pintarTabla();
-  });
-  pintarTabla();
 
   /* ---- Visor del recorrido real */
   var REC = @@REC_JSON@@;
